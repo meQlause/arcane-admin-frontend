@@ -1,0 +1,18 @@
+name: Publish image to docker hub
+on:
+  push:
+    branches: ['main']
+
+jobs:
+ publish_image:
+   runs-on: ubuntu-latest
+   steps:
+     - name: checkout
+       uses: actions/checkout@v3
+     - name: build
+       run: |
+         docker build . -t qlause22/arcane-fe:latest
+     - name: publish
+       run: |
+         docker login -u qlause22 -p ${{ secrets.DOCKER_HUB_TOKEN }}
+         docker push qlause22/arcane-fe:latest

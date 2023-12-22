@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512">
+  <title>Xidar</title>
+  <defs>
+    <style>
+      .cls-1 {fill: #0e0029;}
+      .cls-2 {fill: url(#Xidar_Gradient);}
+    </style>
+    <linearGradient id="Xidar_Gradient" x1="256" y1="481" x2="256" y2="31" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#514a99" />
+      <stop offset=".52" stop-color="#69519b" />
+      <stop offset="1" stop-color="#7c579e" />
+    </linearGradient>
+  </defs>
+  <g id="Xidar_Branding">
+    <g>
+      <rect class="cls-1" width="512" height="512" rx="256" ry="256" />
+      <path class="cls-2" d="M377 105.974V81H299.279C294.283 81 289.755 83.9322 287.749 88.4822L225.563 229.447L184.813 173.416C182.448 170.164 178.654 168.236 174.61 168.236H135.656V193.21H168.177L213.517 255.549L167.522 318.79H135V343.764H173.954C177.998 343.764 181.792 341.836 184.157 338.584L224.907 282.553L287.093 423.518C289.099 428.06 293.619 431 298.623 431H376.344V406.026H306.851L240.996 256.747L307.507 105.982H377V105.974Z" />
+    </g>
+  </g>
+</svg>

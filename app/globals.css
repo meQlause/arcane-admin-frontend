@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply overflow-x-hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply cursor-default;
+  }
+  body:has(> .loading) {
+    @apply h-screen;
+  }
+  main > div:has(> .loading) {
+    @apply h-full max-lg:h-[calc(100vh-110px-env(safe-area-inset-bottom))];
+  }
+  .recharts-responsive {
+    @apply !min-w-[500px];
+  }
+  input:focus {
+    box-shadow: none !important;
+  }
+}
+
+@layer components {
+  .filter-white {
+    @apply filter brightness-0 grayscale invert;
+  }
+  .filter-primary-500 {
+    filter: invert(80%) sepia(40%) saturate(300%) hue-rotate(349deg) brightness(100%) contrast(100%);
+  }
+  .filter-primary-600 {
+    filter: invert(46%) sepia(66%) saturate(433%) hue-rotate(353deg) brightness(97%) contrast(91%);
+  }
+  .filter-primary-900 {
+    filter: invert(17%) sepia(70%) saturate(543%) hue-rotate(2deg) brightness(55%) contrast(77%);
+  }
+  .filter-error-500 {
+    filter: invert(23%) sepia(50%) saturate(6016%) hue-rotate(353deg) brightness(90%) contrast(88%);
+  }
+  .filter-warning-500 {
+    filter: invert(95%) sepia(16%) saturate(850%) hue-rotate(351deg) brightness(80%) contrast(80%);
+  }
+  .filter-success-500 {
+    filter: invert(70%) sepia(31%) saturate(7473%) hue-rotate(110deg) brightness(91%) contrast(86%);
+  }
+  .filter-info-500 {
+    /* filter: ; */
+  }
+
+  .scroll-auto-hide {
+    scrollbar-color: #E3C177 white;
+  }
+  .scroll-auto-hide::-webkit-scrollbar {
+    width: 16px;
+  }
+  .scroll-auto-hide::-webkit-scrollbar-track {
+    background: white;
+  }
+  .scroll-auto-hide::-webkit-scrollbar-thumb {
+    background: #E3C177;
+    border-radius: 16px;
+    border: 4px solid white;
+  }
+  .scroll-auto-hide::-webkit-scrollbar-thumb:hover {
+    background: #BEA161;
+  }
+  .scroll-auto-hide::-webkit-scrollbar,
+  .scroll-auto-hide::-webkit-scrollbar-thumb,
+  .scroll-auto-hide::-webkit-scrollbar-track {
+    display: none;
+  }
+  .scroll-auto-hide.scrollable::-webkit-scrollbar,
+  .scroll-auto-hide.scrollable::-webkit-scrollbar-thumb,
+  .scroll-auto-hide.scrollable::-webkit-scrollbar-track {
+    display: block;
+  }
+}
+
+@layer utilities {
+}

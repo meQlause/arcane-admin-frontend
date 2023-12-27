@@ -173,7 +173,7 @@ export default function ProposalAdmin({ rdt }: any) {
                           />
                           <span className="sr-only">Search</span>
                         </label>
-                        <input type="text" id="search-proposal" name="search-proposal" placeholder="Search Proposal" className="w-full appearance-none rounded-xl py-3 pr-4 pl-11 text-gray-500 bg-gray-100 border-2 border-transparent placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default"  />
+                        <input type="text" id="search-proposal" name="search-proposal" placeholder="Search Proposal" className="w-full appearance-none rounded-xl py-3 pr-4 pl-11 text-gray-500 bg-gray-100 border-2 border-transparent placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default" onChange={handleSearchInput} />
                       </Fieldset>
                     </form>
                     <Link href="/admin/proposal/create" className="md:w-fit md:whitespace-nowrap">

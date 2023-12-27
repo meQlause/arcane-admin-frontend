@@ -27,7 +27,7 @@ export default function Proposal() {
           }
         </>
       :
-        <Loading />
+        <Loading className="max-lg:pb-10" />
       }
     </Main>
   )

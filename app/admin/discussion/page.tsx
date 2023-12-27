@@ -25,7 +25,7 @@ export default function Discussion() {
           }
         </>
       :
-        <Loading />
+        <Loading className="max-lg:pb-10" />
       }
     </Main>
   )

@@ -147,7 +147,7 @@ export default function DashboardAdmin({ rdt }: any) {
                     <div className="text-xl font-medium">240 Proposals</div>
                     <div>have been submitted</div>
                   </div>
-                  <Select label={"Year"} id={"chart-year"} name={"chart-year"} showLabel={false} className={"!w-fit"} valueUpdated={currentOptionsYear} options={optionsYear} onChange={(e) => handleSelectYear(e.target.value)} />
+                  <Select label={"Year"} id={"chart-year"} name={"chart-year"} showLabel={false} className={"!w-fit"} defaultValue={currentOptionsYear} value={currentOptionsYear} options={optionsYear} onChange={(e) => handleSelectYear(e.target.value)} />
                 </div>
                 <div className="w-full h-full overflow-x-auto mb-2" style={{ maxHeight: '250px' }}>
                   <Chart data={dataChart} />

@@ -203,8 +203,8 @@ type SelectProps = {
   id: string
   name: string
   options: OptionProps[]
+  defaultValue?: string
   value?: string
-  valueUpdated?: string
   disabled?: boolean
   required?: boolean
   className?: string
@@ -217,13 +217,13 @@ type OptionProps = {
   label: string
 }
 
-export function Select({label, id, name, options, value, valueUpdated, disabled, required, className, showLabel, onChange}: Readonly<SelectProps>) {
+export function Select({label, id, name, options, defaultValue, value, disabled, required, className, showLabel, onChange}: Readonly<SelectProps>) {
   return (
     <>
       <label htmlFor={id} className={`text-sm text-gray-500 ${!showLabel ? 'sr-only' : ''}`}>
         {label}
       </label>
-      <select id={id} name={name} defaultValue={value} value={valueUpdated} disabled={disabled} required={required} onChange={onChange} className={`w-full appearance-none rounded-xl py-2.5 pl-4 pr-9 ${!showLabel ? '' : 'mt-2'} bg-white border-2 border-gray-200 placeholder-gray-300 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default read-only:bg-gray-100 read-only:cursor-default cursor-pointer ${className ?? ''}`}>
+      <select id={id} name={name} defaultValue={defaultValue} value={value} disabled={disabled} required={required} onChange={onChange} className={`w-full appearance-none rounded-xl py-2.5 pl-4 pr-9 ${!showLabel ? '' : 'mt-2'} bg-white border-2 border-gray-200 placeholder-gray-300 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default cursor-pointer ${className ?? ''}`}>
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}

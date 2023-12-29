@@ -14,7 +14,7 @@ import { Button } from "@/app/components/button";
 export default function ProposalAdmin({ rdt }: any) {
   const { account } = useAccount({ rdt })
 
-  const [currentOptionsActive, setCurrentOptionsActive] = useState('')
+  const [currentOptionsActive, setCurrentOptionsActive] = useState('All')
   const optionsActive: any = [
     {
       value: 'All',
@@ -33,7 +33,7 @@ export default function ProposalAdmin({ rdt }: any) {
     setCurrentOptionsActive(value)
   }
 
-  const [currentOptionsHistory, setCurrentOptionsHistory] = useState('')
+  const [currentOptionsHistory, setCurrentOptionsHistory] = useState('All')
   const optionsHistory: any = [
     {
       value: 'All',
@@ -159,7 +159,7 @@ export default function ProposalAdmin({ rdt }: any) {
             <Tabs>
               <Tab label="Active">
                 <div className="grid md:grid-cols-5 gap-4 items-center mb-6">
-                  <Select label={"Status"} id={"filter-status"} name={"filter-status"} showLabel={false} className={"md:col-span-1"} valueUpdated={currentOptionsActive} options={optionsActive} onChange={(e) => handleSelectActive(e.target.value)} />
+                  <Select label={"Status"} id={"filter-status"} name={"filter-status"} showLabel={false} className={"md:col-span-1"} defaultValue={currentOptionsActive} value={currentOptionsActive} options={optionsActive} onChange={(e) => handleSelectActive(e.target.value)} />
                   <div className="md:col-span-4 flex max-md:flex-col gap-4">
                     <form spellCheck="false" className="w-full" onSubmit={handleSearch}>
                       <Fieldset className="relative">
@@ -201,7 +201,7 @@ export default function ProposalAdmin({ rdt }: any) {
               </Tab>
               <Tab label="History">
                 <div className="grid sm:grid-cols-8 md:grid-cols-5 gap-4 items-center mb-6">
-                  <Select label={"Status"} id={"filter-status"} name={"filter-status"} showLabel={false} className={"sm:col-span-2 md:col-span-1"} valueUpdated={currentOptionsHistory} options={optionsHistory} onChange={(e) => handleSelectHistory(e.target.value)} />
+                  <Select label={"Status"} id={"filter-status"} name={"filter-status"} showLabel={false} className={"sm:col-span-2 md:col-span-1"} defaultValue={currentOptionsHistory} value={currentOptionsHistory} options={optionsHistory} onChange={(e) => handleSelectHistory(e.target.value)} />
                   <form spellCheck="false" className="sm:col-span-6 md:col-span-4" onSubmit={handleSearch}>
                     <Fieldset className="relative">
                       <label htmlFor="search-proposal" className="absolute top-0 bottom-0 left-0 my-auto mx-3 h-fit opacity-50">

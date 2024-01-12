@@ -28,11 +28,12 @@ type InputProps = {
   className?: string
   showLabel?: boolean
   variant?: 'default' | 'secondary'
+  icon?: string
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void
   onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void
 }
 
-export function Input({label, type, id, name, placeholder, defaultValue, value, disabled, required, className, showLabel, variant, onChange, onKeyDown}: Readonly<InputProps>) {
+export function Input({label, type, id, name, placeholder, defaultValue, value, disabled, required, className, showLabel, variant, icon, onChange, onKeyDown}: Readonly<InputProps>) {
   let variantStyle = "bg-white border border-gray-200 placeholder-gray-300"
 
   switch (variant) {
@@ -48,7 +49,21 @@ export function Input({label, type, id, name, placeholder, defaultValue, value, 
       <label htmlFor={id} className={`text-sm text-gray-500 ${!showLabel ? 'sr-only' : ''}`}>
         {label}
       </label>
-      <input type={type} id={id} name={name} placeholder={placeholder} defaultValue={defaultValue} value={value} disabled={disabled} required={required} onChange={onChange} onKeyDown={onKeyDown} className={`w-full appearance-none rounded-xl py-3 px-4 ${!showLabel ? '' : 'mt-2'} border-2 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default read-only:bg-gray-100 read-only:cursor-default ${variantStyle} ${className ?? ''}`} />
+      {icon ?
+        <div className={`relative ${!showLabel ? '' : 'mt-2'}`}>
+          <Image 
+            src={icon}
+            alt="icon"
+            className="absolute top-0 bottom-0 left-3 my-auto"
+            width={24}
+            height={24}
+          />
+          <input type={type} id={id} name={name} placeholder={placeholder} defaultValue={defaultValue} value={value} disabled={disabled} required={required} onChange={onChange} onKeyDown={onKeyDown} className={`w-full appearance-none rounded-xl py-3 pl-10 pr-4 border-2 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default read-only:bg-gray-100 read-only:cursor-default ${variantStyle} ${className ?? ''}`} />
+        </div>
+        :
+        <input type={type} id={id} name={name} placeholder={placeholder} defaultValue={defaultValue} value={value} disabled={disabled} required={required} onChange={onChange} onKeyDown={onKeyDown} className={`w-full appearance-none rounded-xl py-3 px-4 ${!showLabel ? '' : 'mt-2'} border-2 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default read-only:bg-gray-100 read-only:cursor-default ${variantStyle} ${className ?? ''}`} />
+      }
+      
     </>
   )
 }
@@ -120,7 +135,7 @@ export function InputFile({label, description, id, name, value, disabled, requir
       return
     }
 
-    const oversizedFiles = files.filter((file) => file.size > Number(maxSize) * 1024 * 1024)
+    const oversizedFiles = files.filter((file) => file.size > Number(maxSize || 0) * 1024 * 1024)
 
     if (oversizedFiles.length > 0) {
       setPopupMessage(`Some files are too large. Maximum size is ${maxSize} MB.`)
@@ -192,6 +207,72 @@ export function InputFile({label, description, id, name, value, disabled, requir
               </div>
             ))
           }
+        </div>
+      </label>
+    </>
+  )
+}
+
+type InputImageProps = {
+  id: string
+  name: string
+  defaultValue?: string
+  value?: string
+  disabled?: boolean
+  required?: boolean
+  className?: string
+  accept?: string
+  maxSize?: number
+  setValue: Dispatch<React.SetStateAction<string>>
+  setShowPopup: Dispatch<React.SetStateAction<boolean>>
+  setPopupMessage: Dispatch<React.SetStateAction<string>>
+}
+
+export function InputImage({id, name, defaultValue, value, disabled, required, className, accept, maxSize, setValue, setShowPopup, setPopupMessage}: Readonly<InputImageProps>) {
+  const [fileStatus, setFileStatus] = useState(false)
+  const [fileData, setFileData] = useState<Blob | null>(null)
+
+  const handleFileUpload = (e: any) => {
+    const selectedFile: File = e.target.files![0]
+
+    if (!selectedFile) {
+      return;
+    }
+
+    if (selectedFile.size > Number(maxSize || 0) * 1024 * 1024) {
+      setPopupMessage(`The file is too large. Maximum size is ${maxSize} MB.`)
+      setShowPopup(true)
+      return;
+    }
+
+    const blobImage = new Blob([selectedFile], { type: selectedFile.type });
+  
+    setFileData(blobImage);
+    setFileStatus(true);
+    setValue(e.target.value)
+  }
+
+  return (
+    <>
+      <label htmlFor={id} className={`relative inline-block group cursor-pointer ${className ?? ''}`}>
+        <input type="file" id={id} name={name} defaultValue={value} disabled={disabled} required={required} onChange={(e: ChangeEvent<HTMLInputElement>) => handleFileUpload(e)} accept={accept} className="sr-only" />
+        <div className="overflow-hidden rounded-full bg-primary-100">
+          <Image 
+            src={defaultValue ? defaultValue : fileStatus ? URL.createObjectURL(fileData!) : "/icon/cryptocurrency-03.svg"}
+            alt="avatar"
+            className={`block w-20 h-20 ${defaultValue || fileStatus ? "object-cover" : "p-6"}`}
+            width={80}
+            height={80}
+          />
+        </div>
+        <div className="bg-primary-500 rounded-lg absolute bottom-0 right-0 transition group-hover:scale-125">
+          <Image 
+            src="/icon/edit-03.svg"
+            alt="edit"
+            className="filter-white p-1"
+            width={24}
+            height={24}
+          />
         </div>
       </label>
     </>

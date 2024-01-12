@@ -233,7 +233,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, title, descr
             </Link>
           </Card>
           <Card className="mb-8">
-            <h2 className="text-lg fotn-maven-pro font-semibold text-center mb-6">Cast Your Vote</h2>
+            <h2 className="text-lg font-maven-pro font-semibold text-center mb-6">Cast Your Vote</h2>
             {vote?.map((item: any, index: number) => (
               <Fieldset key={index} className="!mb-3 !last:mb-0">
                 <Radio id={`proposal-voting-${index}`} name={"proposal-voting"} value={item.label} onChange={(e) => setVoting(e.target.value)}>
@@ -241,12 +241,12 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, title, descr
                 </Radio>
               </Fieldset>
             ))}
-            <Button type={"button"} variant="primary" disabled={!filled && true}>Vote</Button>
+            <Button type={"button"} variant="primary" disabled={!filled}>Vote</Button>
           </Card>
           {(voter && !isMobile) &&
             <Card className="mb-8">
               <div className="flex items-center justify-between gap-4 mb-2">
-                <h2 className="text-lg fotn-maven-pro font-semibold">Voters</h2>
+                <h2 className="text-lg font-maven-pro font-semibold">Voters</h2>
                 <Button type="button" variant="light" className="!w-fit pointer-events-none">{voter.length} voter{voter.length > 1 && 's'}</Button>
               </div>
               <div className="max-h-[500px] overflow-auto scroll-auto-hide -mb-4 -mx-6 px-6">
@@ -308,7 +308,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, title, descr
           }
           <Card className="mb-8">
             <div className="border-b-2 border-dashed border-gray-300 pb-6 mt-2 mb-8">
-              <h2 className="text-lg fotn-maven-pro font-semibold">Information</h2>
+              <h2 className="text-lg font-maven-pro font-semibold">Information</h2>
             </div>
             <ul className="mb-2">
               <li className="mb-5 last:mb-0">
@@ -350,7 +350,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, title, descr
           </Card>
           {voter &&
             <Card className="mb-8">
-              <h2 className="text-lg fotn-maven-pro font-semibold mb-6">Current Result</h2>
+              <h2 className="text-lg font-maven-pro font-semibold mb-6">Current Result</h2>
               <div className="flex overflow-hidden rounded-lg h-7 bg-gray-100 mb-10">
                 {vote?.map((item: any, index: number) => {
                   let percentage: string = totalVotes !== 0 ? ((item.amount / totalVotes) * 100).toFixed(2) : '0'
@@ -382,7 +382,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, title, descr
           {(voter && isMobile) &&
             <Card className="mb-8">
               <div className="flex items-center justify-between gap-4 mb-2">
-                <h2 className="text-lg fotn-maven-pro font-semibold">Voters</h2>
+                <h2 className="text-lg font-maven-pro font-semibold">Voters</h2>
                 <Button type="button" variant="light" className="!w-fit pointer-events-none">{voter.length} voter{voter.length > 1 && 's'}</Button>
               </div>
               <table className="w-full">

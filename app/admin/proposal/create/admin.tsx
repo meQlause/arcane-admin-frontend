@@ -245,9 +245,9 @@ export default function ProposalCreateAdmin({ rdt }: any) {
                       <Checkbox label={"Use Default Voting"} id={"proposal-voting-default"} name={"proposal-voting-default"} revert={true} className="text-sm text-gray-500 !mr-1.5 [&+input]:mb-0" onChange={handleVotingDefault} />
                     </div>
                     <div>
-                      <Input type={"text"} id={"proposal-voting-option"} name={"proposal-voting-option"} variant={"secondary"} showLabel={true} label={"Voting Option"} placeholder={"Enter option here"} value={votingOption} disabled={votingDefault && true} onChange={handleVotingOption} onKeyDown={handleVotingOptionSubmit} />
+                      <Input type={"text"} id={"proposal-voting-option"} name={"proposal-voting-option"} variant={"secondary"} showLabel={true} label={"Voting Option"} placeholder={"Enter option here"} value={votingOption} disabled={votingDefault} onChange={handleVotingOption} onKeyDown={handleVotingOptionSubmit} />
                     </div>
-                    <Button type="button" variant="primary" loading="none" disabled={votingDefault && true} onClick={handleVotingOptionAdd} className="mt-4">Add option</Button>
+                    <Button type="button" variant="primary" loading="none" disabled={votingDefault} onClick={handleVotingOptionAdd} className="mt-4">Add option</Button>
                   </div>
                   <div className="min-w-[2px] h-auto bg-gray-200 hidden md:block lg:hidden xl:block"></div>
                   <div className="h-[2px] bg-gray-200 md:hidden lg:block xl:hidden"></div>
@@ -328,7 +328,7 @@ export default function ProposalCreateAdmin({ rdt }: any) {
               <div className="flex max-sm:flex-col sm:flex-wrap gap-4 md:ml-auto">
                 <Button type="button" variant="secondary" loading="none" className={`md:w-fit ${preview && '!hidden'}`} onClick={handleOpenPreview}>Preview</Button>
                 <Button type="button" variant="secondary" loading="none" className={`md:w-fit ${!preview && '!hidden'}`} onClick={handleClosePreview}>Exit Preview</Button>
-                <Button type="button" variant="primary" loading="none" className="md:w-fit" disabled={!filled && true} onClick={handleOpenPopupSubmit}>Upload Proposal</Button>
+                <Button type="button" variant="primary" loading="none" className="md:w-fit" disabled={!filled} onClick={handleOpenPopupSubmit}>Upload Proposal</Button>
               </div>
             </Card>
 
@@ -346,7 +346,7 @@ export default function ProposalCreateAdmin({ rdt }: any) {
               </PopupBody>
               <PopupFooter>
                 <Button type="button" variant="light" loading="none" className="md:w-fit" onClick={handleClosePopupSubmit}>Cancel</Button>
-                <Button type="submit" variant="primary" loading="none" disabled={agreement && true} className="md:w-fit">Upload Proposal</Button>
+                <Button type="submit" variant="primary" loading="none" disabled={agreement} className="md:w-fit">Upload Proposal</Button>
               </PopupFooter>
             </Popup>
           </form>

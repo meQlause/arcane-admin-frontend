@@ -41,7 +41,7 @@ export const Popup: FC<PopupProps> = ({ children, className, show, backdropClose
 }
 
 type PopupHeaderProps = {
-  children: ReactNode
+  children?: ReactNode
   className?: string
   variant?: 'default' | 'primary' | 'error' | 'warning' | 'success' | 'info'
   icon?: string
@@ -71,7 +71,7 @@ export const PopupHeader: FC<PopupHeaderProps> = ({ children, className, variant
   }
 
   return (
-    <div className={`popup-header mb-6 lg:mb-8 last:mb-0 border-b-2 border-dashed border-gray-300 ${className || ''}`}>
+    <div className={`popup-header last:mb-0 ${children ? 'border-b-2 border-dashed border-gray-300 mb-6 lg:mb-8' : 'mb-2'} ${className || ''}`}>
       <div className={`inline-block p-2.5 mb-3 rounded-2xl shadow-main ${variantStyle}`}>
         <Image
           src={`${icon}`}
@@ -81,7 +81,7 @@ export const PopupHeader: FC<PopupHeaderProps> = ({ children, className, variant
           height={36}
         />
       </div>
-      <h3 className="text-xl font-semibold mb-4">{children}</h3>
+      {children && <h3 className="text-xl font-semibold mb-4">{children}</h3>}
     </div>
   )
 }

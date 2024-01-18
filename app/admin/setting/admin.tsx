@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { useAccount } from "@/app/auth/account";
 import { MainTitle } from "@/app/components/main";
 import { Card } from "@/app/components/card";
@@ -8,6 +10,7 @@ import { Fieldset, Input, InputImage, Textarea } from "@/app/components/form";
 import { Tab, Tabs } from "@/app/components/tab";
 import { Button } from "@/app/components/button";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
+import { formatDate } from "@/app/functions/datetime";
 
 export default function SettingAdmin({ rdt }: any) {
   const { account } = useAccount({ rdt })
@@ -57,6 +60,13 @@ export default function SettingAdmin({ rdt }: any) {
     console.log('submitting...')
   }
 
+  const terms: any = {
+    title: 'Your Agreement',
+    description: 'Incididunt occaecat nisi dolore Lorem reprehenderit anim ullamco labore sint officia ullamco sunt cupidatat excepteur.\n\nEt pariatur qui nisi laborum et nulla ipsum in ad adipisicing do nostrud pariatur. Consequat occaecat nulla sunt nulla eiusmod quis.',
+    created_at: '2023-12-27T17:55:26.0000Z',
+    modified_at: '2024-01-10T08:43:10.0000Z'
+  }
+
   return (
     <>
       {account && (
@@ -71,7 +81,7 @@ export default function SettingAdmin({ rdt }: any) {
           <Card className="mb-4">
             <Tabs>
               <Tab label="General">
-                <div className="my-8">
+                <div className="mt-8 mb-4">
                   <div className="border-b-2 border-dashed border-gray-300 pb-6 mt-2 mb-8">
                     <h2 className="text-xl font-maven-pro font-semibold">General</h2>
                   </div>
@@ -120,7 +130,7 @@ export default function SettingAdmin({ rdt }: any) {
                 </div>
               </Tab>
               <Tab label="Member">
-                <div className="my-8">
+                <div className="mt-8 mb-4">
                   <div className="border-b-2 border-dashed border-gray-300 pb-6 mt-2 mb-8">
                     <h2 className="text-xl font-maven-pro font-semibold">Member</h2>
                   </div>
@@ -128,11 +138,44 @@ export default function SettingAdmin({ rdt }: any) {
                 </div>
               </Tab>
               <Tab label="Terms & Conditions">
-                <div className="my-8">
-                  <div className="border-b-2 border-dashed border-gray-300 pb-6 mt-2 mb-8">
-                    <h2 className="text-xl font-maven-pro font-semibold">Terms & Conditions</h2>
+                <div className="mt-8 mb-4">
+                  <div className="border-b-2 border-dashed border-gray-300 pb-6 mt-2 mb-8 flex justify-between max-md:flex-col gap-4">
+                    <h2 className="text-xl font-maven-pro font-semibold w-full">Terms & Conditions</h2>
+                    {terms ?
+                      <Link href="/admin/setting/term/edit" className="md:w-fit md:whitespace-nowrap md:-mt-3">
+                        <Button type={"button"} variant="secondary" loading="none">
+                          Edit
+                          <Image
+                            src="/icon/edit-03.svg"
+                            alt="icon"
+                            className="filter-primary-600 inline ml-2 -mt-px md:mr-4"
+                            width={24}
+                            height={24}
+                            priority
+                          />
+                        </Button>
+                      </Link>
+                    :
+                      <Link href="/admin/setting/term/create" className="md:w-fit md:whitespace-nowrap md:-mt-3">
+                        <Button type={"button"} variant="primary" loading="none">
+                          Add Terms & Conditions
+                          <Image
+                            src="/icon/plus.svg"
+                            alt="icon"
+                            className="filter-white inline ml-1 -mt-px md:mr-4"
+                            width={24}
+                            height={24}
+                            priority
+                          />
+                        </Button>
+                      </Link>
+                    }
                   </div>
-                  ...
+                  <div>
+                    <p className="text-primary-600 mb-6 last:mb-0">Last Update: {formatDate(terms.modified_at)}</p>
+                    <h3 className="font-maven-pro font-semibold text-lg md:text-xl mb-6 last:mb-0">{terms.title}</h3>
+                    <div className="mb-6 last:mb-0" dangerouslySetInnerHTML={{ __html: terms.description.replace(/\n/g, '<br>') }} />
+                  </div>
                 </div>
               </Tab>
             </Tabs>

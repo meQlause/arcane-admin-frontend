@@ -9,7 +9,7 @@ import { Fieldset, Textarea } from "@/app/components/form";
 import { Button } from "@/app/components/button";
 import { Badge } from "@/app/components/badge";
 import { Popup, PopupBody, PopupFooter } from "@/app/components/popup";
-import { formatDateTime, formatTime } from "@/app/functions/datetime";
+import { formatDate, formatTime } from "@/app/functions/datetime";
 
 export default function DiscussionAdmin({ rdt }: any) {
   const { account } = useAccount({ rdt })
@@ -382,7 +382,7 @@ export default function DiscussionAdmin({ rdt }: any) {
                         <div className="relative z-[1] [&_.user-me]:ml-auto [&_.user-me_.user-avatar]:order-2 [&_.user-me_.user-detail]:text-right [&_.user-me_.user-chat]:rounded-tr-none [&_.user-me_.user-chat]:bg-primary-600 [&_.user-me_.user-chat]:text-white [&_.user-discussion:not(.user-me)]:mr-auto [&_.user-discussion:not(.user-me)_.user-chat]:rounded-tl-none">
                           {dataChatClassification.map((date: any, dateIndex: number) => (
                             <section key={dateIndex}>
-                              <div className={`text-xs rounded-full border transition w-fit px-6 py-1 mt-2 mb-6 mx-auto ${isChatScrolling ? 'sticky top-0 shadow-lg border-primary-500 bg-primary-600 text-white' : 'border-transparent'}`} ref={(el) => (chatDateRefs.current[dateIndex] = el)}>{formatDateTime(date)}</div>
+                              <div className={`text-xs rounded-full border transition w-fit px-6 py-1 mt-2 mb-6 mx-auto ${isChatScrolling ? 'sticky top-0 shadow-lg border-primary-500 bg-primary-600 text-white' : 'border-transparent'}`} ref={(el) => (chatDateRefs.current[dateIndex] = el)}>{formatDate(date)}</div>
                               {dataChatSelected
                                 .filter((item: any) => new Date(item.created_at).toLocaleDateString() === date)
                                 .map((item: any, index: number) => (

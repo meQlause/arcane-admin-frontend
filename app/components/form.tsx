@@ -1,4 +1,4 @@
-import React, { ReactNode, FC, KeyboardEvent, MouseEventHandler, ChangeEvent, DragEvent, useState, CSSProperties, Dispatch } from "react";
+import React, { ReactNode, FC, KeyboardEvent, ChangeEvent, DragEvent, useEffect, useState, CSSProperties, Dispatch } from "react";
 import Image from "next/image";
 import { truncateMiddle } from "@/app/functions/truncate";
 
@@ -343,20 +343,26 @@ export function Textarea({label, rows = 3, cols, id, name, placeholder, defaultV
       break
   }
 
-  const [textareaValue, setTextareaValue] = useState<string>('');
-
-  const handleTextareaChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-    setTextareaValue(event.target.value);
+  const updateTextareaHeight = () => {
+    const textarea = document.getElementById(id)
+    if (textarea) {
+      textarea.style.height = 'auto'
+      textarea.style.height = `${textarea.scrollHeight}px`
+    }
   }
 
-  const getRows = () => {
-    return textareaValue.split('\n').length;
+  const handleTextareaChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    updateTextareaHeight()
   }
 
   const textareaStyle: CSSProperties = {
     minHeight: `calc(${rows * 1.5}rem + 2px)`,
-    height: `calc(${getRows() * 1.5}rem + 1.75rem)`,
+    height: 'auto',
   }
+
+  useEffect(() => {
+    updateTextareaHeight()
+  }, [])
 
   return (
     <>

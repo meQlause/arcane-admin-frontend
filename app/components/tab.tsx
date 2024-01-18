@@ -25,7 +25,7 @@ const Tabs: React.FC<TabsProps> = ({ children }) => {
     const isActive = index === activeTab
 
     return (
-      <button key={index} onClick={() => handleTabClick(index)} type="button" className={`w-full md:w-fit font-medium px-5 py-3 border-b-4 border-transparent text-gray-400 [&.active]:bg-primary-50 [&.active]:text-primary-600 [&.active]:border-primary-500 ${isActive ? 'active' : ''}`}>
+      <button key={index} onClick={() => handleTabClick(index)} type="button" className={`w-full md:w-fit font-medium whitespace-nowrap px-5 py-3 border-b-4 border-transparent text-gray-400 [&.active]:bg-primary-50 [&.active]:text-primary-600 [&.active]:border-primary-500 ${isActive ? 'active' : ''}`}>
         {tab.props.label}
       </button>
     )
@@ -35,7 +35,7 @@ const Tabs: React.FC<TabsProps> = ({ children }) => {
 
   return (
     <div>
-      <div className="flex gap-2 border-b border-gray-200 mb-5">{tabs}</div>
+      <div className="overflow-auto w-full flex gap-2 border-b border-gray-200 mb-5">{tabs}</div>
       <div>{activeContent}</div>
     </div>
   )

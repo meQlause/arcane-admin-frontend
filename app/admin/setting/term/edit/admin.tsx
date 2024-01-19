@@ -109,7 +109,7 @@ export default function TermEditAdmin({ rdt }: any) {
             <Fieldset>
               <Textarea id={"term-description"} name={"term-description"} variant={"secondary"} showLabel={true} required={true} label={"Description"} placeholder={"Enter description here"} rows={7} defaultValue={descriptionDefault} onChange={(e) => setDescription(e.target.value)} />
             </Fieldset>
-            <div className="flex max-sm:flex-col sm:flex-wrap gap-4 md:ml-auto md:w-fit">
+            <div className="flex max-sm:flex-col sm:flex-wrap gap-4 md:ml-auto md:w-fit max-lg:mb-4">
               <Button type="button" variant="primary" className="md:min-w-[160px]" disabled={!formTerm} onClick={handleOpenPopupSave}>Save</Button>
             </div>
 

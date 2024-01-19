@@ -157,7 +157,7 @@ export default function ProposalAdmin({ rdt }: any) {
 
           <Card className="mb-4">
             <Tabs>
-              <Tab label="Active">
+              <Tab label="Active" id="active">
                 <div className="grid md:grid-cols-5 gap-4 items-center mb-6">
                   <Select label={"Status"} id={"filter-status"} name={"filter-status"} showLabel={false} className={"md:col-span-1"} defaultValue={currentOptionsActive} value={currentOptionsActive} options={optionsActive} onChange={(e) => handleSelectActive(e.target.value)} />
                   <div className="md:col-span-4 flex max-md:flex-col gap-4">
@@ -199,7 +199,7 @@ export default function ProposalAdmin({ rdt }: any) {
                   ))}
                 </div>
               </Tab>
-              <Tab label="History">
+              <Tab label="History" id="history">
                 <div className="grid sm:grid-cols-8 md:grid-cols-5 gap-4 items-center mb-6">
                   <Select label={"Status"} id={"filter-status"} name={"filter-status"} showLabel={false} className={"sm:col-span-2 md:col-span-1"} defaultValue={currentOptionsHistory} value={currentOptionsHistory} options={optionsHistory} onChange={(e) => handleSelectHistory(e.target.value)} />
                   <form spellCheck="false" className="sm:col-span-6 md:col-span-4" onSubmit={handleSearch}>

@@ -80,7 +80,7 @@ export default function SettingAdmin({ rdt }: any) {
 
           <Card className="mb-4">
             <Tabs>
-              <Tab label="General">
+              <Tab label="General" id="general">
                 <div className="mt-8 mb-4">
                   <div className="border-b-2 border-dashed border-gray-300 pb-6 mt-2 mb-8">
                     <h2 className="text-xl font-maven-pro font-semibold">General</h2>
@@ -129,7 +129,7 @@ export default function SettingAdmin({ rdt }: any) {
                   </form>
                 </div>
               </Tab>
-              <Tab label="Member">
+              <Tab label="Member" id="member">
                 <div className="mt-8 mb-4">
                   <div className="border-b-2 border-dashed border-gray-300 pb-6 mt-2 mb-8">
                     <h2 className="text-xl font-maven-pro font-semibold">Member</h2>
@@ -137,7 +137,7 @@ export default function SettingAdmin({ rdt }: any) {
                   ...
                 </div>
               </Tab>
-              <Tab label="Terms & Conditions">
+              <Tab label="Terms & Conditions" id="term">
                 <div className="mt-8 mb-4">
                   <div className="border-b-2 border-dashed border-gray-300 pb-6 mt-2 mb-8 flex justify-between max-md:flex-col gap-4">
                     <h2 className="text-xl font-maven-pro font-semibold w-full">Terms & Conditions</h2>

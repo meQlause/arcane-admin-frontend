@@ -15,6 +15,7 @@ import { useKeenSlider } from "keen-slider/react";
 export type ProposalProps = {
   id: string
   user: string
+  role?: string
   title: string
   description: string
   avatar: string
@@ -115,7 +116,7 @@ type ProposalVoterProps = {
   label?: string
 }
 
-export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, title, description, avatar, start, end, status, vote, voter, photos, handleBack }) => {
+export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, role, title, description, avatar, start, end, status, vote, voter, photos, handleBack }) => {
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
@@ -182,7 +183,9 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, title, descr
                   </div>
                 }
               </div>
-              <Badge variant="primary" className="max-md:text-sm max-md:px-3 max-md:py-1">Core</Badge>
+              {role && 
+                <Badge variant="primary" className="max-md:text-sm max-md:px-3 max-md:py-1">{role}</Badge>
+              }
             </div>
             {status && 
               <Badge variant={status?.toLowerCase() === 'active' ? 'success' : status?.toLowerCase() === 'pending' ? 'warning' : status?.toLowerCase() === 'rejected' ? 'error' : 'info'} className="max-md:hidden">{status}</Badge>

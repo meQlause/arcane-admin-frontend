@@ -117,7 +117,7 @@ export default function TermEditAdmin({ rdt }: any) {
               <PopupHeader variant={"primary"} icon={"/icon/alert-circle.svg"} />
               <PopupBody>
                 <h3 className="text-xl font-semibold mb-4">Are you sure for terms & conditions?</h3>
-                <p>Make sure you edit is correctly.</p>
+                <p>Make sure what you edit is correct.</p>
               </PopupBody>
               <PopupFooter>
                 <Button type="button" variant="light" loading="none" className="md:w-fit" onClick={handleClosePopupSave}>Cancel</Button>

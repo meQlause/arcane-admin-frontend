@@ -13,6 +13,11 @@ import { formatDate, formatTime } from "@/app/functions/datetime";
 
 export default function DiscussionAdmin({ rdt }: any) {
   const { account } = useAccount({ rdt })
+  const profile: any = {
+    username: account?.address,
+    avatar: '/user/user-1.png',
+    role: 'Admin'
+  }
 
   const [searchKeyword, setSearchKeyword] = useState('')
   const handleSearch = (e: React.FormEvent) => {
@@ -46,26 +51,11 @@ export default function DiscussionAdmin({ rdt }: any) {
       
       if (!chatContainer) return
 
-      // let scrollTimer: NodeJS.Timeout
-
       chatContainer.scrollTo(0, chatContainer.scrollHeight)
 
       const handleScroll = () => {
         const scrolled = chatContainer?.scrollTop !== 0
         setIsChatScrolling(scrolled)
-
-        // chatDateRefs.current.forEach((date: any) => {
-        //   if (!date) return
-        //   date.classList.remove('opacity-0')
-        // })
-
-        // clearTimeout(scrollTimer)
-        // scrollTimer = setTimeout(() => {
-        //   chatDateRefs.current.forEach((date: any) => {
-        //     if (!date) return
-        //     date.classList.add('opacity-0')
-        //   })
-        // }, 1000)
       }
 
       chatContainer?.addEventListener('scroll', handleScroll)
@@ -273,9 +263,9 @@ export default function DiscussionAdmin({ rdt }: any) {
         <>
           <MainTitle
             title={`Discussion`}
-            userName={account.address}
-            userImage={`/user/user-1.png`}
-            userStatus={`Core`}
+            userName={profile.username}
+            userImage={profile.avatar}
+            userRole={profile.role}
           />
 
           <div className="grid md:grid-cols-10 xl:grid-cols-6 gap-6 max-md:mb-4">

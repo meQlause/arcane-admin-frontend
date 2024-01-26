@@ -9,9 +9,15 @@ import { Checkbox, Fieldset, Input, InputFile, Radio, Textarea } from "@/app/com
 import { Button } from "@/app/components/button";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
 import { ProposalDetail } from "@/app/components/proposal";
+import { formatDate } from "@/app/functions/datetime";
 
 export default function ProposalCreateAdmin({ rdt }: any) {
   const { account } = useAccount({ rdt })
+  const profile: any = {
+    username: account?.address,
+    avatar: '/user/user-1.png',
+    role: 'Admin'
+  }
   const router = useRouter()
 
   const [title, setTitle] = useState('')
@@ -158,6 +164,13 @@ export default function ProposalCreateAdmin({ rdt }: any) {
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     console.log('submitting...')
+  }
+
+  const terms: any = {
+    title: 'Your Agreement',
+    description: 'Incididunt occaecat nisi dolore Lorem reprehenderit anim ullamco labore sint officia ullamco sunt cupidatat excepteur.\n\nEt pariatur qui nisi laborum et nulla ipsum in ad adipisicing do nostrud pariatur. Consequat occaecat nulla sunt nulla eiusmod quis.',
+    created_at: '2023-12-27T17:55:26.0000Z',
+    modified_at: '2024-01-10T08:43:10.0000Z'
   }
 
   return (
@@ -311,8 +324,8 @@ export default function ProposalCreateAdmin({ rdt }: any) {
               <>
                 <ProposalDetail
                   id={`1`}
-                  user={account.address}
-                  avatar={`/user/user-1.png`}
+                  user={profile.username}
+                  avatar={profile.avatar}
                   title={title}
                   description={description}
                   photos={blobImage}
@@ -337,9 +350,9 @@ export default function ProposalCreateAdmin({ rdt }: any) {
                 Terms & Conditions
               </PopupHeader>
               <PopupBody>
-                <div className="text-sm font-medium text-primary-600 mb-3">Last Update: June 27, 2023</div>
-                <h4 className="font-medium text-lg mb-3">Your Agreement</h4>
-                <p>Sunt reprehenderit fugiat amet duis tempor cupidatat nulla sint. Do irure laboris commodo nulla. Eiusmod fugiat laboris ad ex veniam ad eiusmod elit amet eiusmod labore in. Ex velit esse est excepteur velit ad consequat enim reprehenderit est officia ad.</p>
+                <div className="text-sm font-medium text-primary-600 mb-3">Last Update: {formatDate(terms.modified_at)}</div>
+                <h4 className="font-medium text-lg mb-3">{terms.title}</h4>
+                <div dangerouslySetInnerHTML={{ __html: terms.description.replace(/\n/g, '<br>') }} />
                 <Fieldset className="mt-4">
                   <Checkbox label={"I agree with the Terms & Conditions"} id={"proposal-agreement"} name={"proposal-agreement"} revert={false} onChange={handleAgreement} />
                 </Fieldset>

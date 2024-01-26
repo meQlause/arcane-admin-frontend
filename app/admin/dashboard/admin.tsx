@@ -13,6 +13,11 @@ import { ProposalList, ProposalProps } from "@/app/components/proposal";
 
 export default function DashboardAdmin({ rdt }: any) {
   const { account } = useAccount({ rdt })
+  const profile: any = {
+    username: account?.address,
+    avatar: '/user/user-1.png',
+    role: 'Admin'
+  }
 
   const [currentOptionsYear, setCurrentOptionsYear] = useState('')
   const optionsYear: any = [
@@ -130,9 +135,9 @@ export default function DashboardAdmin({ rdt }: any) {
         <>
           <MainTitle
             title={`Dashboard`}
-            userName={account.address}
-            userImage={`/user/user-1.png`}
-            userStatus={`Core`}
+            userName={profile.username}
+            userImage={profile.avatar}
+            userRole={profile.role}
           >
             <Alert variant="success" icon="/icon/check-circle.svg" active={false}>
               Proposal accept successfully

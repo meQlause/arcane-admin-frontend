@@ -10,9 +10,15 @@ import { Fieldset, Select } from "@/app/components/form";
 import { Tab, Tabs } from "@/app/components/tab";
 import { ProposalList, ProposalProps } from "@/app/components/proposal";
 import { Button } from "@/app/components/button";
+import { Alert } from "@/app/components/alert";
 
 export default function ProposalAdmin({ rdt }: any) {
   const { account } = useAccount({ rdt })
+  const profile: any = {
+    username: account?.address,
+    avatar: '/user/user-1.png',
+    role: 'Admin'
+  }
 
   const [currentOptionsActive, setCurrentOptionsActive] = useState('All')
   const optionsActive: any = [
@@ -150,10 +156,14 @@ export default function ProposalAdmin({ rdt }: any) {
         <>
           <MainTitle
             title={`Proposal`}
-            userName={account.address}
-            userImage={`/user/user-1.png`}
-            userStatus={`Core`}
-          />
+            userName={profile.username}
+            userImage={profile.avatar}
+            userRole={profile.role}
+          >
+            <Alert variant="success" icon="/icon/check-circle.svg" active={false}>
+              Proposal created successfully
+            </Alert>
+          </MainTitle>
 
           <Card className="mb-4">
             <Tabs>

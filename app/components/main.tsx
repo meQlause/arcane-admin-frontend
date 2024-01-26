@@ -35,11 +35,11 @@ type MainTitleProps = {
   title: string
   userName?: string
   userImage?: string
-  userStatus?: string
+  userRole?: string
   children?: ReactNode
 }
 
-export const MainTitle: FC<MainTitleProps> = ({ title, userName, userImage, userStatus, children }) => {
+export const MainTitle: FC<MainTitleProps> = ({ title, userName, userImage, userRole, children }) => {
   return (
     <div className="relative flex items-center justify-between gap-4 mb-8 max-lg:mt-4">
       <h1 className="font-maven-pro font-semibold text-2xl">{title}</h1>
@@ -59,9 +59,9 @@ export const MainTitle: FC<MainTitleProps> = ({ title, userName, userImage, user
             {truncateMiddle(`${userName}`, 13)}
           </span>
         }
-        {userStatus && 
+        {userRole && 
           <Badge variant="primary" className="ml-3">
-            {userStatus}
+            {userRole}
           </Badge>
         }
       </div>

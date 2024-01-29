@@ -146,15 +146,15 @@ export default function DashboardAdmin({ rdt }: any) {
 
           <div className="grid gap-6">
             <div className="grid md:grid-cols-[repeat(2,1fr)] xl:grid-cols-[repeat(3,1fr)] gap-6">
-              <Card className="md:col-start-1 md:col-end-3 md:row-start-1 md:row-end-3 overflow-x-auto">
+              <Card className="md:col-start-1 md:col-end-3 md:row-start-1 md:row-end-3 max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-white">
                 <div className="flex items-start justify-between gap-2">
                   <div className="font-maven-pro">
                     <div className="text-xl font-medium">240 Proposals</div>
                     <div>have been submitted</div>
                   </div>
-                  <Select label={"Year"} id={"chart-year"} name={"chart-year"} showLabel={false} className={"!w-fit"} defaultValue={currentOptionsYear} value={currentOptionsYear} options={optionsYear} onChange={(e) => handleSelectYear(e.target.value)} />
+                  <Select label={"Year"} id={"chart-year"} name={"chart-year"} showLabel={false} className={"!w-fit"} value={currentOptionsYear} options={optionsYear} onChange={(e) => handleSelectYear(e.target.value)} />
                 </div>
-                <div className="w-full h-full overflow-x-auto mb-2" style={{ maxHeight: '250px' }}>
+                <div className="w-full h-full max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-white mb-2" style={{ maxHeight: '250px' }}>
                   <Chart data={dataChart} />
                 </div>
               </Card>

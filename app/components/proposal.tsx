@@ -252,7 +252,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, role, title,
                 <h2 className="text-lg font-maven-pro font-semibold">Voters</h2>
                 <Button type="button" variant="light" className="!w-fit pointer-events-none">{voter.length} voter{voter.length > 1 && 's'}</Button>
               </div>
-              <div className="max-h-[500px] overflow-auto scroll-auto-hide -mb-4 -mx-6 px-6">
+              <div className="max-h-[500px] max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-white -mb-4 -mx-6 px-6">
                 <table className="w-full">
                   <tbody>
                     {voter.map((item: any, index: number) => {

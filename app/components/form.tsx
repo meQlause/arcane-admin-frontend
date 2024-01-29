@@ -256,7 +256,7 @@ export function InputImage({id, name, defaultValue, value, disabled, required, c
     <>
       <label htmlFor={id} className={`relative inline-block group cursor-pointer ${className ?? ''}`}>
         <input type="file" id={id} name={name} defaultValue={value} disabled={disabled} required={required} onChange={(e: ChangeEvent<HTMLInputElement>) => handleFileUpload(e)} accept={accept} className="sr-only" />
-        <div className="overflow-hidden rounded-full bg-primary-100">
+        <div className="overflow-hidden rounded-full bg-primary-100 border border-gray-100">
           <Image 
             src={defaultValue ? defaultValue : fileStatus ? URL.createObjectURL(fileData!) : "/icon/cryptocurrency-03.svg"}
             alt="avatar"

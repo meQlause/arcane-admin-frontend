@@ -127,14 +127,12 @@ export default function ProposalCreateAdmin({ rdt }: any) {
     const isFormFilled =
       title !== '' &&
       description !== '' &&
-      photo &&
       votingOptions.length > 0 &&
       votingDuration !== ''
     setFilled(isFormFilled)
   }, [
     title,
     description,
-    photo,
     votingOptions,
     votingDuration
   ])
@@ -236,7 +234,7 @@ export default function ProposalCreateAdmin({ rdt }: any) {
                 <Textarea id={"proposal-description"} name={"proposal-description"} variant={"secondary"} showLabel={true} required={true} label={"Description"} placeholder={"Enter description here"} rows={7} value={description} onChange={(e) => setDescription(e.target.value)} />
               </Fieldset>
               <Fieldset>
-                <InputFile id={"proposal-photo"} name={"proposal-photo"} required={true} multiple={true} label={"Upload Photo"} description={"Maximum of 10 items of 2MB each, file format .png/.jpg/.jpeg"} accept={".png,.jpg,.jpeg"} maxSize={2} maxAmount={10} setStatus={setPhoto} setShowPopup={setShowPopupPhoto} setPopupMessage={setPhotoMessage} handleBlobImages={setBlobImage} handleRemoveImage={handleRemoveImage} />
+                <InputFile id={"proposal-photo"} name={"proposal-photo"} required={false} multiple={true} label={"Upload Photo"} description={"Maximum of 10 items of 2MB each, file format .png/.jpg/.jpeg"} accept={".png,.jpg,.jpeg"} maxSize={2} maxAmount={10} setStatus={setPhoto} setShowPopup={setShowPopupPhoto} setPopupMessage={setPhotoMessage} handleBlobImages={setBlobImage} handleRemoveImage={handleRemoveImage} />
                 <Popup show={showPopupPhoto} backdropClose={true} handleClose={handleClosePopupPhoto}>
                   <PopupHeader variant={"error"} icon={"/icon/alert-circle.svg"}>
                     Upload photo failed

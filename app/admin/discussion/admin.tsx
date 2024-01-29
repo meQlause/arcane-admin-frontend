@@ -286,7 +286,7 @@ export default function DiscussionAdmin({ rdt }: any) {
                     <input type="text" id="discussion-search-user" name="discussion-search-user" placeholder="Search" className="w-full appearance-none rounded-xl py-3 pr-4 pl-11 text-gray-500 bg-gray-100 border-2 border-transparent placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default" onChange={handleSearchInput} />
                   </Fieldset>
                 </form>
-                <div className="px-4 pb-6 overflow-auto max-h-[calc(100%-52px)]">
+                <div className="px-4 pb-6 max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-white max-h-[calc(100%-52px)]">
                   {dataChat.reverse().map((item: any) => (
                     <button type="button" key={item.id} className={`flex items-center gap-2 p-2 mb-4 last:mb-0 w-full text-left rounded-xl hover:bg-gray-100 [&.active]:bg-gray-100 ${item.id === activeChat && 'active'}`} title={item.title} onClick={() => handleOpenChat(item.id)}>
                       <Image 
@@ -320,7 +320,7 @@ export default function DiscussionAdmin({ rdt }: any) {
             }
 
             {chatDetail &&
-              <Card className="md:col-span-6 xl:col-span-4 relative overflow-auto">
+              <Card className="md:col-span-6 xl:col-span-4 relative">
                 {(chat && dataChatShow) ?
                   <>
                     <div className="flex flex-col gap-6 h-full">
@@ -368,7 +368,7 @@ export default function DiscussionAdmin({ rdt }: any) {
                         </div>
                       </div>
 
-                      <div className="border border-gray-100 bg-gray-100 rounded-xl py-4 px-5 h-full relative overflow-auto max-h-[calc(100vh-332px)] max-md:min-h-[70vh]" ref={chatContainerRef}>
+                      <div className="border border-gray-100 bg-gray-100 rounded-xl py-4 px-5 h-full relative max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-chat max-h-[calc(100vh-332px)] max-md:min-h-[70vh]" ref={chatContainerRef}>
                         <div className="relative z-[1] [&_.user-me]:ml-auto [&_.user-me_.user-avatar]:order-2 [&_.user-me_.user-detail]:text-right [&_.user-me_.user-chat]:rounded-tr-none [&_.user-me_.user-chat]:bg-primary-600 [&_.user-me_.user-chat]:text-white [&_.user-discussion:not(.user-me)]:mr-auto [&_.user-discussion:not(.user-me)_.user-chat]:rounded-tl-none">
                           {dataChatClassification.map((date: any, dateIndex: number) => (
                             <section key={dateIndex}>
@@ -457,7 +457,7 @@ export default function DiscussionAdmin({ rdt }: any) {
                               </button>
                             </div>
                           }
-                          <Textarea id={"discussion-new-chat"} name={"discussion-new-chat"} variant={"secondary"} showLabel={false} required={true} label={"Chat"} placeholder={"Type a message"} className="mt-auto max-h-[100px] !overflow-auto" rows={1} value={chatNew} onChange={(e) => setChatNew(e.target.value)} />
+                          <Textarea id={"discussion-new-chat"} name={"discussion-new-chat"} variant={"secondary"} showLabel={false} required={true} label={"Chat"} placeholder={"Type a message"} className="mt-auto sm:!min-h-[54px] max-h-[100px] max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-chat" rows={1} value={chatNew} onChange={(e) => setChatNew(e.target.value)} />
                         </Fieldset>
                         <Fieldset className="max-sm:order-3 col-span-3 !mb-0 min-w-[120px]">
                           <Button type="submit" variant="primary" loading="none" className="!py-3.5 mb-px [&>span]:flex [&>span]:items-center [&>span]:gap-2">

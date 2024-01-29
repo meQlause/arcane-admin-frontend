@@ -23,7 +23,8 @@ const Icon = ({ path }: { path: string }) => {
 export function Navigation({links}: any ) {
   const rdt = useWalletContext()
   const pathname = usePathname()
-  const data = localStorage.getItem('arcane')!
+  const temp = 'arcane'
+  const data = localStorage.getItem(temp)!
 
   let role: string = ''
   let address: string = ''
@@ -45,6 +46,7 @@ export function Navigation({links}: any ) {
 
   const logout = () => {
     setLoading(true)
+    localStorage.removeItem(temp)
     rdt?.disconnect()
     window.location.reload()
   }

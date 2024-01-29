@@ -264,7 +264,7 @@ export default function SettingAdmin({ rdt }: any) {
                   <div className="border-b-2 border-dashed border-gray-300 pb-6 mt-2 mb-8">
                     <h2 className="text-xl font-maven-pro font-semibold">Member</h2>
                   </div>
-                  <CardOutline>
+                  <CardOutline className="overflow-hidden">
                     <div className="flex md:items-center justify-between max-md:flex-col gap-4">
                       <h3 className="text-lg font-maven-pro font-semibold">List Member</h3>
                       <form spellCheck="false" className="w-full md:w-fit" onSubmit={handleSearch}>
@@ -283,7 +283,7 @@ export default function SettingAdmin({ rdt }: any) {
                         </Fieldset>
                       </form>
                     </div>
-                    <div className="overflow-auto w-[calc(100%+3rem)] md:w-[calc(100%+3.5rem)] -mx-6 md:-mx-7 my-6">
+                    <div className="max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-white w-[calc(100%+3rem)] md:w-[calc(100%+3.5rem)] -mx-6 md:-mx-7 my-6">
                       <table className="w-full">
                         <thead className="text-sm font-maven-pro font-semibold text-gray-500">
                           <tr>

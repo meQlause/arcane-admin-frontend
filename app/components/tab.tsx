@@ -51,7 +51,7 @@ const Tabs: React.FC<TabsProps> = ({ children }) => {
 
   return (
     <div>
-      <div className="overflow-auto w-full flex gap-2 border-b border-gray-200 mb-5">{tabs}</div>
+      <div className="max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-white w-full flex gap-2 border-b border-gray-200 mb-5">{tabs}</div>
       <div>{activeContent}</div>
     </div>
   )

@@ -26,8 +26,15 @@ export default function SignUp() {
       message: 'Mint Member Arcane Badge'
     })
     
-    if (result.isErr()) throw new Error("Minting Error")
-
+    if (result.isErr()) {
+    /*
+    write logic here when the transaction signed on wallet unsucessfull 
+    */
+      throw new Error("Minting Error")
+    }
+    /*
+    write logic here when the transaction signed on wallet sucessfull 
+    */ 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/register`,
         {
@@ -37,10 +44,16 @@ export default function SignUp() {
         }
       )
     if (res.ok) {
+      /*
+        logic here when data is recorded on database
+      */ 
       rdt.disconnect();
       localStorage.removeItem('arcane')
       router.push('/dashboard')
     } 
+      /*
+        logic here when data is failed storing on database
+      */ 
   }
   return (
     <Main>

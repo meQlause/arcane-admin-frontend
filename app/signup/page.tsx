@@ -8,7 +8,7 @@ import Wallet from "@/app/wallet/page";
 import { Main } from "@/app/components/main";
 import { Card } from "@/app/components/card";
 import { Button } from "@/app/components/button";
-import { signUp } from "../rtm_generator";
+import { signUpMember } from "../rtm_generator";
 import { useAccount } from "../auth/account";
 
 export default function SignUp() {
@@ -20,7 +20,7 @@ export default function SignUp() {
 
   const pathname = usePathname()
   const sign_up = async () => {
-    const rtm_signup = signUp(account?.address).trim()
+    const rtm_signup = signUpMember(account?.address).trim()
     const result = await rdt.walletApi.sendTransaction({
       transactionManifest: rtm_signup,
       message: 'Mint Member Arcane Badge'

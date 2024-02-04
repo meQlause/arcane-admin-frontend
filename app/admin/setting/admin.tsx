@@ -12,14 +12,21 @@ import { Button } from "@/app/components/button";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
 import { formatDate } from "@/app/functions/datetime";
 import { Alert } from "@/app/components/alert";
+import { recallAdminBadge, signUpAdmin } from "@/app/rtm_generator";
+import { useWallet } from "@/app/auth/wallet";
 
 export default function SettingAdmin({ rdt }: any) {
   const { account } = useAccount({ rdt })
+  const { access_token } = useWallet()
   const profile: any = {
     username: account?.address,
     avatar: '/user/user-1.png',
     role: 'Admin'
   }
+
+  const [adminList, setAdminList] = useState<any | null>()
+  const [adminData, setAdminData] = useState<any | null>()
+  const [selectedAddress, setSelectedAddress] = useState<string>('')
 
   const currentUrl = new URL(window.location.href)
   const isGeneral = currentUrl.hash.indexOf('#general') > -1
@@ -60,6 +67,49 @@ export default function SettingAdmin({ rdt }: any) {
     socialTelegram
   ])
 
+  const getAdminList = async () => {
+    return await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/get-admins`,
+      {
+        method: 'GET',
+        headers: { 
+          'content-type': 'application/json',
+          'Authorization': `Bearer ${access_token}`
+        },
+      }
+    ).then((res) => res.json());
+  }
+  
+  useEffect(() => {
+  const fetchData = async () => {
+    const data = await getAdminList();
+    setAdminList(data);
+  }
+   fetchData();
+  }, [])
+
+  const getAddressData = async (address:string) => {
+    return await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/get/${address}`,
+      {
+        method: 'GET',
+        headers: { 
+          'content-type': 'application/json',
+          'Authorization': `Bearer ${access_token}`
+        },
+      }
+    ).then((res) => res.json());
+  }
+
+
+  useEffect(() => {
+  const fetchData = async () => {
+    const data = await getAdminList();
+    setAdminList(data);
+  }
+   fetchData();
+  }, [])
+
   const [showPopupAvatar, setShowPopupAvatar] = useState(false)
   const [avatarMessage, setAvatarMessage] = useState('')
   const handleClosePopupAvatar = () => {
@@ -88,11 +138,48 @@ export default function SettingAdmin({ rdt }: any) {
   const handleAddMemberClick = async () => {
     setAddMemberLoading(true)
     setAddMemberDisabled(true)
-    try {
-      console.log("Button clicked, performing action...")
-    } catch (error) {
-      console.error("Error during action:", error)
+    // try {
+    //   console.log("Button clicked, performing action...")
+    // } catch (error) {
+    //   console.error("Error during action:", error)
+    // }
+    const rtmSignupAdmin = signUpAdmin(account?.address.trim(), addMemberAccount.trim()).trim()
+    const result = await rdt.walletApi.sendTransaction({
+      transactionManifest: rtmSignupAdmin,
+      message: 'Make particular address becomes admin'
+    })
+    
+    if (result.isErr()) {
+    /*
+    write logic here when the transaction signed on wallet unsucessfull 
+    */
+      throw new Error("Minting Error")
     }
+    /*
+    write logic here when the transaction signed on wallet sucessfull 
+    */ 
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/make-admin/${addMemberAccount.trim()}`,
+        {
+          method: 'PUT',
+          headers: { 
+            'content-type': 'application/json',
+            'Authorization': `Bearer ${access_token}`
+          },
+        }
+      )
+    if (res.ok) {
+      console.log("added successfully")
+    } 
+      /*
+        logic here when data is failed storing on database
+      */ 
+    const fetchData = async () => {
+      const data = await getAdminList();
+      setAdminList(data);
+    }
+    fetchData();
+    setAddMemberAccount('')
     setAddMemberLoading(false)
     setAddMemberDisabled(false)
   }
@@ -119,15 +206,21 @@ export default function SettingAdmin({ rdt }: any) {
   const handleSelectRole = (value: string) => {
     setCurrentOptionsRole(value)
   }
-  const [selectedRoles, setSelectedRoles] = useState<Array<any>>(optionsRole.map((option: any) => option.value))
-  const handleSelectRoleChanges = (index: number, selectedRole: any) => {
-    const updatedRoles: Array<string> = [...selectedRoles]
-    updatedRoles[index] = selectedRole
-    setSelectedRoles(updatedRoles)
-  }
+  // const [selectedRoles, setSelectedRoles] = useState<Array<any>>(optionsRole.map((option: any) => option.value))
+  // const handleSelectRoleChanges = (index: number, selectedRole: any) => {
+  //   const updatedRoles: Array<string> = [...selectedRoles]
+  //   updatedRoles[index] = selectedRole
+  //   setSelectedRoles(updatedRoles)
+  // }
 
   const [showPopupRemove, setShowPopupRemove] = useState(false)
-  const handleOpenPopupRemove = () => {
+  const handleOpenPopupRemove = (address: string) => {
+    setSelectedAddress(address);
+    const fetchData = async () => {
+      const data = await getAddressData(address);
+      setAdminData(data);
+    }
+    fetchData();
     setShowPopupRemove(true)
   }
   const handleClosePopupRemove = () => {
@@ -135,38 +228,42 @@ export default function SettingAdmin({ rdt }: any) {
   }
 
   const [removeMemberAccount, setRemoveMemberAccount] = useState('')
-  const handleRemoveMemberSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleRemoveMemberSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log('submitting...')
+    const rtmDeleteAdmin = recallAdminBadge(account?.address.trim(), adminData?.vault_admin_address, adminData?.nft_id).trim()
+    const result = await rdt.walletApi.sendTransaction({
+      transactionManifest: rtmDeleteAdmin,
+      message: 'delete admin role'
+    })
+    
+    if (result.isErr()) {
+      console.log(result)
+      throw new Error(result.message)
+    }
+    
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/unmake-admin/${selectedAddress.trim()}`,
+        {
+          method: 'PUT',
+          headers: { 
+            'content-type': 'application/json',
+            'Authorization': `Bearer ${access_token}`
+          },
+        }
+      )
+    if (res.ok) {
+      console.log("removed successfully")
+    } 
+    const fetchData = async () => {
+      const data = await getAdminList();
+      setAdminList(data);
+    }
+    fetchData();
+    setShowPopupRemove(false)
   }
 
   const memberList: any = {
-    members: [
-      {
-        id: '1',
-        user: 'rdx1shb1412422216dba',
-        role: 'Admin',
-        avatar: '/user/user-1.png',
-        created_at: '2023-12-27T17:55:26.0000Z',
-        modified_at: '2023-12-27T17:55:26.0000Z'
-      },
-      {
-        id: '2',
-        user: 'yzp2lmc2445678901abc',
-        role: 'Core',
-        avatar: '/user/user-2.jpeg',
-        created_at: '2023-12-28T17:55:26.0000Z',
-        modified_at: '2023-12-28T17:55:26.0000Z'
-      },
-      {
-        id: '3',
-        user: 'qwe3njk3154321876xyz',
-        role: 'Moderator',
-        avatar: '/user/user-3.jpeg',
-        created_at: '2024-01-04T17:55:26.0000Z',
-        modified_at: '2024-01-10T08:43:10.0000Z'
-      }
-    ],
+    members: adminList as Array<Object>,
     pagination: {
       total: 1,
       current: 1,
@@ -293,27 +390,29 @@ export default function SettingAdmin({ rdt }: any) {
                           </tr>
                         </thead>
                         <tbody>
-                          {memberList?.members.map((item: any, index: number) => (
+                          {adminList ?  
+                          memberList?.members.map((item: any, index: number) => (
                             <tr key={item.id}>
                               <td className="border-y border-gray-300 py-4 pl-6 md:pl-7 pr-4">
                                 <div className="flex items-center gap-3">
-                                  <Image
+                                  {/* <Image
                                     src={item.avatar}
                                     alt="avatar"
                                     className="rounded-full object-cover min-w-[2.5rem] w-10 h-10 border border-gray-100"
                                     width={36}
                                     height={36}
-                                  />
-                                  <span className="truncate">{item.user}</span>
+                                  /> */}
+                                  <span className="truncate">{item.address}</span>
                                 </div>
                               </td>
                               <td className="border-y border-gray-300 py-4 px-4">
                                 <form spellCheck="false">
-                                  <Select label={"Role"} id={`member-role-${index}`} name={`member-role-${index}`} showLabel={false} className={"!w-fit"} value={selectedRoles[index]} options={optionsRole} onChange={(e) => handleSelectRoleChanges(index, e.target.value)} />
+                                  {/* <Select label={"Role"} id={`member-role-$name={`member-role-${index}`} showLabel={false} className={"!w-fit"} value={selectedRoles[i{index}`} ndex]} options={optionsRole} onChange={(e) => handleSelectRoleChanges(index, e.target.value)} /> */}
+                                  Admin
                                 </form>
                               </td>
                               <td className="border-y border-gray-300 py-4 pr-6 md:pr-7 pl-4">
-                                <Button type="button" variant="light" className="border-transparent mx-auto !w-fit !px-3" onClick={handleOpenPopupRemove}>
+                                <Button type="button" variant="light" className="border-transparent mx-auto !w-fit !px-3" onClick={() => handleOpenPopupRemove(item.address)}>
                                   <span className="sr-only">Remove</span>
                                   <Image
                                     src="/icon/trash-01.svg"
@@ -324,7 +423,7 @@ export default function SettingAdmin({ rdt }: any) {
                                 </Button>
                               </td>
                             </tr>
-                          ))}
+                          )) : null }
                         </tbody>
                         <tfoot>
                           <tr>
@@ -372,7 +471,7 @@ export default function SettingAdmin({ rdt }: any) {
                       <PopupFooter>
                         <Button type="button" variant="light" loading="none" className="md:w-fit" onClick={handleClosePopupRemove}>Cancel</Button>
                         <form spellCheck="false" onSubmit={handleRemoveMemberSubmit}>
-                          <Input type={"text"} id={"remove-member-account"} name={"remove-member-account"} variant={"secondary"} showLabel={false} required={true} label={"Account"} placeholder={"Enter account here"} value={removeMemberAccount} onChange={(e) => setRemoveMemberAccount(e.target.value)} className="sr-only" />
+                          <Input type={"text"} id={"remove-member-account"} name={"remove-member-account"} variant={"secondary"} showLabel={false} required={false} label={"Account"} placeholder={"Enter account here"} value={removeMemberAccount} onChange={(e) => setRemoveMemberAccount(e.target.value)} className="sr-only" />
                           <Button type="submit" variant="primary" className="md:w-fit">Delete</Button>
                         </form>
                       </PopupFooter>

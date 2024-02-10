@@ -6,10 +6,12 @@ import { useWallet } from "@/app/auth/wallet";
 import Loading from "@/app/loading";
 import Wallet from "@/app/wallet/page";
 import { Main } from "@/app/components/main";
+import Unavailable from "@/app/unavailable";
 import DiscussionMember from "./member";
 
 export default function Discussion() {
   const { isLoading, walletConnect, role, rdt } = useWallet()
+
   const pathname = usePathname()
 
   return (
@@ -19,7 +21,8 @@ export default function Discussion() {
           {walletConnect ?
             <>
               {(role === RoleType.Admin || role === RoleType.Member) && (
-                <DiscussionMember rdt={rdt} />
+                <Unavailable />
+                // <DiscussionMember rdt={rdt} />
               )}
             </>
           :
@@ -27,7 +30,7 @@ export default function Discussion() {
           }
         </>
       :
-        <Loading />
+        <Loading className="max-lg:pb-10" />
       }
     </Main>
   )

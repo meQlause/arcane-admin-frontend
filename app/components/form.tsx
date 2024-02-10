@@ -1,4 +1,4 @@
-import React, { ReactNode, FC, KeyboardEvent, MouseEventHandler, ChangeEvent, DragEvent, useState, CSSProperties, Dispatch } from "react";
+import React, { ReactNode, FC, KeyboardEvent, ChangeEvent, DragEvent, useEffect, useState, CSSProperties, Dispatch } from "react";
 import Image from "next/image";
 import { truncateMiddle } from "@/app/functions/truncate";
 
@@ -28,11 +28,12 @@ type InputProps = {
   className?: string
   showLabel?: boolean
   variant?: 'default' | 'secondary'
+  icon?: string
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void
   onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void
 }
 
-export function Input({label, type, id, name, placeholder, defaultValue, value, disabled, required, className, showLabel, variant, onChange, onKeyDown}: Readonly<InputProps>) {
+export function Input({label, type, id, name, placeholder, defaultValue, value, disabled, required, className, showLabel, variant, icon, onChange, onKeyDown}: Readonly<InputProps>) {
   let variantStyle = "bg-white border border-gray-200 placeholder-gray-300"
 
   switch (variant) {
@@ -48,7 +49,21 @@ export function Input({label, type, id, name, placeholder, defaultValue, value, 
       <label htmlFor={id} className={`text-sm text-gray-500 ${!showLabel ? 'sr-only' : ''}`}>
         {label}
       </label>
-      <input type={type} id={id} name={name} placeholder={placeholder} defaultValue={defaultValue} value={value} disabled={disabled} required={required} onChange={onChange} onKeyDown={onKeyDown} className={`w-full appearance-none rounded-xl py-3 px-4 ${!showLabel ? '' : 'mt-2'} border-2 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default ${variantStyle} ${className ?? ''}`} />
+      {icon ?
+        <div className={`relative ${!showLabel ? '' : 'mt-2'}`}>
+          <Image 
+            src={icon}
+            alt="icon"
+            className="absolute top-0 bottom-0 left-3 my-auto"
+            width={24}
+            height={24}
+          />
+          <input type={type} id={id} name={name} placeholder={placeholder} defaultValue={defaultValue} value={value} disabled={disabled} required={required} onChange={onChange} onKeyDown={onKeyDown} className={`w-full appearance-none rounded-xl py-3 pl-10 pr-4 border-2 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default read-only:bg-gray-100 read-only:cursor-default ${variantStyle} ${className ?? ''}`} />
+        </div>
+        :
+        <input type={type} id={id} name={name} placeholder={placeholder} defaultValue={defaultValue} value={value} disabled={disabled} required={required} onChange={onChange} onKeyDown={onKeyDown} className={`w-full appearance-none rounded-xl py-3 px-4 ${!showLabel ? '' : 'mt-2'} border-2 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default read-only:bg-gray-100 read-only:cursor-default ${variantStyle} ${className ?? ''}`} />
+      }
+      
     </>
   )
 }
@@ -120,7 +135,7 @@ export function InputFile({label, description, id, name, value, disabled, requir
       return
     }
 
-    const oversizedFiles = files.filter((file) => file.size > Number(maxSize) * 1024 * 1024)
+    const oversizedFiles = files.filter((file) => file.size > Number(maxSize || 0) * 1024 * 1024)
 
     if (oversizedFiles.length > 0) {
       setPopupMessage(`Some files are too large. Maximum size is ${maxSize} MB.`)
@@ -198,13 +213,79 @@ export function InputFile({label, description, id, name, value, disabled, requir
   )
 }
 
+type InputImageProps = {
+  id: string
+  name: string
+  defaultValue?: string
+  value?: string
+  disabled?: boolean
+  required?: boolean
+  className?: string
+  accept?: string
+  maxSize?: number
+  setValue: Dispatch<React.SetStateAction<string>>
+  setShowPopup: Dispatch<React.SetStateAction<boolean>>
+  setPopupMessage: Dispatch<React.SetStateAction<string>>
+}
+
+export function InputImage({id, name, defaultValue, value, disabled, required, className, accept, maxSize, setValue, setShowPopup, setPopupMessage}: Readonly<InputImageProps>) {
+  const [fileStatus, setFileStatus] = useState(false)
+  const [fileData, setFileData] = useState<Blob | null>(null)
+
+  const handleFileUpload = (e: any) => {
+    const selectedFile: File = e.target.files![0]
+
+    if (!selectedFile) {
+      return;
+    }
+
+    if (selectedFile.size > Number(maxSize || 0) * 1024 * 1024) {
+      setPopupMessage(`The file is too large. Maximum size is ${maxSize} MB.`)
+      setShowPopup(true)
+      return;
+    }
+
+    const blobImage = new Blob([selectedFile], { type: selectedFile.type });
+  
+    setFileData(blobImage);
+    setFileStatus(true);
+    setValue(e.target.value)
+  }
+
+  return (
+    <>
+      <label htmlFor={id} className={`relative inline-block group cursor-pointer ${className ?? ''}`}>
+        <input type="file" id={id} name={name} defaultValue={value} disabled={disabled} required={required} onChange={(e: ChangeEvent<HTMLInputElement>) => handleFileUpload(e)} accept={accept} className="sr-only" />
+        <div className="overflow-hidden rounded-full bg-primary-100 border border-gray-100">
+          <Image 
+            src={defaultValue ? defaultValue : fileStatus ? URL.createObjectURL(fileData!) : "/icon/cryptocurrency-03.svg"}
+            alt="avatar"
+            className={`block w-20 h-20 ${defaultValue || fileStatus ? "object-cover" : "p-6"}`}
+            width={80}
+            height={80}
+          />
+        </div>
+        <div className="bg-primary-500 rounded-lg absolute bottom-0 right-0 transition group-hover:scale-125">
+          <Image 
+            src="/icon/edit-03.svg"
+            alt="edit"
+            className="filter-white p-1"
+            width={24}
+            height={24}
+          />
+        </div>
+      </label>
+    </>
+  )
+}
+
 type SelectProps = {
   label: string
   id: string
   name: string
   options: OptionProps[]
+  defaultValue?: string
   value?: string
-  valueUpdated?: string
   disabled?: boolean
   required?: boolean
   className?: string
@@ -217,13 +298,13 @@ type OptionProps = {
   label: string
 }
 
-export function Select({label, id, name, options, value, valueUpdated, disabled, required, className, showLabel, onChange}: Readonly<SelectProps>) {
+export function Select({label, id, name, options, defaultValue, value, disabled, required, className, showLabel, onChange}: Readonly<SelectProps>) {
   return (
     <>
       <label htmlFor={id} className={`text-sm text-gray-500 ${!showLabel ? 'sr-only' : ''}`}>
         {label}
       </label>
-      <select id={id} name={name} defaultValue={value} value={valueUpdated} disabled={disabled} required={required} onChange={onChange} className={`w-full appearance-none rounded-xl py-2.5 pl-4 pr-9 ${!showLabel ? '' : 'mt-2'} bg-white border-2 border-gray-200 placeholder-gray-300 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default cursor-pointer ${className ?? ''}`}>
+      <select id={id} name={name} defaultValue={defaultValue} value={value} disabled={disabled} required={required} onChange={onChange} className={`w-full appearance-none rounded-xl py-2.5 pl-4 pr-9 ${!showLabel ? '' : 'mt-2'} bg-white border-2 border-gray-200 placeholder-gray-300 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default cursor-pointer ${className ?? ''}`}>
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
@@ -262,27 +343,33 @@ export function Textarea({label, rows = 3, cols, id, name, placeholder, defaultV
       break
   }
 
-  const [textareaValue, setTextareaValue] = useState<string>('');
-
-  const handleTextareaChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-    setTextareaValue(event.target.value);
+  const updateTextareaHeight = () => {
+    const textarea = document.getElementById(id)
+    if (textarea) {
+      textarea.style.height = 'auto'
+      textarea.style.height = `${textarea.scrollHeight}px`
+    }
   }
 
-  const getRows = () => {
-    return textareaValue.split('\n').length;
+  const handleTextareaChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    updateTextareaHeight()
   }
 
   const textareaStyle: CSSProperties = {
     minHeight: `calc(${rows * 1.5}rem + 2px)`,
-    height: `calc(${getRows() * 1.5}rem + 1.75rem)`,
+    height: 'auto',
   }
+
+  useEffect(() => {
+    updateTextareaHeight()
+  }, [])
 
   return (
     <>
       <label htmlFor={id} className={`text-sm text-gray-500 ${!showLabel ? 'sr-only' : ''}`}>
         {label}
       </label>
-      <textarea rows={rows} cols={cols} id={id} name={name} defaultValue={defaultValue} value={value} placeholder={placeholder} disabled={disabled} required={required} onInput={handleTextareaChange} onChange={onChange} className={`w-full appearance-none rounded-xl py-3 px-4 ${!showLabel ? '' : 'mt-2'} border focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default overflow-hidden resize-none ${variantStyle} ${className ?? ''}`} style={textareaStyle} />
+      <textarea rows={rows} cols={cols} id={id} name={name} defaultValue={defaultValue} value={value} placeholder={placeholder} disabled={disabled} required={required} onInput={handleTextareaChange} onChange={onChange} className={`w-full appearance-none rounded-xl py-3 px-4 ${!showLabel ? '' : 'mt-2'} border focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default read-only:bg-gray-100 read-only:cursor-default overflow-hidden resize-none ${variantStyle} ${className ?? ''}`} style={textareaStyle} />
     </>
   )
 }
@@ -301,7 +388,7 @@ type CheckboxProps = {
 
 export function Checkbox({label, id, name, disabled, required, checked, className, revert, onChange}: Readonly<CheckboxProps>) {
   let defaultLabel = 'cursor-pointer'
-  let defaultInput = 'cursor-pointer appearance-none rounded-md border border-gray-400 focus:border-primary-500 focus:ring-0 checked:bg-primary-600 checked:hover:bg-primary-600 checked:focus:bg-primary-600 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default mb-[3px]'
+  let defaultInput = 'cursor-pointer appearance-none rounded-md border border-gray-400 focus:border-primary-500 focus:ring-0 checked:bg-primary-600 checked:hover:bg-primary-600 checked:focus:bg-primary-600 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default read-only:bg-gray-100 read-only:cursor-default mb-[3px]'
 
   return (
     <>
@@ -341,7 +428,7 @@ export function Radio({children, id, name, defaultValue, value, disabled, requir
   return (
     <fieldset>
       <input type="radio" id={id} name={name} defaultValue={defaultValue} value={value} disabled={disabled} required={required} onChange={onChange} className={`sr-only peer`} checked={checked} />
-      <label htmlFor={id} className={`relative block px-4 py-3 rounded-lg cursor-pointer border border-gray-200 lg:hover:bg-gray-100 ring-primary-400 peer-checked:ring-1 peer-checked:text-primary-800 peer-checked:bg-primary-100 peer-checked:border-primary-400 focus:border-primary-400 focus:ring-primary-400 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default ${className ?? ''}`}>
+      <label htmlFor={id} className={`relative block px-4 py-3 rounded-lg cursor-pointer border border-gray-200 lg:hover:bg-gray-100 ring-primary-400 peer-checked:ring-1 peer-checked:text-primary-800 peer-checked:bg-primary-100 peer-checked:border-primary-400 focus:border-primary-400 focus:ring-primary-400 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default read-only:bg-gray-100 read-only:cursor-default ${className ?? ''}`}>
         {children}
       </label>
     </fieldset>

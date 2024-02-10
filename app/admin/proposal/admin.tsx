@@ -10,11 +10,17 @@ import { Fieldset, Select } from "@/app/components/form";
 import { Tab, Tabs } from "@/app/components/tab";
 import { ProposalList, ProposalProps } from "@/app/components/proposal";
 import { Button } from "@/app/components/button";
+import { Alert } from "@/app/components/alert";
 
 export default function ProposalAdmin({ rdt }: any) {
   const { account } = useAccount({ rdt })
+  const profile: any = {
+    username: account?.address,
+    avatar: '/user/user-1.png',
+    role: 'Admin'
+  }
 
-  const [currentOptionsActive, setCurrentOptionsActive] = useState('')
+  const [currentOptionsActive, setCurrentOptionsActive] = useState('All')
   const optionsActive: any = [
     {
       value: 'All',
@@ -33,7 +39,7 @@ export default function ProposalAdmin({ rdt }: any) {
     setCurrentOptionsActive(value)
   }
 
-  const [currentOptionsHistory, setCurrentOptionsHistory] = useState('')
+  const [currentOptionsHistory, setCurrentOptionsHistory] = useState('All')
   const optionsHistory: any = [
     {
       value: 'All',
@@ -150,16 +156,20 @@ export default function ProposalAdmin({ rdt }: any) {
         <>
           <MainTitle
             title={`Proposal`}
-            userName={account.address}
-            userImage={`/user/user-1.png`}
-            userStatus={`Core`}
-          />
+            userName={profile.username}
+            userImage={profile.avatar}
+            userRole={profile.role}
+          >
+            <Alert variant="success" icon="/icon/check-circle.svg" active={false}>
+              Proposal created successfully
+            </Alert>
+          </MainTitle>
 
           <Card className="mb-4">
             <Tabs>
-              <Tab label="Active">
+              <Tab label="Active" id="active">
                 <div className="grid md:grid-cols-5 gap-4 items-center mb-6">
-                  <Select label={"Status"} id={"filter-status"} name={"filter-status"} showLabel={false} className={"md:col-span-1"} valueUpdated={currentOptionsActive} options={optionsActive} onChange={(e) => handleSelectActive(e.target.value)} />
+                  <Select label={"Status"} id={"filter-status"} name={"filter-status"} showLabel={false} className={"md:col-span-1"} value={currentOptionsActive} options={optionsActive} onChange={(e) => handleSelectActive(e.target.value)} />
                   <div className="md:col-span-4 flex max-md:flex-col gap-4">
                     <form spellCheck="false" className="w-full" onSubmit={handleSearch}>
                       <Fieldset className="relative">
@@ -173,7 +183,7 @@ export default function ProposalAdmin({ rdt }: any) {
                           />
                           <span className="sr-only">Search</span>
                         </label>
-                        <input type="text" id="search-proposal" name="search-proposal" placeholder="Search Proposal" className="w-full appearance-none rounded-xl py-3 pr-4 pl-11 text-gray-500 bg-gray-100 border-2 border-transparent placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default"  />
+                        <input type="text" id="search-proposal" name="search-proposal" placeholder="Search Proposal" className="w-full appearance-none rounded-xl py-3 pr-4 pl-11 text-gray-500 bg-gray-100 border-2 border-transparent placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default" onChange={handleSearchInput} />
                       </Fieldset>
                     </form>
                     <Link href="/admin/proposal/create" className="md:w-fit md:whitespace-nowrap">
@@ -199,9 +209,9 @@ export default function ProposalAdmin({ rdt }: any) {
                   ))}
                 </div>
               </Tab>
-              <Tab label="History">
+              <Tab label="History" id="history">
                 <div className="grid sm:grid-cols-8 md:grid-cols-5 gap-4 items-center mb-6">
-                  <Select label={"Status"} id={"filter-status"} name={"filter-status"} showLabel={false} className={"sm:col-span-2 md:col-span-1"} valueUpdated={currentOptionsHistory} options={optionsHistory} onChange={(e) => handleSelectHistory(e.target.value)} />
+                  <Select label={"Status"} id={"filter-status"} name={"filter-status"} showLabel={false} className={"sm:col-span-2 md:col-span-1"} value={currentOptionsHistory} options={optionsHistory} onChange={(e) => handleSelectHistory(e.target.value)} />
                   <form spellCheck="false" className="sm:col-span-6 md:col-span-4" onSubmit={handleSearch}>
                     <Fieldset className="relative">
                       <label htmlFor="search-proposal" className="absolute top-0 bottom-0 left-0 my-auto mx-3 h-fit opacity-50">

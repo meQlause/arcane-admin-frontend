@@ -6,6 +6,8 @@ import { useWallet } from "@/app/auth/wallet";
 import Loading from "@/app/loading";
 import Wallet from "@/app/wallet/page";
 import { Main } from "@/app/components/main";
+import Unallowed from "@/app/unallowed";
+import Unavailable from "@/app/unavailable";
 import DiscussionAdmin from "./admin";
 
 export default function Discussion() {
@@ -18,14 +20,16 @@ export default function Discussion() {
         <>
           {walletConnect ?
             <>
-              {role === RoleType.Admin && <DiscussionAdmin rdt={rdt} />}
+              {/* {role === RoleType.Admin && <DiscussionAdmin rdt={rdt} />} */}
+              {role === RoleType.Admin && <Unavailable />}
+              {role === RoleType.Member && <Unallowed />}
             </>
           :
             <Wallet rdt={rdt} path={pathname} />
           }
         </>
       :
-        <Loading />
+        <Loading className="max-lg:pb-10" />
       }
     </Main>
   )

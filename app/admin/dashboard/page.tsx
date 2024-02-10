@@ -6,6 +6,7 @@ import { useWallet } from "@/app/auth/wallet";
 import Loading from "@/app/loading";
 import Wallet from "@/app/wallet/page";
 import { Main } from "@/app/components/main";
+import Unallowed from "@/app/unallowed";
 import DashboardAdmin from "./admin";
 
 export default function Dashboard() {
@@ -19,13 +20,14 @@ export default function Dashboard() {
           {walletConnect ?
             <>
               {role === RoleType.Admin && <DashboardAdmin rdt={rdt} />}
+              {role === RoleType.Member && <Unallowed />}
             </>
           :
             <Wallet rdt={rdt} path={pathname} />
           }
         </>
       :
-        <Loading />
+        <Loading className="max-lg:pb-10" />
       }
     </Main>
   )

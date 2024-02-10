@@ -25,7 +25,7 @@ export default function ProposalDetail({ params }: { params: { detail: string } 
           }
         </>
       :
-        <Loading />
+        <Loading className="max-lg:pb-10" />
       }
     </Main>
   )

@@ -9,9 +9,15 @@ import { Checkbox, Fieldset, Input, InputFile, Radio, Textarea } from "@/app/com
 import { Button } from "@/app/components/button";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
 import { ProposalDetail } from "@/app/components/proposal";
+import { formatDate } from "@/app/functions/datetime";
 
 export default function ProposalCreateAdmin({ rdt }: any) {
   const { account } = useAccount({ rdt })
+  const profile: any = {
+    username: account?.address,
+    avatar: '/user/user-1.png',
+    role: 'Admin'
+  }
   const router = useRouter()
 
   const [title, setTitle] = useState('')
@@ -121,14 +127,12 @@ export default function ProposalCreateAdmin({ rdt }: any) {
     const isFormFilled =
       title !== '' &&
       description !== '' &&
-      photo &&
       votingOptions.length > 0 &&
       votingDuration !== ''
     setFilled(isFormFilled)
   }, [
     title,
     description,
-    photo,
     votingOptions,
     votingDuration
   ])
@@ -158,6 +162,13 @@ export default function ProposalCreateAdmin({ rdt }: any) {
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     console.log('submitting...')
+  }
+
+  const terms: any = {
+    title: 'Your Agreement',
+    description: 'Incididunt occaecat nisi dolore Lorem reprehenderit anim ullamco labore sint officia ullamco sunt cupidatat excepteur.\n\nEt pariatur qui nisi laborum et nulla ipsum in ad adipisicing do nostrud pariatur. Consequat occaecat nulla sunt nulla eiusmod quis.',
+    created_at: '2023-12-27T17:55:26.0000Z',
+    modified_at: '2024-01-10T08:43:10.0000Z'
   }
 
   return (
@@ -223,7 +234,7 @@ export default function ProposalCreateAdmin({ rdt }: any) {
                 <Textarea id={"proposal-description"} name={"proposal-description"} variant={"secondary"} showLabel={true} required={true} label={"Description"} placeholder={"Enter description here"} rows={7} value={description} onChange={(e) => setDescription(e.target.value)} />
               </Fieldset>
               <Fieldset>
-                <InputFile id={"proposal-photo"} name={"proposal-photo"} required={true} multiple={true} label={"Upload Photo"} description={"Maximum of 10 items of 2MB each, file format .png/.jpg/.jpeg"} accept={".png,.jpg,.jpeg"} maxSize={2} maxAmount={10} setStatus={setPhoto} setShowPopup={setShowPopupPhoto} setPopupMessage={setPhotoMessage} handleBlobImages={setBlobImage} handleRemoveImage={handleRemoveImage} />
+                <InputFile id={"proposal-photo"} name={"proposal-photo"} required={false} multiple={true} label={"Upload Photo"} description={"Maximum of 10 items of 2MB each, file format .png/.jpg/.jpeg"} accept={".png,.jpg,.jpeg"} maxSize={2} maxAmount={10} setStatus={setPhoto} setShowPopup={setShowPopupPhoto} setPopupMessage={setPhotoMessage} handleBlobImages={setBlobImage} handleRemoveImage={handleRemoveImage} />
                 <Popup show={showPopupPhoto} backdropClose={true} handleClose={handleClosePopupPhoto}>
                   <PopupHeader variant={"error"} icon={"/icon/alert-circle.svg"}>
                     Upload photo failed
@@ -245,9 +256,9 @@ export default function ProposalCreateAdmin({ rdt }: any) {
                       <Checkbox label={"Use Default Voting"} id={"proposal-voting-default"} name={"proposal-voting-default"} revert={true} className="text-sm text-gray-500 !mr-1.5 [&+input]:mb-0" onChange={handleVotingDefault} />
                     </div>
                     <div>
-                      <Input type={"text"} id={"proposal-voting-option"} name={"proposal-voting-option"} variant={"secondary"} showLabel={true} label={"Voting Option"} placeholder={"Enter option here"} value={votingOption} disabled={votingDefault && true} onChange={handleVotingOption} onKeyDown={handleVotingOptionSubmit} />
+                      <Input type={"text"} id={"proposal-voting-option"} name={"proposal-voting-option"} variant={"secondary"} showLabel={true} label={"Voting Option"} placeholder={"Enter option here"} value={votingOption} disabled={votingDefault} onChange={handleVotingOption} onKeyDown={handleVotingOptionSubmit} />
                     </div>
-                    <Button type="button" variant="primary" loading="none" disabled={votingDefault && true} onClick={handleVotingOptionAdd} className="mt-4">Add option</Button>
+                    <Button type="button" variant="primary" loading="none" disabled={votingDefault} onClick={handleVotingOptionAdd} className="mt-4">Add option</Button>
                   </div>
                   <div className="min-w-[2px] h-auto bg-gray-200 hidden md:block lg:hidden xl:block"></div>
                   <div className="h-[2px] bg-gray-200 md:hidden lg:block xl:hidden"></div>
@@ -311,8 +322,8 @@ export default function ProposalCreateAdmin({ rdt }: any) {
               <>
                 <ProposalDetail
                   id={`1`}
-                  user={account.address}
-                  avatar={`/user/user-1.png`}
+                  user={profile.username}
+                  avatar={profile.avatar}
                   title={title}
                   description={description}
                   photos={blobImage}
@@ -328,7 +339,7 @@ export default function ProposalCreateAdmin({ rdt }: any) {
               <div className="flex max-sm:flex-col sm:flex-wrap gap-4 md:ml-auto">
                 <Button type="button" variant="secondary" loading="none" className={`md:w-fit ${preview && '!hidden'}`} onClick={handleOpenPreview}>Preview</Button>
                 <Button type="button" variant="secondary" loading="none" className={`md:w-fit ${!preview && '!hidden'}`} onClick={handleClosePreview}>Exit Preview</Button>
-                <Button type="button" variant="primary" loading="none" className="md:w-fit" disabled={!filled && true} onClick={handleOpenPopupSubmit}>Upload Proposal</Button>
+                <Button type="button" variant="primary" loading="none" className="md:w-fit" disabled={!filled} onClick={handleOpenPopupSubmit}>Upload Proposal</Button>
               </div>
             </Card>
 
@@ -337,16 +348,16 @@ export default function ProposalCreateAdmin({ rdt }: any) {
                 Terms & Conditions
               </PopupHeader>
               <PopupBody>
-                <div className="text-sm font-medium text-primary-600 mb-3">Last Update: June 27, 2023</div>
-                <h4 className="font-medium text-lg mb-3">Your Agreement</h4>
-                <p>Sunt reprehenderit fugiat amet duis tempor cupidatat nulla sint. Do irure laboris commodo nulla. Eiusmod fugiat laboris ad ex veniam ad eiusmod elit amet eiusmod labore in. Ex velit esse est excepteur velit ad consequat enim reprehenderit est officia ad.</p>
+                <div className="text-sm font-medium text-primary-600 mb-3">Last Update: {formatDate(terms.modified_at)}</div>
+                <h4 className="font-medium text-lg mb-3">{terms.title}</h4>
+                <div dangerouslySetInnerHTML={{ __html: terms.description.replace(/\n/g, '<br>') }} />
                 <Fieldset className="mt-4">
                   <Checkbox label={"I agree with the Terms & Conditions"} id={"proposal-agreement"} name={"proposal-agreement"} revert={false} onChange={handleAgreement} />
                 </Fieldset>
               </PopupBody>
               <PopupFooter>
                 <Button type="button" variant="light" loading="none" className="md:w-fit" onClick={handleClosePopupSubmit}>Cancel</Button>
-                <Button type="submit" variant="primary" loading="none" disabled={agreement && true} className="md:w-fit">Upload Proposal</Button>
+                <Button type="submit" variant="primary" loading="none" disabled={agreement} className="md:w-fit">Upload Proposal</Button>
               </PopupFooter>
             </Popup>
           </form>

@@ -46,7 +46,7 @@ export const Button: FC<ButtonProps> = ({ type, disabled, loading, className, va
       {loading !== 'none' &&
         <div className={`transition-all ${!loading ? '-mr-9 opacity-0' : ''}`}>
           <Image
-            src="/loading-white.svg"
+            src={variant === "light" ? "/loading.svg" : "/loading-white.svg"}
             alt="loading"
             className="animate-spin"
             width={24}

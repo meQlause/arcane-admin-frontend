@@ -10,7 +10,9 @@ import DashboardMember from "./member";
 
 export default function Dashboard() {
   const { isLoading, walletConnect, role, rdt } = useWallet()
+
   const pathname = usePathname()
+
   return (
     <Main>
       {!isLoading ?
@@ -26,7 +28,7 @@ export default function Dashboard() {
           }
         </>
       :
-        <Loading />
+        <Loading className="max-lg:pb-10" />
       }
     </Main>
   )

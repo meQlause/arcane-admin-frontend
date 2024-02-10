@@ -12,11 +12,6 @@ RUN yarn install --only=production
 
 COPY . .
 
-ARG ENV_VARIABLE
-ENV ENV_VARIABLE=${ENV_VARIABLE}
-ARG NEXT_PUBLIC_ENV_VARIABLE
-ENV NEXT_PUBLIC_ENV_VARIABLE=${NEXT_PUBLIC_ENV_VARIABLE}
-
 RUN yarn build
 
 FROM base AS runner
@@ -28,10 +23,5 @@ RUN adduser --system --uid 1001 nextjs
 USER nextjs
 
 COPY --from=builder --chown=nextjs:nodejs /arcane-frontend/ .
-
-ARG ENV_VARIABLE
-ENV ENV_VARIABLE=${ENV_VARIABLE}
-ARG NEXT_PUBLIC_ENV_VARIABLE
-ENV NEXT_PUBLIC_ENV_VARIABLE=${NEXT_PUBLIC_ENV_VARIABLE}
 
 CMD ["yarn", "start"]

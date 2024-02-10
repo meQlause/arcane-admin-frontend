@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { RoleType } from "@/app/types";
 import { useWallet } from "@/app/auth/wallet";
+import Wallet from "@/app/wallet/page";
 import { Card } from "./card";
 import { Button } from "./button";
 import { Popup, PopupBody } from "./popup";
@@ -28,13 +29,21 @@ export function Navigation({links}: any ) {
   const pathname = usePathname()
 
   const [loading, setLoading] = useState(false)
-  const [showPopupJoin, setShowPopupJoin] = useState(false)
 
-  const handleOpenPopupJoin = () => {
-    setShowPopupJoin(true)
+  const [showPopupSignin, setShowPopupSignin] = useState(false)
+  const handleOpenPopupSignin = () => {
+    setShowPopupSignin(true)
   }
-  const handleClosePopupJoin = () => {
-    setShowPopupJoin(false)
+  const handleClosePopupSignin = () => {
+    setShowPopupSignin(false)
+  }
+
+  const [showPopupSignup, setShowPopupSignup] = useState(false)
+  const handleOpenPopupSignup = () => {
+    setShowPopupSignup(true)
+  }
+  const handleClosePopupSignup = () => {
+    setShowPopupSignup(false)
   }
 
   useEffect(() => {
@@ -75,21 +84,36 @@ export function Navigation({links}: any ) {
                   <p className="text-gray-600 max-lg:text-sm">200 Members</p>
                 </div>
               </div>
-              {(!walletConnect || role === RoleType.Unregistered) && (
+
+              {!walletConnect && (
                   <>
                     <hr className="border-primary-300 mb-6 max-lg:hidden" />
-                    <Button type={"button"} variant={"primary"} loading={"none"} className="lg:!w-fit mx-auto lg:!px-8 lg:py-2.5" onClick={handleOpenPopupJoin}>
-                      Join
+                    <Button type={"button"} variant={"primary"} loading={"none"} className="lg:!w-fit mx-auto lg:!px-8 lg:py-2.5" onClick={handleOpenPopupSignin}>
+                      Login
                     </Button>
-
-                    <Popup show={showPopupJoin} backdropClose={true} handleClose={handleClosePopupJoin}>
+                    <Popup show={showPopupSignin} backdropClose={true} handleClose={handleClosePopupSignin}>
                       <PopupBody>
-                        <SignUp />
-                        <Button type={"button"} variant={"light"} loading={"none"} className="w-full mt-6" onClick={handleClosePopupJoin}>Cancel</Button>
+                        <Wallet rdt={rdt} path={pathname} variant={"content-only"} />
+                        <Button type={"button"} variant={"light"} loading={"none"} className="w-full mt-6" onClick={handleClosePopupSignin}>Cancel</Button>
                       </PopupBody>
                     </Popup>
                   </>
                 )
+              }
+
+              {(walletConnect && role === RoleType.Unregistered) &&
+                <>
+                  <hr className="border-primary-300 mb-6 max-lg:hidden" />
+                  <Button type={"button"} variant={"primary"} loading={"none"} className="lg:!w-fit mx-auto lg:!px-8 lg:py-2.5" onClick={handleOpenPopupSignup}>
+                    Join as Member
+                  </Button>
+                  <Popup show={showPopupSignup} backdropClose={true} handleClose={handleClosePopupSignup}>
+                    <PopupBody>
+                      <SignUp />
+                      <Button type={"button"} variant={"light"} loading={"none"} className="w-full mt-6" onClick={handleClosePopupSignup}>Cancel</Button>
+                    </PopupBody>
+                  </Popup>
+                </>
               }
             </Card>
           </li>
@@ -116,7 +140,7 @@ export function Navigation({links}: any ) {
         })}
 
         {walletConnect &&
-          (role === RoleType.Admin || role === RoleType.Member) && (
+          (role === RoleType.Admin || role === RoleType.Member || role === RoleType.Unregistered) && (
             <li className="order-10 mt-auto max-lg:bg-white max-lg:fixed max-lg:bottom-0 max-lg:pb-4 max-lg:w-[calc(100%-3rem)]" style={{marginBottom: 'env(safe-area-inset-bottom)'}}>
               <hr className="border-t border-gray-300 my-4 max-lg:mt-0" />
               <button

@@ -27,7 +27,7 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 USER nextjs
 
-COPY --from=builder --chown=nextjs:nodejs /app/ .
+COPY --from=builder --chown=nextjs:nodejs /arcane-frontend/ .
 
 ARG ENV_VARIABLE
 ENV ENV_VARIABLE=${ENV_VARIABLE}

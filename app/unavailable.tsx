@@ -2,9 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/app/components/button";
 
-export default function NotFound() {
+export default function Unavailable() {
   return (
-    <div className="w-screen h-screen min-h-[350px] flex items-center justify-center">
+    <div className="h-[calc(100vh-7rem)] lg:h-[calc(100vh-4rem)] min-h-[350px] flex items-center justify-center">
       <div className="text-center p-6 mb-8">
         <Image
           src="/not-found.svg"

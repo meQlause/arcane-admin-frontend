@@ -356,12 +356,13 @@ export default function SettingAdmin({ rdt }: any) {
                   </form>
                 </div>
               </Tab>
+
               <Tab label="Member" id="member">
                 <div className="mt-8 mb-4">
                   <div className="border-b-2 border-dashed border-gray-300 pb-6 mt-2 mb-8">
                     <h2 className="text-xl font-maven-pro font-semibold">Member</h2>
                   </div>
-                  <CardOutline className="overflow-hidden">
+                  <CardOutline className="relative">
                     <div className="flex md:items-center justify-between max-md:flex-col gap-4">
                       <h3 className="text-lg font-maven-pro font-semibold">List Member</h3>
                       <form spellCheck="false" className="w-full md:w-fit" onSubmit={handleSearch}>
@@ -380,7 +381,7 @@ export default function SettingAdmin({ rdt }: any) {
                         </Fieldset>
                       </form>
                     </div>
-                    <div className="max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-white w-[calc(100%+3rem)] md:w-[calc(100%+3.5rem)] -mx-6 md:-mx-7 my-6">
+                    <div className="max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-white w-[calc(100%+3rem)] md:w-[calc(100%+3.5rem)] -mx-6 md:-mx-7 mt-6 -mb-6">
                       <table className="w-full">
                         <thead className="text-sm font-maven-pro font-semibold text-gray-500">
                           <tr>
@@ -427,13 +428,13 @@ export default function SettingAdmin({ rdt }: any) {
                         </tbody>
                         <tfoot>
                           <tr>
-                            <td className="border-y border-gray-300 py-4 pl-6 md:pl-7 pr-4">
+                            <td className="py-4 pl-6 md:pl-7 pr-4">
                               <Input type={"text"} id={"add-member-account-editable"} name={"add-member-account-editable"} variant={"secondary"} showLabel={false} required={true} label={"Account"} placeholder={"Enter account here"} value={addMemberAccount} onChange={(e) => setAddMemberAccount(e.target.value)} />
                             </td>
-                            <td className="border-y border-gray-300 py-4 px-4">
+                            <td className="py-4 px-4">
                               <Select label={"Role"} id={"add-member-role-editable"} name={"add-member-role-editable"} showLabel={false} className={"!w-fit"} value={currentOptionsRole} options={optionsRole} onChange={(e) => handleSelectRole(e.target.value)} />
                             </td>
-                            <td className="border-y border-gray-300 py-4 pr-6 md:pr-7 pl-4">
+                            <td className="py-4 pr-6 md:pr-7 pl-4">
                               <Button type={"button"} variant={"light"} className="!border-2 !py-2.5 !px-3 whitespace-nowrap" disabled={addMemberDisabled} loading={addMemberLoading} onClick={handleAddMemberClick}>
                                 Add
                                 <Image
@@ -479,6 +480,7 @@ export default function SettingAdmin({ rdt }: any) {
                   </CardOutline>
                 </div>
               </Tab>
+
               <Tab label="Terms & Conditions" id="term">
                 <div className="mt-8 mb-4">
                   <div className="border-b-2 border-dashed border-gray-300 pb-6 mt-2 mb-8 flex justify-between max-md:flex-col gap-4">

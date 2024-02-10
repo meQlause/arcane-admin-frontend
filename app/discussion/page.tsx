@@ -1,16 +1,16 @@
 'use client'
 
-import { redirect, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { RoleType } from "@/app/types";
 import { useWallet } from "@/app/auth/wallet";
 import Loading from "@/app/loading";
 import Wallet from "@/app/wallet/page";
 import { Main } from "@/app/components/main";
+import Unavailable from "@/app/unavailable";
 import DiscussionMember from "./member";
 
 export default function Discussion() {
   const { isLoading, walletConnect, role, rdt } = useWallet()
-  if ( role === RoleType.Unregistered ) redirect('/signup')
 
   const pathname = usePathname()
 
@@ -21,7 +21,8 @@ export default function Discussion() {
           {walletConnect ?
             <>
               {(role === RoleType.Admin || role === RoleType.Member) && (
-                <DiscussionMember rdt={rdt} />
+                <Unavailable />
+                // <DiscussionMember rdt={rdt} />
               )}
             </>
           :

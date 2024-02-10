@@ -23,6 +23,7 @@ export function Sidebar() {
     { name: "Proposal", href: "/proposal", icon: "/icon/file-02.svg" },
     { name: "Discussion", href: "/discussion", icon: "/icon/message-chat-circle.svg" },
     { name: "Setting", href: "/setting", icon: "/icon/settings-01.svg" },
+    { name: "About", href: "/about", icon: "/icon/alert-circle.svg" },
   ]
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export function Sidebar() {
 
   return (
     <>
-      <aside className="bg-white flex flex-col gap-4 lg:gap-8 max-lg:w-screen lg:min-w-[250px] lg:w-[400px] lg:h-screen lg:pt-6 sticky top-0 z-10">
+      <aside className="bg-white flex flex-col gap-4 lg:gap-6 max-lg:w-screen lg:min-w-[250px] lg:w-[400px] lg:h-screen lg:pt-6 sticky top-0 z-10">
         <div className="flex justify-between gap-4 w-full px-6 max-lg:py-3 max-lg:border max-lg:border-gray-100">
           <div className="flex items-center gap-3 lg:py-1">
             <Image
@@ -70,7 +71,15 @@ export function Sidebar() {
           <Navigation links={linksItems} />
         </div>
       </aside>
-      <div className="fixed top-0 left-0 -z-10 w-[calc(calc(100vw-75rem)/2)] h-screen bg-white max-2xl:hidden"></div>
+      <div className="fixed top-0 left-0 -z-10 w-[calc(calc(100vw-75rem)/2)] h-screen bg-white max-2xl:hidden">
+        <div className="sr-only">
+          <span className="order-1 lg:order-1"></span>
+          <span className="order-2 lg:order-2"></span>
+          <span className="order-3 lg:order-3"></span>
+          <span className="order-4 lg:order-4"></span>
+          <span className="order-5 lg:order-5"></span>
+        </div>
+      </div>
     </>
   )
 }

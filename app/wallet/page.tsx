@@ -7,7 +7,7 @@ import { Card, CardOutline } from "@/app/components/card";
 import { Button } from "@/app/components/button";
 import WalletRadix from "@/app/wallet/radix";
 
-export default function Wallet({ rdt, path }: any) {
+export default function Wallet({ rdt, path, variant }: any) {
   const router = useRouter()
   const [walletConnect, setWalletConnect] = useState(false)
   const [walletList, setWalletList] = useState(false)
@@ -37,9 +37,9 @@ export default function Wallet({ rdt, path }: any) {
   }
 
   return (
-    <div className="my-4">
+    <div className={`${variant === 'content-only' ? '' : 'my-4'}`}>
       {walletConnect ?
-        <Card>
+        <Card className={`${variant === 'content-only' ? '!p-0 !shadow-none' : ''}`}>
           <Image
             src="/icon/check-circle.svg"
             alt="icon"
@@ -69,7 +69,7 @@ export default function Wallet({ rdt, path }: any) {
           </Button>
         </Card>
       :
-        <Card>
+        <Card className={`${variant === 'content-only' ? '!p-0 !shadow-none' : ''}`}>
           <Image
             src="/icon/alert-circle.svg"
             alt="icon"

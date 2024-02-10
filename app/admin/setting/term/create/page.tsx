@@ -6,6 +6,7 @@ import { useWallet } from "@/app/auth/wallet";
 import Loading from "@/app/loading";
 import Wallet from "@/app/wallet/page";
 import { Main } from "@/app/components/main";
+import Unallowed from "@/app/unallowed";
 import TermCreateAdmin from "./admin";
 
 export default function Setting() {
@@ -19,6 +20,7 @@ export default function Setting() {
           {walletConnect ?
             <>
               {role === RoleType.Admin && <TermCreateAdmin rdt={rdt} />}
+              {role === RoleType.Member && <Unallowed />}
             </>
           :
             <Wallet rdt={rdt} path={pathname} />

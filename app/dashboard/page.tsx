@@ -1,6 +1,6 @@
 'use client'
 
-import { redirect, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { RoleType } from "@/app/types";
 import { useWallet } from "@/app/auth/wallet";
 import Loading from "@/app/loading";
@@ -10,7 +10,6 @@ import DashboardMember from "./member";
 
 export default function Dashboard() {
   const { isLoading, walletConnect, role, rdt } = useWallet()
-  if ( role === RoleType.Unregistered ) redirect('/signup')
 
   const pathname = usePathname()
 

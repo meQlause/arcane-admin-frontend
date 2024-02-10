@@ -29,7 +29,7 @@ export const Popup: FC<PopupProps> = ({ children, className, show, backdropClose
   }, [show])
 
   return (
-    <div className={`fixed top-0 bottom-0 left-0 right-0 z-50 p-4 md:p-6 lg:p-10 overflow-auto opacity-0 transition-opacity duration-300 [&.active]:opacity-100 [&.active.hidden]:block [&.active.hidden]:opacity-0 ${active && 'active'} ${!show && 'hidden'} popup ${className || ''}`}>
+    <div className={`fixed top-0 bottom-0 left-0 right-0 z-50 p-4 md:p-6 lg:p-10 overflow-auto opacity-0 transition-opacity duration-300 [&.active]:opacity-100 [&.active.hidden]:block [&.active.hidden]:opacity-0 ${active && 'active'} ${!show && 'hidden'} popup ${className ? className : ''}`}>
       <div className="flex items-center justify-center w-full">
         <div className="bg-white p-5 lg:p-8 rounded-2xl w-full md:max-w-[500px] z-10 relative popup-content">
           {children}
@@ -71,7 +71,7 @@ export const PopupHeader: FC<PopupHeaderProps> = ({ children, className, variant
   }
 
   return (
-    <div className={`popup-header last:mb-0 ${children ? 'border-b-2 border-dashed border-gray-300 mb-6 lg:mb-8' : 'mb-2'} ${className || ''}`}>
+    <div className={`popup-header last:mb-0 ${children ? 'border-b-2 border-dashed border-gray-300 mb-6 lg:mb-8' : 'mb-2'} ${className ? className : ''}`}>
       <div className={`inline-block p-2.5 mb-3 rounded-2xl shadow-main ${variantStyle}`}>
         <Image
           src={`${icon}`}
@@ -93,7 +93,7 @@ type PopupContentProps = {
 
 export const PopupBody: FC<PopupContentProps> = ({ children, className }) => {
   return (
-    <div className={`popup-body mb-6 lg:mb-8 last:mb-0 ${className || ''}`}>
+    <div className={`popup-body mb-6 lg:mb-8 last:mb-0 ${className ? className : ''}`}>
       {children}
     </div>
   )
@@ -101,7 +101,7 @@ export const PopupBody: FC<PopupContentProps> = ({ children, className }) => {
 
 export const PopupFooter: FC<PopupContentProps> = ({ children, className }) => {
   return (
-    <div className={`popup-footer md:flex overflow-hidden mb-6 lg:mb-8 last:mb-0 ${className || ''}`}>
+    <div className={`popup-footer md:flex overflow-hidden mb-6 lg:mb-8 last:mb-0 ${className ? className : ''}`}>
       <div className="flex max-sm:flex-col sm:flex-wrap gap-4 md:ml-auto">
         {children}
       </div>

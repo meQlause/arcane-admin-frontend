@@ -18,9 +18,9 @@ export const useWallet = () => {
   if (data) {
     const bytes = CryptoJS.AES.decrypt(data, `${process.env.SECRET_JS}`);
     const originalData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-    access_token = originalData.access_token;
     role = originalData.role;
     address = originalData.address;
+    access_token = originalData.access_token;
   }
 
   const [isLoading, setIsLoading] = useState(true);
@@ -43,5 +43,5 @@ export const useWallet = () => {
     setTimeout(() => setIsLoading(false), 1000);
   }, []);
 
-  return { rdt, role, address, isLoading, walletConnect, access_token };
+  return { rdt, role, address, access_token, isLoading, walletConnect };
 };

@@ -11,18 +11,14 @@ export default function ProposalMember({ rdt }: any) {
 
   return (
     <>
-      {account && (
-        <>
-          <MainTitle
-            title={`Proposal`}
-            userName={profile.username}
-            userImage={profile.avatar}
-            userRole={profile.role}
-          />
-    
-          <p>Member page</p>
-        </>
-      )}
+      <MainTitle
+        title={`Proposal`}
+        userName={account && profile.username}
+        userImage={account && profile.avatar}
+        userRole={account && profile.role}
+      />
+
+      <p>Member page</p>
     </>
   )
 }

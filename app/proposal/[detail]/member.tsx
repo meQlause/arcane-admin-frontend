@@ -2,7 +2,7 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/auth/account";
 import { ProposalDetail, ProposalDetailProps } from "@/app/components/proposal";
 
-export default function ProposalDetailAdmin({ rdt, id }: any) {
+export default function ProposalDetailMember({ rdt, id }: any) {
   const { account } = useAccount({ rdt })
 
   const dataProposal: ProposalDetailProps = {
@@ -16,7 +16,7 @@ export default function ProposalDetailAdmin({ rdt, id }: any) {
     start: '21 Jan 2024',
     end: '28 Jan 2024',
     status: 'Active',
-    vote_hide: 'true',
+    vote_hide: 'false',
     vote: [
       {
         label: 'For',
@@ -111,16 +111,12 @@ export default function ProposalDetailAdmin({ rdt, id }: any) {
   const router = useRouter()
 
   const handleBack = () => {
-    router.push('/admin/proposal')
+    router.push('/proposal')
   }
 
   return (
     <>
-      {account && (
-        <>
-          <ProposalDetail {...dataProposal} handleBack={handleBack} account={account} />
-        </>
-      )}
+      <ProposalDetail {...dataProposal} handleBack={handleBack} account={account} />
     </>
   )
 }

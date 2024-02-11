@@ -6,8 +6,7 @@ import { useWallet } from "@/app/auth/wallet";
 import Loading from "@/app/loading";
 import Wallet from "@/app/wallet/page";
 import { Main } from "@/app/components/main";
-import Unallowed from "@/app/unallowed";
-import ProposalCreateAdmin from "./admin";
+import ProposalCreateMember from "./member";
 
 export default function ProposalCreate() {
   const { isLoading, walletConnect, role, rdt } = useWallet()
@@ -19,8 +18,9 @@ export default function ProposalCreate() {
         <>
           {walletConnect ?
             <>
-              {role === RoleType.Admin && <ProposalCreateAdmin rdt={rdt} />}
-              {role === RoleType.Member && <Unallowed />}
+              {(role === RoleType.Admin || role === RoleType.Member) && (
+                <ProposalCreateMember rdt={rdt} />
+              )}
             </>
           :
             <Wallet rdt={rdt} path={pathname} />

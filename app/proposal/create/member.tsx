@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAccount } from "@/app/auth/account";
 import { Card } from "@/app/components/card";
@@ -11,8 +11,9 @@ import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/pop
 import { ProposalDetail } from "@/app/components/proposal";
 import { formatDate } from "@/app/functions/datetime";
 
-export default function ProposalCreateAdmin({ rdt }: any) {
+export default function ProposalCreateMember({ rdt }: any) {
   const { account } = useAccount({ rdt })
+  const pathname = usePathname()
   const router = useRouter()
 
   const [loading, setLoading] = useState(false)
@@ -135,7 +136,7 @@ export default function ProposalCreateAdmin({ rdt }: any) {
   ])
 
   const handleHistoryBack = () => {
-    router.push('/admin/proposal')
+    router.push('/proposal')
   }
 
   const [preview, setPreview] = useState(false)
@@ -163,7 +164,11 @@ export default function ProposalCreateAdmin({ rdt }: any) {
     setTimeout(() => {
       sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
       sessionStorage.setItem('arcane-alert-message','Proposal created successfully')
-      router.push('/admin/proposal')
+      if ( pathname.indexOf('admin') > -1 ) {
+        router.push('/admin/proposal')
+      } else {
+        router.push('/proposal')
+      }
     },1000)
   }
 
@@ -325,7 +330,7 @@ export default function ProposalCreateAdmin({ rdt }: any) {
               <>
                 <ProposalDetail
                   id={`1`}
-                  user_address={account.username}
+                  user_address={account.address}
                   user_role={account.role}
                   avatar={account.avatar}
                   title={title ? title : 'Empty title'}
@@ -352,17 +357,9 @@ export default function ProposalCreateAdmin({ rdt }: any) {
                 Terms & Conditions
               </PopupHeader>
               <PopupBody>
-                {terms.description ?
-                  <>
-                    <div className="text-sm font-medium text-primary-600 mb-3">Last Update: {formatDate(terms.modified_at)}</div>
-                    <h4 className="font-medium text-lg mb-3">{terms.title}</h4>
-                    <div dangerouslySetInnerHTML={{ __html: terms.description.replace(/\n/g, '<br>') }} />
-                  </>
-                :
-                  <div className="text-gray-400 italic">
-                    {`No Terms & Conditions yet.`}
-                  </div>
-                }
+                <div className="text-sm font-medium text-primary-600 mb-3">Last Update: {formatDate(terms.modified_at)}</div>
+                <h4 className="font-medium text-lg mb-3">{terms.title}</h4>
+                <div dangerouslySetInnerHTML={{ __html: terms.description.replace(/\n/g, '<br>') }} />
                 <Fieldset className="mt-4">
                   <Checkbox label={"I agree with the Terms & Conditions"} id={"proposal-agreement"} name={"proposal-agreement"} revert={false} onChange={handleAgreement} />
                 </Fieldset>

@@ -13,11 +13,6 @@ import { formatDate, formatTime } from "@/app/functions/datetime";
 
 export default function DiscussionAdmin({ rdt }: any) {
   const { account } = useAccount({ rdt })
-  const profile: any = {
-    username: account?.address,
-    avatar: '/user/user-1.png',
-    role: 'Admin'
-  }
 
   const [searchKeyword, setSearchKeyword] = useState('')
   const handleSearch = (e: React.FormEvent) => {
@@ -263,9 +258,9 @@ export default function DiscussionAdmin({ rdt }: any) {
         <>
           <MainTitle
             title={`Discussion`}
-            userName={profile.username}
-            userImage={profile.avatar}
-            userRole={profile.role}
+            userName={account.address}
+            userImage={account.avatar}
+            userRole={account.role}
           />
 
           <div className="grid md:grid-cols-10 xl:grid-cols-6 gap-6 max-md:mb-4">

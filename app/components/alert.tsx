@@ -1,15 +1,18 @@
-import React, { ReactNode, FC } from "react";
+import React, { ReactNode, FC, useEffect, useState } from "react";
 import Image from "next/image";
 
 type AlertProps = {
-  children: ReactNode
+  children?: ReactNode
   className?: string
   variant?: 'default' | 'primary' | 'error' | 'warning' | 'success' | 'info'
   icon?: string
   active?: boolean
+  duration?: number
+  source?: string
+  from?: string
 }
 
-export const Alert: FC<AlertProps> = ({ children, className, variant = 'default', icon, active }) => {
+export const Alert: FC<AlertProps> = ({ children, className, variant = 'default', icon, active, duration, source, from }) => {
   let variantStyle = "text-white bg-gray-800"
   let iconStyle = "filter-white"
 
@@ -38,8 +41,34 @@ export const Alert: FC<AlertProps> = ({ children, className, variant = 'default'
       break
   }
 
+  const [show, setShow] = useState('active')
+  const [message, setMessage] = useState<any>()
+
+  useEffect(() => {
+    let status = 'arcane-alert-status'
+    if (source) {
+      if (duration && (!from || from === 'sessionStorage')) {
+        setMessage(sessionStorage.getItem(source))
+        setTimeout(() => {
+          sessionStorage.removeItem(status)
+          sessionStorage.removeItem(source)
+        },duration * 1000)
+      }
+      if (duration && from === 'localStorage') {
+        setMessage(localStorage.getItem(source))
+        setTimeout(() => {
+          localStorage.removeItem(status)
+          localStorage.removeItem(source)
+        },duration * 1000)
+      }
+    }
+    if (duration) {
+      setTimeout(() => setShow(''),duration * 1000)
+    }
+  },[])
+
   return (
-    <div className={`px-5 py-3 rounded-xl shadow-main max-md:w-full absolute -top-1 right-0 transition [&:not(.active)]:translate-x-[100vw] ${variantStyle} ${className || ''} ${active && 'active'}`}>
+    <div className={`px-5 py-3 rounded-xl shadow-main max-md:w-full absolute -top-1 right-0 transition [&:not(.active)]:translate-x-[100vw] ${variantStyle} ${className || ''} ${active ? show : ''} ${duration && show}`}>
       {icon && 
         <Image
           src={icon}
@@ -50,7 +79,7 @@ export const Alert: FC<AlertProps> = ({ children, className, variant = 'default'
           priority
         />
       }
-      <span>{children}</span>
+      <span>{children ? children : message}</span>
     </div>
   )
 }

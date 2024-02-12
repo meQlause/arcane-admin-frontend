@@ -12,7 +12,7 @@ import { truncateMiddle } from "@/app/functions/truncate";
 import { Card, CardOutline } from "@/app/components/card";
 import { Badge } from "@/app/components/badge";
 import { Button } from "@/app/components/button";
-import { Fieldset, Radio } from "@/app/components/form";
+import { Fieldset, Input, Radio } from "@/app/components/form";
 import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
@@ -27,7 +27,7 @@ export type ProposalProps = {
   start?: string
   end: string
   status?: string
-  vote?: ProposalVoteProps[]
+  vote?: ProposalVoteProps[] | null
   vote_hide?: string
   className?: string
 }
@@ -131,6 +131,8 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user_address, user
 
   const [loading, setLoading] = useState(false)
 
+  const isNotCreate = pathname.indexOf('/create') < 0
+
   const [showPopupSignin, setShowPopupSignin] = useState(false)
   const handleOpenPopupSignin = () => {
     setShowPopupSignin(true)
@@ -145,6 +147,25 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user_address, user
   }
   const handleClosePopupVote = () => {
     setShowPopupVote(false)
+  }
+
+  const [showPopupShare, setShowPopupShare] = useState(false)
+  const handleOpenPopupShare = () => {
+    setShowPopupShare(true)
+  }
+  const handleClosePopupShare = () => {
+    setShowPopupShare(false)
+  }
+
+  const [copy, setCopy] = useState(false)
+  const handleCopyURL = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      setCopy(true)
+      setTimeout(() => setCopy(false),3000)
+    } catch (error) {
+      setCopy(false)
+    }
   }
 
   const [isMobile, setIsMobile] = useState(false)
@@ -229,18 +250,130 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user_address, user
                 }
               </div>
               {user_role && 
-                <Badge variant="primary" className="max-md:text-sm max-md:px-3 max-md:py-1">{user_role}</Badge>
+                <Badge variant="primary" className="max-md:text-sm max-md:px-3 max-md:pt-0.5 max-md:pb-1">{user_role}</Badge>
               }
             </div>
-            {status && 
-              <Badge variant={status?.toLowerCase() === 'active' ? 'success' : status?.toLowerCase() === 'pending' ? 'warning' : status?.toLowerCase() === 'rejected' ? 'error' : 'info'} className="max-md:hidden">{status}</Badge>
+            {isNotCreate &&
+              <div className="flex items-center gap-6 max-md:hidden">
+                <Button type="button" variant="light" loading="none" className="!border-0 !bg-transparent !w-fit !p-0 !text-gray-700 font-normal" onClick={handleOpenPopupShare}>
+                  <Image
+                    src="/icon/send-01.svg"
+                    alt="icon"
+                    className="inline mr-2 -mt-1"
+                    width={24}
+                    height={24}
+                    priority
+                  />
+                  Share
+                </Button>
+                {status && 
+                  <Badge variant={status?.toLowerCase() === 'active' ? 'success' : status?.toLowerCase() === 'pending' ? 'warning' : status?.toLowerCase() === 'rejected' ? 'error' : 'info'}>{status}</Badge>
+                }
+              </div>
             }
           </div>
         </div>
         <div className="px-2 mt-2">
-          <h1 className="text-primary-800 text-xl md:text-3xl font-semibold font-maven-pro mb-6 md:mb-3">{title}</h1>
-          {status && 
-            <Badge variant={status?.toLowerCase() === 'active' ? 'success' : status?.toLowerCase() === 'pending' ? 'warning' : status?.toLowerCase() === 'rejected' ? 'error' : 'info'} className="max-md:text-sm max-md:px-3 max-md:py-1 mb-3 md:hidden">{status}</Badge>
+          <h1 className={`${title.length > 0 ? 'text-primary-800 font-semibold' : 'text-gray-300 italic'} text-xl md:text-3xl font-maven-pro mb-6 md:mb-3`}>
+            {title.length > 0 ? title : 'Empty title'}
+          </h1>
+          {isNotCreate &&
+            <>
+              <div className="flex items-center justify-between gap-4 mb-3 md:hidden">
+                {status && 
+                  <Badge variant={status?.toLowerCase() === 'active' ? 'success' : status?.toLowerCase() === 'pending' ? 'warning' : status?.toLowerCase() === 'rejected' ? 'error' : 'info'} className="max-md:text-sm max-md:px-3 max-md:pt-0.5 max-md:pb-1">{status}</Badge>
+                }
+                <Button type="button" variant="light" loading="none" className="!border-0 !bg-transparent !w-fit !p-0 !text-gray-700 font-normal max-md:text-sm" onClick={handleOpenPopupShare}>
+                  <Image
+                    src="/icon/send-01.svg"
+                    alt="icon"
+                    className="inline mr-2 -mt-1"
+                    width={18}
+                    height={18}
+                    priority
+                  />
+                  Share
+                </Button>
+              </div>
+              <Popup show={showPopupShare} backdropClose={true} handleClose={handleClosePopupShare}>
+                <PopupHeader variant={"primary"} icon={"/icon/send-01.svg"} />
+                <PopupBody>
+                  <h3 className="text-xl font-semibold mb-6">Share this proposal</h3>
+                  <Fieldset className="relative">
+                    {copy &&
+                      <div className="bg-success-100 text-success-600 px-5 py-3.5 rounded-xl w-full h-full absolute top-0 left-0">
+                        <Image
+                          src="/icon/check-circle.svg"
+                          alt="icon"
+                          className="inline-block -mt-1 mr-1.5 -ml-1 filter-success-500"
+                          width={24}
+                          height={24}
+                          priority
+                        />
+                        <span className="max-md:hidden">Proposal URL copied successfully</span>
+                        <span className="md:hidden">Copied successfully</span>
+                      </div>
+                    }
+                    <Input type={"text"} label={"URL"} showLabel={false} id={"share-url"} name={"share-url"} defaultValue={window.location.href} disabled={true} />
+                  </Fieldset>
+                  <div className="relative">
+                    <div className="flex gap-4 md:gap-7 md:flex-wrap max-md:overflow-auto">
+                      <div className="flex items-center justify-center flex-col gap-2 group cursor-pointer" onClick={handleCopyURL}>
+                        <div className="w-16 h-16 p-4 rounded-full transition border border-gray-200 group-hover:border-primary-200 group-hover:bg-primary-100">
+                          <Image
+                            src="/icon/link-01.svg"
+                            alt="icon"
+                            width={24}
+                            height={24}
+                            className="w-full h-full transition group-hover:filter-primary-600"
+                          />
+                        </div>
+                        <div className="text-xs">Copy</div>
+                      </div>
+                      <Link href={`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}`} target={isMobile ? '_self' : '_blank'} className="flex items-center justify-center flex-col gap-2 group">
+                        <div className="w-16 h-16 p-4 rounded-full transition border border-gray-200 group-hover:border-primary-200 group-hover:bg-primary-100">
+                          <Image
+                            src="/icon/social-media-telegram.svg"
+                            alt="icon"
+                            width={24}
+                            height={24}
+                            className="w-full h-full transition group-hover:filter-primary-600"
+                          />
+                        </div>
+                        <div className="text-xs">Telegram</div>
+                      </Link>
+                      <Link href={`https://twitter.com/share?text=${encodeURIComponent(window.location.href)}`} target={isMobile ? '_self' : '_blank'} className="flex items-center justify-center flex-col gap-2 group">
+                        <div className="w-16 h-16 p-4 rounded-full transition border border-gray-200 group-hover:border-primary-200 group-hover:bg-primary-100">
+                          <Image
+                            src="/icon/social-media-twitter.svg"
+                            alt="icon"
+                            width={24}
+                            height={24}
+                            className="w-full h-full transition group-hover:filter-primary-600"
+                          />
+                        </div>
+                        <div className="text-xs">Twitter</div>
+                      </Link>
+                      <Link href={`https://api.whatsapp.com/send/?text=${encodeURIComponent(window.location.href)}`} target={isMobile ? '_self' : '_blank'} className="flex items-center justify-center flex-col gap-2 group">
+                        <div className="w-16 h-16 p-4 rounded-full transition border border-gray-200 group-hover:border-primary-200 group-hover:bg-primary-100">
+                          <Image
+                            src="/icon/social-media-whatsapp.svg"
+                            alt="icon"
+                            width={24}
+                            height={24}
+                            className="w-full h-full transition group-hover:filter-primary-600"
+                          />
+                        </div>
+                        <div className="text-xs">WhatsApp</div>
+                      </Link>
+                    </div>
+                  </div>
+                </PopupBody>
+                <PopupFooter>
+                  <Button type="button" variant="light" loading="none" className="md:w-fit" onClick={handleClosePopupShare}>Back</Button>
+                </PopupFooter>
+              </Popup>
+            </>
           }
         </div>
         <div className="absolute top-0 left-0 right-0 bottom-0 w-full h-3/4 flex justify-between">
@@ -264,7 +397,11 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user_address, user
       <section className="grid md:grid-cols-12 gap-x-8">
         <div className="md:col-span-7 xl:col-span-8 h-fit">
           <Card className="mb-8">
-            <div dangerouslySetInnerHTML={{ __html: description.replace(/\n/g, '<br>') }} />
+            {description.length > 0 ?
+              <div dangerouslySetInnerHTML={{ __html: description.replace(/\n/g, '<br>') }} />
+            :
+              <div className="italic text-gray-300">Empty description</div>
+            }
           </Card>
 
           {/* <Card className="mb-8">
@@ -285,29 +422,52 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user_address, user
           <Card className="mb-8">
             <h2 className="text-lg font-maven-pro font-semibold text-center mb-6">Cast Your Vote</h2>
             {(account || walletConnect) ?
-              <form spellCheck="false" onSubmit={handleVoteSubmit}>
-                {vote?.map((item: any, index: number) => (
-                  <Fieldset key={index} className="!mb-3 !last:mb-0">
-                    <Radio id={`proposal-voting-${index}`} name={"proposal-voting"} value={item.label} onChange={(e) => setVoting(e.target.value)}>
-                      {item.label}
-                    </Radio>
-                  </Fieldset>
-                ))}
-                <Button type="button" variant="primary" loading="none" disabled={!filled} onClick={handleOpenPopupVote}>
-                  Vote
-                </Button>
-                <Popup show={showPopupVote} backdropClose={true} handleClose={handleClosePopupVote}>
-                  <PopupHeader variant={"primary"} icon={"/icon/alert-circle.svg"} />
-                  <PopupBody>
-                    <h3 className="text-xl font-semibold mb-4">Are you sure for your vote?</h3>
-                    <p>Make sure your choice is correct.</p>
-                  </PopupBody>
-                  <PopupFooter>
-                    <Button type="button" variant="light" loading="none" className="md:w-fit" onClick={handleClosePopupVote}>Cancel</Button>
-                    <Button type="submit" variant="primary" className="md:w-fit" loading={loading}>Submit Vote</Button>
-                  </PopupFooter>
-                </Popup>
-              </form>
+              <>
+                {isNotCreate ?
+                  <form spellCheck="false" onSubmit={handleVoteSubmit}>
+                    {vote?.map((item: any, index: number) => (
+                      <Fieldset key={index} className="!mb-3 !last:mb-0">
+                        <Radio id={`proposal-voting-${index}`} name={"proposal-voting"} value={item.label} onChange={(e) => setVoting(e.target.value)}>
+                          {item.label}
+                        </Radio>
+                      </Fieldset>
+                    ))}
+                    <Button type="button" variant="primary" loading="none" disabled={!filled} onClick={handleOpenPopupVote}>
+                      Vote
+                    </Button>
+                    <Popup show={showPopupVote} backdropClose={true} handleClose={handleClosePopupVote}>
+                      <PopupHeader variant={"primary"} icon={"/icon/alert-circle.svg"} />
+                      <PopupBody>
+                        <h3 className="text-xl font-semibold mb-4">Are you sure for your vote?</h3>
+                        <p>Make sure your choice is correct.</p>
+                      </PopupBody>
+                      <PopupFooter>
+                        <Button type="button" variant="light" loading="none" className="md:w-fit" onClick={handleClosePopupVote}>Cancel</Button>
+                        <Button type="submit" variant="primary" className="md:w-fit" loading={loading}>Submit Vote</Button>
+                      </PopupFooter>
+                    </Popup>
+                  </form>
+                :
+                  <>
+                    {(vote && vote.length > 0) ?
+                      <>
+                        {vote?.map((item: any, index: number) => (
+                          <Fieldset key={index} className="!mb-3 !last:mb-0">
+                            <Radio id={`proposal-voting-${index}`} name={"proposal-voting"} value={item.label} onChange={(e) => setVoting(e.target.value)}>
+                              {item.label}
+                            </Radio>
+                          </Fieldset>
+                        ))}
+                        <Button type="button" variant="primary" loading="none" disabled={!filled}>
+                          Vote
+                        </Button>
+                      </>
+                    :
+                      <p className="italic text-gray-300">Empty choices</p>
+                    }
+                  </>
+                }
+              </>
             :
               <>
                 <p className="text-center mb-7">Sorry, you must to connect your wallet first to vote!</p>
@@ -336,9 +496,9 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user_address, user
                     {voter.map((item: any, index: number) => {
                       return (
                         <tr key={index} className="[&_td]:py-6 [&:not(:last-child)_td]:border-b [&_td]:border-gray-300">
-                          {(item.avatar || item.user) &&
+                          {(item.avatar || item.user_address) &&
                             <td valign="top">
-                              <div className="flex gap-2" title={item.user}>
+                              <div className="flex gap-2" title={item.user_address}>
                                 {item.avatar &&
                                   <Image
                                     src={item.avatar}
@@ -349,7 +509,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user_address, user
                                     unoptimized
                                   />
                                 }
-                                {item.user && <span className="line-clamp-1 break-all">{item.user}</span>}
+                                {item.user_address && <span className="line-clamp-1 break-all">{item.user_address}</span>}
                               </div>
                             </td>
                           }
@@ -477,7 +637,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user_address, user
                       <tr key={index} className="[&_td]:py-6 [&:not(:last-child)_td]:border-b [&_td]:border-gray-300">
                         <td>
                           <div className="flex justify-between gap-4 mb-4">
-                            <div className="flex gap-2" title={item.user}>
+                            <div className="flex gap-2" title={item.user_address}>
                               {item.avatar &&
                                 <Image
                                   src={item.avatar}
@@ -488,7 +648,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user_address, user
                                   unoptimized
                                 />
                               }
-                              {item.user && <span className="line-clamp-1 break-all">{truncateMiddle(item.user,13)}</span>}
+                              {item.user_address && <span className="line-clamp-1 break-all">{truncateMiddle(item.user_address,13)}</span>}
                             </div>
                             <div className="text-right">
                               {item.amount && <span className="text-primary-600 font-medium mr-1">{formatNumber(item.amount)}</span>}

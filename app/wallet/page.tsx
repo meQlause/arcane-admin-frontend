@@ -78,7 +78,7 @@ export default function Wallet({ rdt, path, variant }: any) {
             height={44}
             priority
           />
-          <p className="font-maven-pro font-medium text-center">Sorry, You must connect your wallet first to use this page!</p>
+          <p className="font-maven-pro font-medium text-center">Sorry, you have to connect your wallet first!</p>
           <hr className="mt-5 mb-6" />
           <Button type="button" variant="primary" disabled={isButtonDisabled} onClick={openConnectWallet}>
             Connect Wallet

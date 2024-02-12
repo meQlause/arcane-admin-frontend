@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAccount } from "@/app/auth/account";
 import { Card } from "@/app/components/card";
@@ -13,7 +13,6 @@ import { formatDate } from "@/app/functions/datetime";
 
 export default function ProposalCreateMember({ rdt }: any) {
   const { account } = useAccount({ rdt })
-  const pathname = usePathname()
   const router = useRouter()
 
   const [loading, setLoading] = useState(false)
@@ -125,7 +124,7 @@ export default function ProposalCreateMember({ rdt }: any) {
     const isFormFilled =
       title !== '' &&
       description !== '' &&
-      votingOptions.length > 0 &&
+      votingOptions.length > 1 &&
       votingDuration !== ''
     setFilled(isFormFilled)
   }, [
@@ -146,7 +145,7 @@ export default function ProposalCreateMember({ rdt }: any) {
         top: 0,
         behavior: "smooth"
       })
-    },10)
+    },50)
   }
   const handleOpenPreview = () => {
     setPreview(true)
@@ -164,11 +163,7 @@ export default function ProposalCreateMember({ rdt }: any) {
     setTimeout(() => {
       sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
       sessionStorage.setItem('arcane-alert-message','Proposal created successfully')
-      if ( pathname.indexOf('admin') > -1 ) {
-        router.push('/admin/proposal')
-      } else {
-        router.push('/proposal')
-      }
+      router.push('/proposal')
     },1000)
   }
 
@@ -333,12 +328,12 @@ export default function ProposalCreateMember({ rdt }: any) {
                   user_address={account.address}
                   user_role={account.role}
                   avatar={account.avatar}
-                  title={title ? title : 'Empty title'}
-                  description={description ? description : 'Empty description'}
+                  title={title ? title : ''}
+                  description={description ? description : ''}
                   photos={blobImage}
                   start={today}
                   end={getEndDate(Number(votingDuration))}
-                  vote={votingOptions}
+                  vote={votingOptions ? votingOptions : null}
                   handleBack={handleClosePreview}
                 />
               </>

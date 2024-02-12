@@ -124,7 +124,7 @@ export default function ProposalCreateAdmin({ rdt }: any) {
     const isFormFilled =
       title !== '' &&
       description !== '' &&
-      votingOptions.length > 0 &&
+      votingOptions.length > 1 &&
       votingDuration !== ''
     setFilled(isFormFilled)
   }, [
@@ -145,7 +145,7 @@ export default function ProposalCreateAdmin({ rdt }: any) {
         top: 0,
         behavior: "smooth"
       })
-    },10)
+    },50)
   }
   const handleOpenPreview = () => {
     setPreview(true)
@@ -328,12 +328,12 @@ export default function ProposalCreateAdmin({ rdt }: any) {
                   user_address={account.username}
                   user_role={account.role}
                   avatar={account.avatar}
-                  title={title ? title : 'Empty title'}
-                  description={description ? description : 'Empty description'}
+                  title={title ? title : ''}
+                  description={description ? description : ''}
                   photos={blobImage}
                   start={today}
                   end={getEndDate(Number(votingDuration))}
-                  vote={votingOptions}
+                  vote={votingOptions ? votingOptions : null}
                   handleBack={handleClosePreview}
                 />
               </>

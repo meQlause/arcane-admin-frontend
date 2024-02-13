@@ -5,20 +5,26 @@ import { Card } from "@/app/components/card";
 
 export default function UnderConstruction() {
   return (
-    <Card>
-      <Image
-        src="/icon/alert-circle.svg"
-        alt="icon"
-        className="filter-primary-500 mx-auto mb-4"
-        width={44}
-        height={44}
-        priority
-      />
-      <p className="font-maven-pro font-medium text-center">Sorry, this page is under development. This page will be available soon.</p>
-      <hr className="mt-5 mb-6" />
-      <Link href="/">
-        <Button type={"button"} variant={"primary"} className={"w-fit mx-auto mt-6"}>Return home</Button>
-      </Link>
+    <Card className="my-4">
+      <div className="grid md:grid-cols-2 md:gap-12 items-center px-4">
+        <Image
+          src="/under-construction.svg"
+          alt="image"
+          className="filter-primary-600"
+          width={512}
+          height={512}
+          priority
+        />
+        <div className="font-maven-pro font-medium max-md:text-center">
+          <h1 className="text-3xl text-primary-700 font-semibold mb-2">Sorry...</h1>
+          <p>This page is under development.</p>
+          <p>It will be available soon.</p>
+          <hr className="mt-5 mb-6" />
+          <Link href="/">
+            <Button type={"button"} variant={"primary"} className={"md:!w-fit"}>Return home</Button>
+          </Link>
+        </div>
+      </div>
     </Card>
   )
 }

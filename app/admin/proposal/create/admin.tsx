@@ -329,6 +329,7 @@ export default function ProposalCreateAdmin({ rdt }: any) {
                   user_role={account.role}
                   avatar={account.avatar}
                   title={title ? title : ''}
+                  ComponentAddres=''
                   description={description ? description : ''}
                   photos={blobImage}
                   start={today}

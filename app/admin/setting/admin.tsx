@@ -93,14 +93,6 @@ export default function SettingAdmin({ rdt }: any) {
     ).then((res) => res.json());
   }
 
-  useEffect(() => {
-  const fetchData = async () => {
-    const data = await getAdminList();
-    setAdminList(data);
-  }
-   fetchData();
-  }, [])
-
   const [showPopupAvatar, setShowPopupAvatar] = useState(false)
   const [avatarMessage, setAvatarMessage] = useState('')
   const handleClosePopupAvatar = () => {

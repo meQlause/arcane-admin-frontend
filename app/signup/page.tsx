@@ -32,13 +32,12 @@ export default function SignUp() {
       transactionManifest: rtm_signup,
       message: 'Mint Member Arcane Badge'
     })
-    
     if (result.isErr()) {
       /* write logic here when the transaction signed on wallet unsucessfull */
       setLoading(false)
       throw new Error("Minting Error")
     }
-
+    
     /* write logic here when the transaction signed on wallet sucessfull */
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/register`,

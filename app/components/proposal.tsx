@@ -16,6 +16,7 @@ import { Fieldset, Input, Radio } from "@/app/components/form";
 import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
+import { addVote } from "../rtm_generator"
 
 export type ProposalProps = {
   id: string
@@ -23,6 +24,7 @@ export type ProposalProps = {
   user_role?: string
   title: string
   description: string
+  ComponentAddress:string
   avatar: string
   start?: string
   end: string
@@ -32,7 +34,7 @@ export type ProposalProps = {
   className?: string
 }
 
-type ProposalVoteProps = {
+export type ProposalVoteProps = {
   label: string
   amount?: number
   token?: number
@@ -124,11 +126,11 @@ type ProposalVoterProps = {
   label?: string
 }
 
-export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user_address, user_role, title, description, avatar, start, end, status, vote, vote_hide, voter, photos, handleBack, account }) => {
-  const { walletConnect, role, rdt } = useWallet()
+export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, user_address, user_role, title, description, avatar, start, end, status, vote, vote_hide, voter, photos, handleBack, account }) => {
+  const { walletConnect, role, rdt , access_token, nft_id} = useWallet()
   const pathname = usePathname()
   const router = useRouter()
-
+  const [tokenAmount, setTokenAmount] = useState<string>('0')
   const [loading, setLoading] = useState(false)
 
   const isNotCreate = pathname.indexOf('/create') < 0
@@ -198,9 +200,45 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user_address, user
     setFilled(isFormFilled)
   }, [voting])
 
-  const handleVoteSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleVoteSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
+
+    const addVoting = addVote(account?.address, tokenAmount.trim(), nft_id, ComponentAddress, voting).trim()
+    console.log(addVoting)
+    const result = await rdt.walletApi.sendTransaction({
+      transactionManifest: addVoting,
+      message: 'add voting'
+    })
+    if (result.isErr()) {
+      /* write logic here when the transaction signed on wallet unsucessfull */
+      throw new Error("Error add voting")
+    }
+    
+    console.log(result.value.transactionIntentHash)
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/add-vote`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            'address' : account?.address, 
+            'key': voting, 
+            'tokenAmount': Number(tokenAmount), 
+            'voteId': Number(id)
+          }),
+          headers: { 
+            'content-type': 'application/json',        
+            'Authorization': `Bearer ${access_token}`
+          },
+        }
+    )
+
+    if (res.ok) {
+      /* logic here when data is recorded on database */
+      console.log("success")
+    }
+
     console.log('submitting...')
     setTimeout(() => {
       sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
@@ -250,7 +288,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user_address, user
                 }
               </div>
               {user_role && 
-                <Badge variant="primary" className="max-md:text-sm max-md:px-3 max-md:pt-0.5 max-md:pb-1">{user_role}</Badge>
+                 <Badge variant="primary" className="max-md:text-sm max-md:px-3 max-md:pt-0.5 max-md:pb-1">{user_role}</Badge>
               }
             </div>
             {isNotCreate &&
@@ -274,7 +312,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user_address, user
           </div>
         </div>
         <div className="px-2 mt-2">
-          <h1 className={`${title.length > 0 ? 'text-primary-800 font-semibold' : 'text-gray-300 italic'} text-xl md:text-3xl font-maven-pro mb-6 md:mb-3`}>
+        <h1 className={`${title.length > 0 ? 'text-primary-800 font-semibold' : 'text-gray-300 italic'} text-xl md:text-3xl font-maven-pro mb-6 md:mb-3`}>
             {title.length > 0 ? title : 'Empty title'}
           </h1>
           {isNotCreate &&
@@ -397,7 +435,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user_address, user
       <section className="grid md:grid-cols-12 gap-x-8">
         <div className="md:col-span-7 xl:col-span-8 h-fit">
           <Card className="mb-8">
-            {description.length > 0 ?
+          {description.length > 0 ?
               <div dangerouslySetInnerHTML={{ __html: description.replace(/\n/g, '<br>') }} />
             :
               <div className="italic text-gray-300">Empty description</div>
@@ -422,7 +460,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user_address, user
           <Card className="mb-8">
             <h2 className="text-lg font-maven-pro font-semibold text-center mb-6">Cast Your Vote</h2>
             {(account || walletConnect) ?
-              <>
+            <>
                 {isNotCreate ?
                   <form spellCheck="false" onSubmit={handleVoteSubmit}>
                     {vote?.map((item: any, index: number) => (
@@ -432,6 +470,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user_address, user
                         </Radio>
                       </Fieldset>
                     ))}
+                    <Input type={"number"} className="!mb-3 !last:mb-0" id={"general-name"} name={"general-name"} variant={"secondary"} showLabel={true} required={true} label={"Token"} placeholder={"Amount of token you will commit"} defaultValue={'0'} onChange={(e) => setTokenAmount(e.target.value)} />
                     <Button type="button" variant="primary" loading="none" disabled={!filled} onClick={handleOpenPopupVote}>
                       Vote
                     </Button>

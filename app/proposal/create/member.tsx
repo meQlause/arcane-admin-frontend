@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAccount } from "@/app/auth/account";
 import { Card } from "@/app/components/card";
@@ -10,9 +10,13 @@ import { Button } from "@/app/components/button";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
 import { ProposalDetail } from "@/app/components/proposal";
 import { formatDate } from "@/app/functions/datetime";
+import { createVote } from "@/app/rtm_generator";
+import { useWallet } from "@/app/auth/wallet";
 
 export default function ProposalCreateMember({ rdt }: any) {
   const { account } = useAccount({ rdt })
+  const { nft_id , access_token} = useWallet()
+  const pathname = usePathname()
   const router = useRouter()
 
   const [loading, setLoading] = useState(false)
@@ -156,14 +160,53 @@ export default function ProposalCreateMember({ rdt }: any) {
     scrollToTop()
   }
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
-    console.log('submitting...')
+    const votes = votingOptions.map(vote => vote.label);
+    const createVoting = createVote(account?.address, nft_id, votes).trim()
+    console.log(createVoting)
+    const result = await rdt.walletApi.sendTransaction({
+      transactionManifest: createVoting,
+      message: 'create voting'
+    })
+    if (result.isErr()) {
+      /* write logic here when the transaction signed on wallet unsucessfull */
+      throw new Error("Error creating voting")
+    }
+    
+    console.log(result.value.transactionIntentHash)
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/create-vote`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            'address' : account?.address, 
+            'title': title, 
+            'description': description, 
+            'txId': result.value.transactionIntentHash, 
+            'votes': votes}),
+          headers: { 
+            'content-type': 'application/json',        
+            'Authorization': `Bearer ${access_token}`
+          },
+        }
+    )
+
+    if (res.ok) {
+      /* logic here when data is recorded on database */
+      console.log("success")
+    }
+
     setTimeout(() => {
       sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
       sessionStorage.setItem('arcane-alert-message','Proposal created successfully')
-      router.push('/proposal')
+      if ( pathname.indexOf('admin') > -1 ) {
+        router.push('/admin/proposal')
+      } else {
+        router.push('/proposal')
+      }
     },1000)
   }
 
@@ -330,6 +373,7 @@ export default function ProposalCreateMember({ rdt }: any) {
                   avatar={account.avatar}
                   title={title ? title : ''}
                   description={description ? description : ''}
+                  ComponentAddress=""
                   photos={blobImage}
                   start={today}
                   end={getEndDate(Number(votingDuration))}

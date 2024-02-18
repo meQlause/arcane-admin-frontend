@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useAccount } from "@/app/auth/account";
@@ -13,7 +13,7 @@ import { ProposalList, ProposalProps } from "@/app/components/proposal";
 
 export default function DashboardAdmin({ rdt }: any) {
   const { account } = useAccount({ rdt })
-
+  const [votesList, setVotesList] = useState<ProposalProps[]>([])
   const [currentOptionsYear, setCurrentOptionsYear] = useState('')
   const optionsYear: any = [
     {
@@ -94,35 +94,66 @@ export default function DashboardAdmin({ rdt }: any) {
     },
   ]
 
-  const dataProposal: ProposalProps[] = [
-    {
-      id: '1',
-      user_address: 'rdx1shb1412422216dba',
-      title: 'Arcane Labyrinth',
-      avatar: '/user/user-1.png',
-      description: 'Laborum officia incididunt consequat veniam tempor ea officia minim id excepteur pariatur nisi dolor. Deserunt occaecat ullamco est consequat. Culpa consequat veniam ullamco veniam aute culpa laborum nostrud dolor mollit non elit veniam commodo.',
-      end: 'Ended, 28 Nov 2023',
-      status: 'Pending'
-    },
-    {
-      id: '2',
-      user_address: 'rdx1shb1412422216dbb',
-      title: 'Arcane Labyrinth',
-      avatar: '/user/user-1.png',
-      description: 'Qui aliquip reprehenderit veniam sit eu nostrud ad ipsum laboris exercitation.Tempor nulla irure aute minim ea occaecat do magna velit voluptate occaecat minim duis.Elit ex minim exercitation labore et.',
-      end: 'Ended, 28 Nov 2023',
-      status: 'Pending'
-    },
-    {
-      id: '3',
-      user_address: 'rdx1shb1412422216dbc',
-      title: 'Arcane Labyrinth',
-      avatar: '/user/user-1.png',
-      description: 'Laboris labore culpa duis in esse in reprehenderit excepteur sit ut labore dolore.Aliquip do duis occaecat voluptate.Ad qui ullamco sunt sunt pariatur est ullamco.Id incididunt et ipsum elit non veniam et laborum elit anim.',
-      end: 'Ended, 28 Nov 2023',
-      status: 'Pending'
+  const getVotes = async () => {
+    return await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/get-votes`,
+      {
+        method: 'GET',
+        headers: { 
+          'content-type': 'application/json',
+        },
+      }
+    ).then((res) => res.json());
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getVotes();
+      let dataProposal = data.map((item:any) => {
+        return {
+          id: item.id,
+          user_address: item.address.address,
+          avatar: '/user/user-1.png',
+          title: item.title,
+          description: item.description,
+          end: `Ends on ${new Date(new Date(item.endDate).setDate(new Date(item.endDate).getDate() + 7)).toLocaleDateString()}`,
+          status: item.isPending ? 'pending' : 'active',
+          vote: Object.entries(item.vote_choice).map(([label, amount]) => ({ label, amount }))
+        };
+      })
+      setVotesList(dataProposal);
     }
-  ]
+    fetchData();
+  }, [])
+  // const dataProposal: ProposalProps[] = [
+  //   {
+  //     id: '1',
+  //     user_address: 'rdx1shb1412422216dba',
+  //     title: 'Arcane Labyrinth',
+  //     avatar: '/user/user-1.png',
+  //     description: 'Laborum officia incididunt consequat veniam tempor ea officia minim id excepteur pariatur nisi dolor. Deserunt occaecat ullamco est consequat. Culpa consequat veniam ullamco veniam aute culpa laborum nostrud dolor mollit non elit veniam commodo.',
+  //     end: 'Ended, 28 Nov 2023',
+  //     status: 'Pending'
+  //   },
+  //   {
+  //     id: '2',
+  //     user_address: 'rdx1shb1412422216dbb',
+  //     title: 'Arcane Labyrinth',
+  //     avatar: '/user/user-1.png',
+  //     description: 'Qui aliquip reprehenderit veniam sit eu nostrud ad ipsum laboris exercitation.Tempor nulla irure aute minim ea occaecat do magna velit voluptate occaecat minim duis.Elit ex minim exercitation labore et.',
+  //     end: 'Ended, 28 Nov 2023',
+  //     status: 'Pending'
+  //   },
+  //   {
+  //     id: '3',
+  //     user_address: 'rdx1shb1412422216dbc',
+  //     title: 'Arcane Labyrinth',
+  //     avatar: '/user/user-1.png',
+  //     description: 'Laboris labore culpa duis in esse in reprehenderit excepteur sit ut labore dolore.Aliquip do duis occaecat voluptate.Ad qui ullamco sunt sunt pariatur est ullamco.Id incididunt et ipsum elit non veniam et laborum elit anim.',
+  //     end: 'Ended, 28 Nov 2023',
+  //     status: 'Pending'
+  //   }
+  // ]
 
   return (
     <>
@@ -239,7 +270,7 @@ export default function DashboardAdmin({ rdt }: any) {
                 </form>
               </div>
               <div className="grid gap-6 mb-2 lg:mb-1">
-                {dataProposal.map((item: any) => (
+                {votesList.map((item: any) => (
                   <Link key={item.id} href={'proposal/' + item.id}>
                     <ProposalList {...item} />
                   </Link>

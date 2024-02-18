@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useAccount } from "@/app/auth/account";
@@ -15,6 +15,7 @@ export default function ProposalMember({ rdt }: any) {
   const { account } = useAccount({ rdt })
 
   const [currentOptionsActive, setCurrentOptionsActive] = useState('All')
+  const [voteList, setVotesList] = useState<ProposalProps[]>([])
   const optionsActive: any = [
     {
       value: 'All',
@@ -43,46 +44,109 @@ export default function ProposalMember({ rdt }: any) {
     setSearchKeyword(e.target.value)
   }
 
-  const dataProposal: ProposalProps[] = [
-    {
-      id: '1',
-      user_address: 'rdx1shb1412422216dba',
-      avatar: '/user/user-1.png',
-      title: 'Arcane Labyrinth',
-      description: 'Laborum officia incididunt consequat veniam tempor ea officia minim id excepteur pariatur nisi dolor. Deserunt occaecat ullamco est consequat. Culpa consequat veniam ullamco veniam aute culpa laborum nostrud dolor mollit non elit veniam commodo.',
-      end: 'Ended, 28 Nov 2023',
-      status: 'Pending'
-    },
-    {
-      id: '2',
-      user_address: 'rdx1shb1412422216dbb',
-      avatar: '/user/user-1.png',
-      title: '[ARFC] Add fUSDC to Ethereum v3',
-      description: 'Qui aliquip reprehenderit veniam sit eu nostrud ad ipsum laboris exercitation.Tempor nulla irure aute minim ea occaecat do magna velit voluptate occaecat minim duis.Elit ex minim exercitation labore et.',
-      end: 'Ends in 2 Weeks - 24 Nov 2023',
-      status: 'Active',
-      vote: [
-        {
-          label: 'Yes',
-          amount: 120,
-          selected: true
+  const getVotes = async () => {
+    return await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/get-votes`,
+      {
+        method: 'GET',
+        headers: { 
+          'content-type': 'application/json',
         },
-        {
-          label: 'No',
-          amount: 48
-        }
-      ]
-    },
-    {
-      id: '3',
-      user_address: 'rdx1shb1412422216dbc',
-      avatar: '/user/user-1.png',
-      title: 'Arcane Labyrinth',
-      description: 'Laboris labore culpa duis in esse in reprehenderit excepteur sit ut labore dolore.Aliquip do duis occaecat voluptate.Ad qui ullamco sunt sunt pariatur est ullamco.Id incididunt et ipsum elit non veniam et laborum elit anim.',
-      end: 'Ended, 28 Nov 2023',
-      status: 'Pending'
+      }
+    ).then((res) => res.json());
+  }
+
+  useEffect(() => {
+    // response data
+    //   [
+    //     {
+    //         "id": "5",
+    //         "startDate": "2024-02-17T12:02:34.796Z",
+    //         "endDate": "2024-02-17T12:02:34.796Z",
+    //         "title": "test",
+    //         "description": "test",
+    //         "componentAddress": "component_tdx_2_1cznduwd6y9lr2a0dcm0yhdnclc9zc2esnz0ehvj7uwzdv873zvnc26",
+    //         "voteTokenAmount": {
+    //             "For": 0,
+    //             "Againts": 0,
+    //             "Abstain": 0
+    //         },
+    //         "voteAddressCount": {
+    //             "For": 0,
+    //             "Againts": 0,
+    //             "Abstain": 0
+    //         },
+    //         "isPending": true,
+    //         "address": {
+    //             "id": 4,
+    //             "address": "account_tdx_2_12yq620haqzlptj7tumgnyl8a9lwpg0z3cwtfyha754rtw2lggn033c",
+    //             "role": "member",
+    //             "vault_admin_address": null,
+    //             "nft_id": null,
+    //             "signUpAt": "2024-02-17T11:28:55.931Z"
+    //         }
+    //     }
+    // ]
+    const fetchData = async () => {
+      const data = await getVotes();
+      let dataProposal = data.map((item:any) => {
+        return {
+          id: item.id,
+          user_address: item.address.address,
+          avatar: '/user/user-1.png',
+          title: item.title,
+          description: item.description,
+          end: `Ends on ${new Date(new Date(item.endDate).setDate(new Date(item.endDate).getDate() + 7)).toLocaleDateString()}`,
+          status: item.isPending ? 'pending' : 'active',
+          vote: Object.entries(item.voteTokenAmount).map(([label, amount]) => ({ label, amount }))
+        };
+      })
+      setVotesList(dataProposal);
     }
-  ]
+    fetchData();
+  }, [])
+  
+
+  // const dataProposal: ProposalProps[] = [
+  //   {
+  //     id: '1',
+  //     user_address: 'rdx1shb1412422216dba',
+  //     avatar: '/user/user-1.png',
+  //     title: 'Arcane Labyrinth',
+  //     description: 'Laborum officia incididunt consequat veniam tempor ea officia minim id excepteur pariatur nisi dolor. Deserunt occaecat ullamco est consequat. Culpa consequat veniam ullamco veniam aute culpa laborum nostrud dolor mollit non elit veniam commodo.',
+  //     end: 'Ended, 28 Nov 2023',
+  //     status: 'Pending' 
+  //   },
+  //   {
+  //     id: '2',
+  //     user_address: 'rdx1shb1412422216dbb',
+  //     avatar: '/user/user-1.png',
+  //     title: '[ARFC] Add fUSDC to Ethereum v3',
+  //     description: 'Qui aliquip reprehenderit veniam sit eu nostrud ad ipsum laboris exercitation.Tempor nulla irure aute minim ea occaecat do magna velit voluptate occaecat minim duis.Elit ex minim exercitation labore et.',
+  //     end: 'Ends in 2 Weeks - 24 Nov 2023',
+  //     status: 'Active',
+  //     vote: [
+  //       {
+  //         label: 'Yes',
+  //         amount: 120,
+  //         selected: true
+  //       },
+  //       {
+  //         label: 'No',
+  //         amount: 48
+  //       }
+  //     ]
+  //   },
+  //   {
+  //     id: '3',
+  //     user_address: 'rdx1shb1412422216dbc',
+  //     avatar: '/user/user-1.png',
+  //     title: 'Arcane Labyrinth',
+  //     description: 'Laboris labore culpa duis in esse in reprehenderit excepteur sit ut labore dolore.Aliquip do duis occaecat voluptate.Ad qui ullamco sunt sunt pariatur est ullamco.Id incididunt et ipsum elit non veniam et laborum elit anim.',
+  //     end: 'Ended, 28 Nov 2023',
+  //     status: 'Pending'
+  //   }
+  // ]
 
   return (
     <>
@@ -137,7 +201,7 @@ export default function ProposalMember({ rdt }: any) {
           </div>
         </div>
         <div className="grid gap-6 mb-2 lg:mb-1">
-          {dataProposal.map((item: any) => (
+          {voteList.map((item: any) => (
             <Link key={item.id} href={'proposal/' + item.id}>
               <ProposalList {...item} />
             </Link>

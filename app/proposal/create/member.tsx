@@ -1,13 +1,14 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAccount } from "@/app/auth/account";
 import { Card } from "@/app/components/card";
 import { Checkbox, Fieldset, Input, InputFile, Radio, Textarea } from "@/app/components/form";
 import { Button } from "@/app/components/button";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
+import { Alert } from "@/app/components/alert";
 import { ProposalDetail } from "@/app/components/proposal";
 import { formatDate } from "@/app/functions/datetime";
 import { createVote } from "@/app/rtm_generator";
@@ -16,7 +17,6 @@ import { useWallet } from "@/app/auth/wallet";
 export default function ProposalCreateMember({ rdt }: any) {
   const { account } = useAccount({ rdt })
   const { nft_id , access_token} = useWallet()
-  const pathname = usePathname()
   const router = useRouter()
 
   const [loading, setLoading] = useState(false)
@@ -160,12 +160,17 @@ export default function ProposalCreateMember({ rdt }: any) {
     scrollToTop()
   }
 
+  const [errorSubmit, setErrorSubmit] = useState(false)
+  useEffect(() => {
+    if (errorSubmit) setTimeout(() => setErrorSubmit(false),11000)
+  },[errorSubmit])
+
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     const votes = votingOptions.map(vote => vote.label);
     const createVoting = createVote(account?.address, nft_id, votes).trim()
-    console.log(createVoting)
+    // console.log(createVoting)
     const result = await rdt.walletApi.sendTransaction({
       transactionManifest: createVoting,
       message: 'create voting'
@@ -175,7 +180,7 @@ export default function ProposalCreateMember({ rdt }: any) {
       throw new Error("Error creating voting")
     }
     
-    console.log(result.value.transactionIntentHash)
+    // console.log(result.value.transactionIntentHash)
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/create-vote`,
@@ -188,7 +193,7 @@ export default function ProposalCreateMember({ rdt }: any) {
             'txId': result.value.transactionIntentHash, 
             'votes': votes}),
           headers: { 
-            'content-type': 'application/json',        
+            'content-type': 'application/json',
             'Authorization': `Bearer ${access_token}`
           },
         }
@@ -196,18 +201,20 @@ export default function ProposalCreateMember({ rdt }: any) {
 
     if (res.ok) {
       /* logic here when data is recorded on database */
-      console.log("success")
-    }
-
-    setTimeout(() => {
       sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
       sessionStorage.setItem('arcane-alert-message','Proposal created successfully')
-      if ( pathname.indexOf('admin') > -1 ) {
-        router.push('/admin/proposal')
-      } else {
-        router.push('/proposal')
-      }
-    },1000)
+      router.push('/proposal')
+    }
+
+    if (!res.ok) {
+      /* logic here when data is failed storing on database */
+      sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
+      sessionStorage.setItem('arcane-alert-message','Proposal failed to be create')
+      scrollToTop()
+      setLoading(false)
+      setShowPopupSubmit(false)
+      setErrorSubmit(true)
+    }
   }
 
   const terms: any = {
@@ -221,6 +228,12 @@ export default function ProposalCreateMember({ rdt }: any) {
     <>
       {account && (
         <>
+          {errorSubmit &&
+            <div className="relative z-10">
+              <Alert variant="error" icon="/icon/alert-circle.svg" duration={10} source="arcane-alert-message" className="-mt-3 -mr-2" />
+            </div>
+          }
+
           <Card className={`!bg-primary-50 border border-primary-300 max-sm:px-3 max-sm:py-2 mt-2 mb-8 relative overflow-hidden ${preview && '!hidden'}`}>
             <div className="relative z-[1] flex gap-4 md:gap-8 max-md:flex-col px-2 pt-3 pb-4">
               <div>

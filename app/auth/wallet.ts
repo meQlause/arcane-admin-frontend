@@ -44,5 +44,5 @@ export const useWallet = () => {
     setTimeout(() => setIsLoading(false), 1000);
   }, []);
 
-  return { rdt, role, address, access_token, isLoading, walletConnect, nft_id };
+  return { isLoading, walletConnect, rdt, role, address, access_token, nft_id };
 };

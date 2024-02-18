@@ -16,7 +16,7 @@ import { Fieldset, Input, Radio } from "@/app/components/form";
 import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
-import { addVote } from "../rtm_generator"
+import { addVote } from "@/app/rtm_generator";
 
 export type ProposalProps = {
   id: string
@@ -24,7 +24,7 @@ export type ProposalProps = {
   user_role?: string
   title: string
   description: string
-  ComponentAddress:string
+  ComponentAddress: string
   avatar: string
   start?: string
   end: string
@@ -55,9 +55,8 @@ export const ProposalList: FC<ProposalProps> = ({ id, user_address, title, descr
             width={24}
             height={24}
           />
-          <span>
-            {user_address}
-          </span>
+          <div className="max-md:hidden" title={user_address}>{truncateMiddle(`${user_address}`, 30)}</div>
+          <div className="break-all line-clamp-1 md:hidden" title={user_address}>{user_address}</div>
         </div>
         <div className="flex items-center max-md:justify-between gap-4 text-sm text-gray-600 md:ml-auto">
           <span>{end}</span>
@@ -127,7 +126,7 @@ type ProposalVoterProps = {
 }
 
 export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, user_address, user_role, title, description, avatar, start, end, status, vote, vote_hide, voter, photos, handleBack, account }) => {
-  const { walletConnect, role, rdt , access_token, nft_id} = useWallet()
+  const { walletConnect, role, rdt, access_token, nft_id} = useWallet()
   const pathname = usePathname()
   const router = useRouter()
   const [tokenAmount, setTokenAmount] = useState<string>('0')
@@ -205,7 +204,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
     setLoading(true)
 
     const addVoting = addVote(account?.address, tokenAmount.trim(), nft_id, ComponentAddress, voting).trim()
-    console.log(addVoting)
+    // console.log(addVoting)
     const result = await rdt.walletApi.sendTransaction({
       transactionManifest: addVoting,
       message: 'add voting'
@@ -214,8 +213,8 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
       /* write logic here when the transaction signed on wallet unsucessfull */
       throw new Error("Error add voting")
     }
-    
-    console.log(result.value.transactionIntentHash)
+
+    // console.log(result.value.transactionIntentHash)
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/add-vote`,
@@ -228,7 +227,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
             'voteId': Number(id)
           }),
           headers: { 
-            'content-type': 'application/json',        
+            'content-type': 'application/json',
             'Authorization': `Bearer ${access_token}`
           },
         }
@@ -236,19 +235,21 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
 
     if (res.ok) {
       /* logic here when data is recorded on database */
-      console.log("success")
-    }
-
-    console.log('submitting...')
-    setTimeout(() => {
       sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
       sessionStorage.setItem('arcane-alert-message','You have successfully submitted your vote')
-      if ( pathname.indexOf('admin') > -1 ) {
-        router.push('/admin/proposal')
-      } else {
-        router.push('/proposal')
-      }
-    },1000)
+    }
+
+    if (!res.ok) {
+      /* logic here when data is failed storing on database */
+      sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
+      sessionStorage.setItem('arcane-alert-message','You failed to submit your vote')
+    }
+
+    if ( pathname.indexOf('admin') > -1 ) {
+      router.push('/admin/proposal')
+    } else {
+      router.push('/proposal')
+    }
   }
 
   return (

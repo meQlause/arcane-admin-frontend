@@ -8,11 +8,15 @@ import { Card } from "@/app/components/card";
 import { Checkbox, Fieldset, Input, InputFile, Radio, Textarea } from "@/app/components/form";
 import { Button } from "@/app/components/button";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
+import { Alert } from "@/app/components/alert";
 import { ProposalDetail } from "@/app/components/proposal";
 import { formatDate } from "@/app/functions/datetime";
+import { createVote } from "@/app/rtm_generator";
+import { useWallet } from "@/app/auth/wallet";
 
-export default function ProposalCreateAdmin({ rdt }: any) {
+export default function ProposalCreateMember({ rdt }: any) {
   const { account } = useAccount({ rdt })
+  const { nft_id , access_token} = useWallet()
   const router = useRouter()
 
   const [loading, setLoading] = useState(false)
@@ -135,7 +139,7 @@ export default function ProposalCreateAdmin({ rdt }: any) {
   ])
 
   const handleHistoryBack = () => {
-    router.push('/admin/proposal')
+    router.push('/proposal')
   }
 
   const [preview, setPreview] = useState(false)
@@ -156,15 +160,61 @@ export default function ProposalCreateAdmin({ rdt }: any) {
     scrollToTop()
   }
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const [errorSubmit, setErrorSubmit] = useState(false)
+  useEffect(() => {
+    if (errorSubmit) setTimeout(() => setErrorSubmit(false),11000)
+  },[errorSubmit])
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
-    console.log('submitting...')
-    setTimeout(() => {
+    const votes = votingOptions.map(vote => vote.label);
+    const createVoting = createVote(account?.address, nft_id, votes).trim()
+    // console.log(createVoting)
+    const result = await rdt.walletApi.sendTransaction({
+      transactionManifest: createVoting,
+      message: 'create voting'
+    })
+    if (result.isErr()) {
+      /* write logic here when the transaction signed on wallet unsucessfull */
+      throw new Error("Error creating voting")
+    }
+    
+    // console.log(result.value.transactionIntentHash)
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/create-vote`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            'address' : account?.address, 
+            'title': title, 
+            'description': description, 
+            'txId': result.value.transactionIntentHash, 
+            'votes': votes}),
+          headers: { 
+            'content-type': 'application/json',
+            'Authorization': `Bearer ${access_token}`
+          },
+        }
+    )
+
+    if (res.ok) {
+      /* logic here when data is recorded on database */
       sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
       sessionStorage.setItem('arcane-alert-message','Proposal created successfully')
-      router.push('/admin/proposal')
-    },1000)
+      router.push('/proposal')
+    }
+
+    if (!res.ok) {
+      /* logic here when data is failed storing on database */
+      sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
+      sessionStorage.setItem('arcane-alert-message','Proposal failed to be create')
+      scrollToTop()
+      setLoading(false)
+      setShowPopupSubmit(false)
+      setErrorSubmit(true)
+    }
   }
 
   const terms: any = {
@@ -178,6 +228,12 @@ export default function ProposalCreateAdmin({ rdt }: any) {
     <>
       {account && (
         <>
+          {errorSubmit &&
+            <div className="relative z-10">
+              <Alert variant="error" icon="/icon/alert-circle.svg" duration={10} source="arcane-alert-message" className="-mt-3 -mr-2" />
+            </div>
+          }
+
           <Card className={`!bg-primary-50 border border-primary-300 max-sm:px-3 max-sm:py-2 mt-2 mb-8 relative overflow-hidden ${preview && '!hidden'}`}>
             <div className="relative z-[1] flex gap-4 md:gap-8 max-md:flex-col px-2 pt-3 pb-4">
               <div>
@@ -325,11 +381,12 @@ export default function ProposalCreateAdmin({ rdt }: any) {
               <>
                 <ProposalDetail
                   id={`1`}
-                  user_address={account.username}
+                  user_address={account.address}
                   user_role={account.role}
                   avatar={account.avatar}
                   title={title ? title : ''}
                   description={description ? description : ''}
+                  ComponentAddress=""
                   photos={blobImage}
                   start={today}
                   end={getEndDate(Number(votingDuration))}
@@ -352,17 +409,9 @@ export default function ProposalCreateAdmin({ rdt }: any) {
                 Terms & Conditions
               </PopupHeader>
               <PopupBody>
-                {terms.description ?
-                  <>
-                    <div className="text-sm font-medium text-primary-600 mb-3">Last Update: {formatDate(terms.modified_at)}</div>
-                    <h4 className="font-medium text-lg mb-3">{terms.title}</h4>
-                    <div dangerouslySetInnerHTML={{ __html: terms.description.replace(/\n/g, '<br>') }} />
-                  </>
-                :
-                  <div className="text-gray-400 italic">
-                    {`No Terms & Conditions yet.`}
-                  </div>
-                }
+                <div className="text-sm font-medium text-primary-600 mb-3">Last Update: {formatDate(terms.modified_at)}</div>
+                <h4 className="font-medium text-lg mb-3">{terms.title}</h4>
+                <div dangerouslySetInnerHTML={{ __html: terms.description.replace(/\n/g, '<br>') }} />
                 <Fieldset className="mt-4">
                   <Checkbox label={"I agree with the Terms & Conditions"} id={"proposal-agreement"} name={"proposal-agreement"} revert={false} onChange={handleAgreement} />
                 </Fieldset>

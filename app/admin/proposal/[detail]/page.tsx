@@ -6,6 +6,7 @@ import { useWallet } from "@/app/auth/wallet";
 import Loading from "@/app/loading";
 import Wallet from "@/app/wallet/page";
 import { Main } from "@/app/components/main";
+import Unallowed from "@/app/unallowed";
 import ProposalDetailAdmin from "./admin";
 
 export default function ProposalDetail({ params }: { params: { detail: string } }) {
@@ -19,6 +20,7 @@ export default function ProposalDetail({ params }: { params: { detail: string } 
           {walletConnect ?
             <>
               {role === RoleType.Admin && <ProposalDetailAdmin rdt={rdt} id={params.detail} />}
+              {role === RoleType.Member && <Unallowed />}
             </>
           :
             <Wallet rdt={rdt} path={pathname} />

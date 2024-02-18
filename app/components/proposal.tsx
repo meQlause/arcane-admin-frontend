@@ -1,38 +1,47 @@
 'use client'
 
 import React, { FC, useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { RoleType } from "@/app/types";
+import { useWallet } from "@/app/auth/wallet";
+import Wallet from "@/app/wallet/page";
 import { formatNumber } from "@/app/functions/notation";
 import { truncateMiddle } from "@/app/functions/truncate";
 import { Card, CardOutline } from "@/app/components/card";
 import { Badge } from "@/app/components/badge";
 import { Button } from "@/app/components/button";
-import { Fieldset, Radio } from "@/app/components/form";
+import { Fieldset, Input, Radio } from "@/app/components/form";
 import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
+import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
+import { addVote } from "@/app/rtm_generator";
 
 export type ProposalProps = {
   id: string
-  user: string
-  role?: string
+  user_address: string
+  user_role?: string
   title: string
   description: string
+  ComponentAddress: string
   avatar: string
   start?: string
   end: string
   status?: string
-  vote?: ProposalVoteProps[]
+  vote?: ProposalVoteProps[] | null
+  vote_hide?: string
   className?: string
 }
 
-type ProposalVoteProps = {
+export type ProposalVoteProps = {
   label: string
   amount?: number
+  token?: number
   selected?: boolean
 }
 
-export const ProposalList: FC<ProposalProps> = ({ id, user, title, description, avatar, end, status, vote, className }) => {
+export const ProposalList: FC<ProposalProps> = ({ id, user_address, title, description, avatar, end, status, vote, className }) => {
   const totalVotes: any = vote?.reduce((total: number, item: any) => total + item.amount, 0)
 
   return (
@@ -46,9 +55,8 @@ export const ProposalList: FC<ProposalProps> = ({ id, user, title, description, 
             width={24}
             height={24}
           />
-          <span>
-            {user}
-          </span>
+          <div className="max-md:hidden" title={user_address}>{truncateMiddle(`${user_address}`, 30)}</div>
+          <div className="break-all line-clamp-1 md:hidden" title={user_address}>{user_address}</div>
         </div>
         <div className="flex items-center max-md:justify-between gap-4 text-sm text-gray-600 md:ml-auto">
           <span>{end}</span>
@@ -106,17 +114,61 @@ export type ProposalDetailProps = ProposalProps & {
   voter?: ProposalVoterProps[]
   photos?: any
   handleBack?: (event: React.MouseEvent<HTMLButtonElement>) => void
+  account?: any
 }
 
 type ProposalVoterProps = {
-  user: string
+  user_address: string
   avatar: string
   selected: string
   amount?: number
   label?: string
 }
 
-export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, role, title, description, avatar, start, end, status, vote, voter, photos, handleBack }) => {
+export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, user_address, user_role, title, description, avatar, start, end, status, vote, vote_hide, voter, photos, handleBack, account }) => {
+  const { walletConnect, role, rdt, access_token, nft_id} = useWallet()
+  const pathname = usePathname()
+  const router = useRouter()
+  const [tokenAmount, setTokenAmount] = useState<string>('0')
+  const [loading, setLoading] = useState(false)
+
+  const isNotCreate = pathname.indexOf('/create') < 0
+
+  const [showPopupSignin, setShowPopupSignin] = useState(false)
+  const handleOpenPopupSignin = () => {
+    setShowPopupSignin(true)
+  }
+  const handleClosePopupSignin = () => {
+    setShowPopupSignin(false)
+  }
+
+  const [showPopupVote, setShowPopupVote] = useState(false)
+  const handleOpenPopupVote = () => {
+    setShowPopupVote(true)
+  }
+  const handleClosePopupVote = () => {
+    setShowPopupVote(false)
+  }
+
+  const [showPopupShare, setShowPopupShare] = useState(false)
+  const handleOpenPopupShare = () => {
+    setShowPopupShare(true)
+  }
+  const handleClosePopupShare = () => {
+    setShowPopupShare(false)
+  }
+
+  const [copy, setCopy] = useState(false)
+  const handleCopyURL = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      setCopy(true)
+      setTimeout(() => setCopy(false),3000)
+    } catch (error) {
+      setCopy(false)
+    }
+  }
+
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
@@ -147,6 +199,59 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, role, title,
     setFilled(isFormFilled)
   }, [voting])
 
+  const handleVoteSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setLoading(true)
+
+    const addVoting = addVote(account?.address, tokenAmount.trim(), nft_id, ComponentAddress, voting).trim()
+    // console.log(addVoting)
+    const result = await rdt.walletApi.sendTransaction({
+      transactionManifest: addVoting,
+      message: 'add voting'
+    })
+    if (result.isErr()) {
+      /* write logic here when the transaction signed on wallet unsucessfull */
+      throw new Error("Error add voting")
+    }
+
+    // console.log(result.value.transactionIntentHash)
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/add-vote`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            'address' : account?.address, 
+            'key': voting, 
+            'tokenAmount': Number(tokenAmount), 
+            'voteId': Number(id)
+          }),
+          headers: { 
+            'content-type': 'application/json',
+            'Authorization': `Bearer ${access_token}`
+          },
+        }
+    )
+
+    if (res.ok) {
+      /* logic here when data is recorded on database */
+      sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
+      sessionStorage.setItem('arcane-alert-message','You have successfully submitted your vote')
+    }
+
+    if (!res.ok) {
+      /* logic here when data is failed storing on database */
+      sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
+      sessionStorage.setItem('arcane-alert-message','You failed to submit your vote')
+    }
+
+    if ( pathname.indexOf('admin') > -1 ) {
+      router.push('/admin/proposal')
+    } else {
+      router.push('/proposal')
+    }
+  }
+
   return (
     <>
       <Card className="!bg-primary-50 border border-primary-300 max-sm:px-3 max-sm:py-2 mt-2 mb-8 relative overflow-hidden" data-id={id}>
@@ -176,26 +281,138 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, role, title,
                     unoptimized
                   />
                 }
-                {user && 
+                {user_address && 
                   <div className="max-sm:text-sm">
-                    <strong>Governances</strong>
-                    <div className="break-all line-clamp-1" title={user}>by {user}</div>
+                    <div className="max-md:hidden" title={user_address}>{truncateMiddle(`${user_address}`, 13)}</div>
+                    <div className="break-all line-clamp-1 md:hidden" title={user_address}>{user_address}</div>
                   </div>
                 }
               </div>
-              {role && 
-                <Badge variant="primary" className="max-md:text-sm max-md:px-3 max-md:py-1">{role}</Badge>
+              {user_role && 
+                 <Badge variant="primary" className="max-md:text-sm max-md:px-3 max-md:pt-0.5 max-md:pb-1">{user_role}</Badge>
               }
             </div>
-            {status && 
-              <Badge variant={status?.toLowerCase() === 'active' ? 'success' : status?.toLowerCase() === 'pending' ? 'warning' : status?.toLowerCase() === 'rejected' ? 'error' : 'info'} className="max-md:hidden">{status}</Badge>
+            {isNotCreate &&
+              <div className="flex items-center gap-6 max-md:hidden">
+                <Button type="button" variant="light" loading="none" className="!border-0 !bg-transparent !w-fit !p-0 !text-gray-700 font-normal" onClick={handleOpenPopupShare}>
+                  <Image
+                    src="/icon/send-01.svg"
+                    alt="icon"
+                    className="inline mr-2 -mt-1"
+                    width={24}
+                    height={24}
+                    priority
+                  />
+                  Share
+                </Button>
+                {status && 
+                  <Badge variant={status?.toLowerCase() === 'active' ? 'success' : status?.toLowerCase() === 'pending' ? 'warning' : status?.toLowerCase() === 'rejected' ? 'error' : 'info'}>{status}</Badge>
+                }
+              </div>
             }
           </div>
         </div>
         <div className="px-2 mt-2">
-          <h1 className="text-primary-800 text-xl md:text-3xl font-semibold font-maven-pro mb-6 md:mb-3">{title}</h1>
-          {status && 
-            <Badge variant={status?.toLowerCase() === 'active' ? 'success' : status?.toLowerCase() === 'pending' ? 'warning' : status?.toLowerCase() === 'rejected' ? 'error' : 'info'} className="max-md:text-sm max-md:px-3 max-md:py-1 mb-3 md:hidden">{status}</Badge>
+        <h1 className={`${title.length > 0 ? 'text-primary-800 font-semibold' : 'text-gray-300 italic'} text-xl md:text-3xl font-maven-pro mb-6 md:mb-3`}>
+            {title.length > 0 ? title : 'Empty title'}
+          </h1>
+          {isNotCreate &&
+            <>
+              <div className="flex items-center justify-between gap-4 mb-3 md:hidden">
+                {status && 
+                  <Badge variant={status?.toLowerCase() === 'active' ? 'success' : status?.toLowerCase() === 'pending' ? 'warning' : status?.toLowerCase() === 'rejected' ? 'error' : 'info'} className="max-md:text-sm max-md:px-3 max-md:pt-0.5 max-md:pb-1">{status}</Badge>
+                }
+                <Button type="button" variant="light" loading="none" className="!border-0 !bg-transparent !w-fit !p-0 !text-gray-700 font-normal max-md:text-sm" onClick={handleOpenPopupShare}>
+                  <Image
+                    src="/icon/send-01.svg"
+                    alt="icon"
+                    className="inline mr-2 -mt-1"
+                    width={18}
+                    height={18}
+                    priority
+                  />
+                  Share
+                </Button>
+              </div>
+              <Popup show={showPopupShare} backdropClose={true} handleClose={handleClosePopupShare}>
+                <PopupHeader variant={"primary"} icon={"/icon/send-01.svg"} />
+                <PopupBody>
+                  <h3 className="text-xl font-semibold mb-6">Share this proposal</h3>
+                  <Fieldset className="relative">
+                    {copy &&
+                      <div className="bg-success-100 text-success-600 px-5 py-3.5 rounded-xl w-full h-full absolute top-0 left-0">
+                        <Image
+                          src="/icon/check-circle.svg"
+                          alt="icon"
+                          className="inline-block -mt-1 mr-1.5 -ml-1 filter-success-500"
+                          width={24}
+                          height={24}
+                          priority
+                        />
+                        <span className="max-md:hidden">Proposal URL copied successfully</span>
+                        <span className="md:hidden">Copied successfully</span>
+                      </div>
+                    }
+                    <Input type={"text"} label={"URL"} showLabel={false} id={"share-url"} name={"share-url"} defaultValue={window.location.href} disabled={true} />
+                  </Fieldset>
+                  <div className="relative">
+                    <div className="flex gap-4 md:gap-7 md:flex-wrap max-md:overflow-auto">
+                      <div className="flex items-center justify-center flex-col gap-2 group cursor-pointer" onClick={handleCopyURL}>
+                        <div className="w-16 h-16 p-4 rounded-full transition border border-gray-200 group-hover:border-primary-200 group-hover:bg-primary-100">
+                          <Image
+                            src="/icon/link-01.svg"
+                            alt="icon"
+                            width={24}
+                            height={24}
+                            className="w-full h-full transition group-hover:filter-primary-600"
+                          />
+                        </div>
+                        <div className="text-xs">Copy</div>
+                      </div>
+                      <Link href={`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}`} target={isMobile ? '_self' : '_blank'} className="flex items-center justify-center flex-col gap-2 group">
+                        <div className="w-16 h-16 p-4 rounded-full transition border border-gray-200 group-hover:border-primary-200 group-hover:bg-primary-100">
+                          <Image
+                            src="/icon/social-media-telegram.svg"
+                            alt="icon"
+                            width={24}
+                            height={24}
+                            className="w-full h-full transition group-hover:filter-primary-600"
+                          />
+                        </div>
+                        <div className="text-xs">Telegram</div>
+                      </Link>
+                      <Link href={`https://twitter.com/share?text=${encodeURIComponent(window.location.href)}`} target={isMobile ? '_self' : '_blank'} className="flex items-center justify-center flex-col gap-2 group">
+                        <div className="w-16 h-16 p-4 rounded-full transition border border-gray-200 group-hover:border-primary-200 group-hover:bg-primary-100">
+                          <Image
+                            src="/icon/social-media-twitter.svg"
+                            alt="icon"
+                            width={24}
+                            height={24}
+                            className="w-full h-full transition group-hover:filter-primary-600"
+                          />
+                        </div>
+                        <div className="text-xs">Twitter</div>
+                      </Link>
+                      <Link href={`https://api.whatsapp.com/send/?text=${encodeURIComponent(window.location.href)}`} target={isMobile ? '_self' : '_blank'} className="flex items-center justify-center flex-col gap-2 group">
+                        <div className="w-16 h-16 p-4 rounded-full transition border border-gray-200 group-hover:border-primary-200 group-hover:bg-primary-100">
+                          <Image
+                            src="/icon/social-media-whatsapp.svg"
+                            alt="icon"
+                            width={24}
+                            height={24}
+                            className="w-full h-full transition group-hover:filter-primary-600"
+                          />
+                        </div>
+                        <div className="text-xs">WhatsApp</div>
+                      </Link>
+                    </div>
+                  </div>
+                </PopupBody>
+                <PopupFooter>
+                  <Button type="button" variant="light" loading="none" className="md:w-fit" onClick={handleClosePopupShare}>Back</Button>
+                </PopupFooter>
+              </Popup>
+            </>
           }
         </div>
         <div className="absolute top-0 left-0 right-0 bottom-0 w-full h-3/4 flex justify-between">
@@ -219,9 +436,14 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, role, title,
       <section className="grid md:grid-cols-12 gap-x-8">
         <div className="md:col-span-7 xl:col-span-8 h-fit">
           <Card className="mb-8">
-            <div dangerouslySetInnerHTML={{ __html: description.replace(/\n/g, '<br>') }} />
+          {description.length > 0 ?
+              <div dangerouslySetInnerHTML={{ __html: description.replace(/\n/g, '<br>') }} />
+            :
+              <div className="italic text-gray-300">Empty description</div>
+            }
           </Card>
-          <Card className="mb-8">
+
+          {/* <Card className="mb-8">
             <Link href="/admin/discussion">
               <Button type={"button"} variant="light" loading="none">
                 Forum Discussion
@@ -234,19 +456,75 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, role, title,
                 />
               </Button>
             </Link>
-          </Card>
+          </Card> */}
+
           <Card className="mb-8">
             <h2 className="text-lg font-maven-pro font-semibold text-center mb-6">Cast Your Vote</h2>
-            {vote?.map((item: any, index: number) => (
-              <Fieldset key={index} className="!mb-3 !last:mb-0">
-                <Radio id={`proposal-voting-${index}`} name={"proposal-voting"} value={item.label} onChange={(e) => setVoting(e.target.value)}>
-                  {item.label}
-                </Radio>
-              </Fieldset>
-            ))}
-            <Button type={"button"} variant="primary" disabled={!filled}>Vote</Button>
+            {(account || walletConnect) ?
+            <>
+                {isNotCreate ?
+                  <form spellCheck="false" onSubmit={handleVoteSubmit}>
+                    {vote?.map((item: any, index: number) => (
+                      <Fieldset key={index} className="!mb-3 !last:mb-0">
+                        <Radio id={`proposal-voting-${index}`} name={"proposal-voting"} value={item.label} onChange={(e) => setVoting(e.target.value)}>
+                          {item.label}
+                        </Radio>
+                      </Fieldset>
+                    ))}
+                    <Input type={"number"} className="!mb-3 !last:mb-0" id={"general-name"} name={"general-name"} variant={"secondary"} showLabel={true} required={true} label={"Token"} placeholder={"Amount of token you will commit"} defaultValue={'0'} onChange={(e) => setTokenAmount(e.target.value)} />
+                    <Button type="button" variant="primary" loading="none" disabled={!filled} onClick={handleOpenPopupVote}>
+                      Vote
+                    </Button>
+                    <Popup show={showPopupVote} backdropClose={true} handleClose={handleClosePopupVote}>
+                      <PopupHeader variant={"primary"} icon={"/icon/alert-circle.svg"} />
+                      <PopupBody>
+                        <h3 className="text-xl font-semibold mb-4">Are you sure for your vote?</h3>
+                        <p>Make sure your choice is correct.</p>
+                      </PopupBody>
+                      <PopupFooter>
+                        <Button type="button" variant="light" loading="none" className="md:w-fit" onClick={handleClosePopupVote}>Cancel</Button>
+                        <Button type="submit" variant="primary" className="md:w-fit" loading={loading}>Submit Vote</Button>
+                      </PopupFooter>
+                    </Popup>
+                  </form>
+                :
+                  <>
+                    {(vote && vote.length > 0) ?
+                      <>
+                        {vote?.map((item: any, index: number) => (
+                          <Fieldset key={index} className="!mb-3 !last:mb-0">
+                            <Radio id={`proposal-voting-${index}`} name={"proposal-voting"} value={item.label} onChange={(e) => setVoting(e.target.value)}>
+                              {item.label}
+                            </Radio>
+                          </Fieldset>
+                        ))}
+                        <Button type="button" variant="primary" loading="none" disabled={!filled}>
+                          Vote
+                        </Button>
+                      </>
+                    :
+                      <p className="italic text-gray-300">Empty choices</p>
+                    }
+                  </>
+                }
+              </>
+            :
+              <>
+                <p className="text-center mb-7">Sorry, you must to connect your wallet first to vote!</p>
+                <Button type="button" variant="primary" loading="none" onClick={handleOpenPopupSignin}>
+                  Connect Now
+                </Button>
+                <Popup show={showPopupSignin} backdropClose={true} handleClose={handleClosePopupSignin}>
+                  <PopupBody>
+                    <Wallet rdt={rdt} path={pathname} variant={"content-only"} />
+                    <Button type="button" variant="light" loading="none" className="w-full mt-6" onClick={handleClosePopupSignin}>Cancel</Button>
+                  </PopupBody>
+                </Popup>
+              </>
+            }
           </Card>
-          {(voter && !isMobile) &&
+
+          {(voter && voter.length > 0 && (vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) && !isMobile) &&
             <Card className="mb-8">
               <div className="flex items-center justify-between gap-4 mb-2">
                 <h2 className="text-lg font-maven-pro font-semibold">Voters</h2>
@@ -258,9 +536,9 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, role, title,
                     {voter.map((item: any, index: number) => {
                       return (
                         <tr key={index} className="[&_td]:py-6 [&:not(:last-child)_td]:border-b [&_td]:border-gray-300">
-                          {(item.avatar || item.user) &&
+                          {(item.avatar || item.user_address) &&
                             <td valign="top">
-                              <div className="flex gap-2" title={item.user}>
+                              <div className="flex gap-2" title={item.user_address}>
                                 {item.avatar &&
                                   <Image
                                     src={item.avatar}
@@ -271,7 +549,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, role, title,
                                     unoptimized
                                   />
                                 }
-                                {item.user && <span className="line-clamp-1 break-all">{item.user}</span>}
+                                {item.user_address && <span className="line-clamp-1 break-all">{item.user_address}</span>}
                               </div>
                             </td>
                           }
@@ -291,6 +569,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, role, title,
             </Card>
           }
         </div>
+
         <div className="md:col-span-5 xl:col-span-4 h-fit">
           {photos.length > 0 &&
             <Card className="mb-8 !bg-primary-400 !p-2 overflow-hidden">
@@ -309,30 +588,12 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, role, title,
               </div>
             </Card>
           }
+
           <Card className="mb-8">
             <div className="border-b-2 border-dashed border-gray-300 pb-6 mt-2 mb-8">
               <h2 className="text-lg font-maven-pro font-semibold">Information</h2>
             </div>
             <ul className="mb-2">
-              <li className="mb-5 last:mb-0">
-                <div className="float-left mr-4">Strategie(s)</div>
-                <div className="font-semibold text-right flex justify-end gap-2">
-                  Governance
-                  {avatar &&
-                    <Image
-                      src={avatar}
-                      alt="user"
-                      className="w-6 h-6 rounded-md object-cover inline-block"
-                      width={24}
-                      height={24}
-                    />
-                  }
-                </div>
-              </li>
-              <li className="mb-5 last:mb-0">
-                <div className="float-left mr-4">IPFS</div>
-                <div className="font-semibold text-right">#bafkrei</div>
-              </li>
               <li className="mb-5 last:mb-0">
                 <div className="float-left mr-4">Voting system</div>
                 <div className="font-semibold text-right">Single Choice Voting</div>
@@ -351,17 +612,27 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, role, title,
               }
             </ul>
           </Card>
+
           {voter &&
             <Card className="mb-8">
-              <h2 className="text-lg font-maven-pro font-semibold mb-6">Current Result</h2>
-              <div className="flex overflow-hidden rounded-lg h-7 bg-gray-100 mb-10">
-                {vote?.map((item: any, index: number) => {
-                  let percentage: string = totalVotes !== 0 ? ((item.amount / totalVotes) * 100).toFixed(2) : '0'
-                  return (
-                    <div key={index} title={`${item.label} - ${percentage}%`} style={{width: `${percentage}%`, backgroundColor: colorArray[index]}}></div>
-                  )
-                })}
+              <div className="mb-6">
+                <h2 className="text-lg font-maven-pro font-semibold">
+                  {status?.toLocaleLowerCase() !== 'done' ? 'Current' : 'Vote' } Result
+                </h2>
+                {status?.toLocaleLowerCase() === 'done' &&
+                  <p className="text-gray-400 text-sm mt-3">Vote result which was carried out, from {start} to {end} {(vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) && `with the participation of ${totalVotes} user${totalVotes > 1 && 's'}`}</p>
+                }
               </div>
+              {(vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) &&
+                <div className="flex overflow-hidden rounded-lg h-7 bg-gray-100 mb-10">
+                  {vote?.map((item: any, index: number) => {
+                    let percentage: string = totalVotes !== 0 ? ((item.amount / totalVotes) * 100).toFixed(2) : '0'
+                    return (
+                      <div key={index} title={`${item.label} - ${percentage}%`} style={{width: `${percentage}%`, backgroundColor: colorArray[index]}}></div>
+                    )
+                  })}
+                </div>
+              }
               <ul className="mb-2">
                 {vote?.map((item: any, index: number) => {
                   let percentage: string = totalVotes !== 0 ? ((item.amount / totalVotes) * 100).toFixed(2) : '0'
@@ -372,9 +643,19 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, role, title,
                         <span>{item.label}</span>
                       </div>
                       <div className="w-fit sm:text-right sm:whitespace-nowrap leading-tight">
-                        <p className="font-semibold text-lg">{percentage}%</p>
-                        <p className="text-sm text-gray-400">{item.amount} voter{item.amount > 1 && 's'} - 3200</p>
-                        <p className="text-sm text-gray-400">Token used</p>
+                        <p className="font-semibold text-lg">
+                          {(vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) ? `${percentage}%` : `?`}
+                        </p>
+                        {(vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) &&
+                          <>
+                            <p className="text-sm text-gray-400">
+                              {item.amount} voter{item.amount > 1 && 's'}
+                            </p>
+                            <p className="text-sm text-gray-400">
+                              {item.token} token{item.token > 1 && 's'} used
+                            </p>
+                          </>
+                        }
                       </div>
                     </li>
                   )
@@ -382,7 +663,8 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, role, title,
               </ul>
             </Card>
           }
-          {(voter && isMobile) &&
+
+          {(voter && voter.length > 0 && (vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) && isMobile) &&
             <Card className="mb-8">
               <div className="flex items-center justify-between gap-4 mb-2">
                 <h2 className="text-lg font-maven-pro font-semibold">Voters</h2>
@@ -395,7 +677,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, role, title,
                       <tr key={index} className="[&_td]:py-6 [&:not(:last-child)_td]:border-b [&_td]:border-gray-300">
                         <td>
                           <div className="flex justify-between gap-4 mb-4">
-                            <div className="flex gap-2" title={item.user}>
+                            <div className="flex gap-2" title={item.user_address}>
                               {item.avatar &&
                                 <Image
                                   src={item.avatar}
@@ -406,7 +688,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, user, role, title,
                                   unoptimized
                                 />
                               }
-                              {item.user && <span className="line-clamp-1 break-all">{truncateMiddle(item.user,13)}</span>}
+                              {item.user_address && <span className="line-clamp-1 break-all">{truncateMiddle(item.user_address,13)}</span>}
                             </div>
                             <div className="text-right">
                               {item.amount && <span className="text-primary-600 font-medium mr-1">{formatNumber(item.amount)}</span>}

@@ -388,7 +388,7 @@ type CheckboxProps = {
 
 export function Checkbox({label, id, name, disabled, required, checked, className, revert, onChange}: Readonly<CheckboxProps>) {
   let defaultLabel = 'cursor-pointer'
-  let defaultInput = 'cursor-pointer appearance-none rounded-md border border-gray-400 focus:border-primary-500 focus:ring-0 checked:bg-primary-600 checked:hover:bg-primary-600 checked:focus:bg-primary-600 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default read-only:bg-gray-100 read-only:cursor-default mb-[3px]'
+  let defaultInput = 'cursor-pointer appearance-none rounded-md border border-gray-400 focus:border-primary-500 focus:ring-0 checked:bg-primary-600 checked:hover:bg-primary-600 checked:focus:bg-primary-600 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default mb-[3px]'
 
   return (
     <>
@@ -428,7 +428,7 @@ export function Radio({children, id, name, defaultValue, value, disabled, requir
   return (
     <fieldset>
       <input type="radio" id={id} name={name} defaultValue={defaultValue} value={value} disabled={disabled} required={required} onChange={onChange} className={`sr-only peer`} checked={checked} />
-      <label htmlFor={id} className={`relative block px-4 py-3 rounded-lg cursor-pointer border border-gray-200 lg:hover:bg-gray-100 ring-primary-400 peer-checked:ring-1 peer-checked:text-primary-800 peer-checked:bg-primary-100 peer-checked:border-primary-400 focus:border-primary-400 focus:ring-primary-400 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default read-only:bg-gray-100 read-only:cursor-default ${className ?? ''}`}>
+      <label htmlFor={id} className={`relative block px-4 py-3 rounded-lg cursor-pointer border border-gray-200 lg:hover:bg-gray-100 ring-primary-400 peer-checked:ring-1 peer-checked:text-primary-800 peer-checked:bg-primary-100 peer-checked:border-primary-400 focus:border-primary-400 focus:ring-primary-400 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default ${className ?? ''}`}>
         {children}
       </label>
     </fieldset>

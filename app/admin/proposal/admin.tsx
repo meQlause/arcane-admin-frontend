@@ -14,11 +14,6 @@ import { Alert } from "@/app/components/alert";
 
 export default function ProposalAdmin({ rdt }: any) {
   const { account } = useAccount({ rdt })
-  const profile: any = {
-    username: account?.address,
-    avatar: '/user/user-1.png',
-    role: 'Admin'
-  }
 
   const [currentOptionsActive, setCurrentOptionsActive] = useState('All')
   const optionsActive: any = [
@@ -71,7 +66,7 @@ export default function ProposalAdmin({ rdt }: any) {
   const dataProposalActive: ProposalProps[] = [
     {
       id: '1',
-      user: 'rdx1shb1412422216dba',
+      user_address: 'rdx1shb1412422216dba',
       avatar: '/user/user-1.png',
       title: 'Arcane Labyrinth',
       description: 'Laborum officia incididunt consequat veniam tempor ea officia minim id excepteur pariatur nisi dolor. Deserunt occaecat ullamco est consequat. Culpa consequat veniam ullamco veniam aute culpa laborum nostrud dolor mollit non elit veniam commodo.',
@@ -80,7 +75,7 @@ export default function ProposalAdmin({ rdt }: any) {
     },
     {
       id: '2',
-      user: 'rdx1shb1412422216dbb',
+      user_address: 'rdx1shb1412422216dbb',
       avatar: '/user/user-1.png',
       title: '[ARFC] Add fUSDC to Ethereum v3',
       description: 'Qui aliquip reprehenderit veniam sit eu nostrud ad ipsum laboris exercitation.Tempor nulla irure aute minim ea occaecat do magna velit voluptate occaecat minim duis.Elit ex minim exercitation labore et.',
@@ -100,7 +95,7 @@ export default function ProposalAdmin({ rdt }: any) {
     },
     {
       id: '3',
-      user: 'rdx1shb1412422216dbc',
+      user_address: 'rdx1shb1412422216dbc',
       avatar: '/user/user-1.png',
       title: 'Arcane Labyrinth',
       description: 'Laboris labore culpa duis in esse in reprehenderit excepteur sit ut labore dolore.Aliquip do duis occaecat voluptate.Ad qui ullamco sunt sunt pariatur est ullamco.Id incididunt et ipsum elit non veniam et laborum elit anim.',
@@ -112,7 +107,7 @@ export default function ProposalAdmin({ rdt }: any) {
   const dataProposalHistory: ProposalProps[] = [
     {
       id: '1',
-      user: 'rdx1shb1412422216dba',
+      user_address: 'rdx1shb1412422216dba',
       avatar: '/user/user-1.png',
       title: 'fUSDC to Ethereum v3',
       description: 'Laborum officia incididunt consequat veniam tempor ea officia minim id excepteur pariatur nisi dolor. Deserunt occaecat ullamco est consequat. Culpa consequat veniam ullamco veniam aute culpa laborum nostrud dolor mollit non elit veniam commodo.',
@@ -132,7 +127,7 @@ export default function ProposalAdmin({ rdt }: any) {
     },
     {
       id: '2',
-      user: 'rdx1shb1412422216dbb',
+      user_address: 'rdx1shb1412422216dbb',
       avatar: '/user/user-1.png',
       title: '[ARFC] Add fUSDC to Ethereum v3',
       description: 'Qui aliquip reprehenderit veniam sit eu nostrud ad ipsum laboris exercitation.Tempor nulla irure aute minim ea occaecat do magna velit voluptate occaecat minim duis.Elit ex minim exercitation labore et.',
@@ -141,7 +136,7 @@ export default function ProposalAdmin({ rdt }: any) {
     },
     {
       id: '3',
-      user: 'rdx1shb1412422216dbc',
+      user_address: 'rdx1shb1412422216dbc',
       avatar: '/user/user-1.png',
       title: 'Arcane Labyrinth',
       description: 'Laboris labore culpa duis in esse in reprehenderit excepteur sit ut labore dolore.Aliquip do duis occaecat voluptate.Ad qui ullamco sunt sunt pariatur est ullamco.Id incididunt et ipsum elit non veniam et laborum elit anim.',
@@ -156,13 +151,16 @@ export default function ProposalAdmin({ rdt }: any) {
         <>
           <MainTitle
             title={`Proposal`}
-            userName={profile.username}
-            userImage={profile.avatar}
-            userRole={profile.role}
+            userName={account.address}
+            userImage={account.avatar}
+            userRole={account.role}
           >
-            <Alert variant="success" icon="/icon/check-circle.svg" active={false}>
-              Proposal created successfully
-            </Alert>
+            {sessionStorage.getItem('arcane-alert-status')?.toLocaleLowerCase() === 'success' &&
+              <Alert variant="success" icon="/icon/check-circle.svg" duration={5} source="arcane-alert-message" />
+            }
+            {sessionStorage.getItem('arcane-alert-status')?.toLocaleLowerCase() === 'error' &&
+              <Alert variant="error" icon="/icon/alert-circle.svg" duration={5} source="arcane-alert-message" />
+            }
           </MainTitle>
 
           <Card className="mb-4">

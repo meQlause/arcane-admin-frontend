@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAccount } from "@/app/auth/account";
 import { Card } from "@/app/components/card";
-import { Fieldset, Textarea } from "@/app/components/form";
+import { Fieldset, Input, Textarea } from "@/app/components/form";
 import { Button } from "@/app/components/button";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
 
@@ -13,17 +13,23 @@ export default function TermEditAdmin({ rdt }: any) {
   const { account } = useAccount({ rdt })
   const router = useRouter()
 
+  const [loading, setLoading] = useState(false)
+
+  const titleDefault = 'Your Agreement'
   const descriptionDefault = 'Incididunt occaecat nisi dolore Lorem reprehenderit anim ullamco labore sint officia ullamco sunt cupidatat excepteur.\n\nEt pariatur qui nisi laborum et nulla ipsum in ad adipisicing do nostrud pariatur. Consequat occaecat nulla sunt nulla eiusmod quis.'
 
+  const [title, setTitle] = useState(titleDefault)
   const [description, setDescription] = useState(descriptionDefault)
 
   const [formTerm, setFormTerm] = useState(false)
 
   useEffect(() => {
     const isFormTermFilled =
+      title !== titleDefault ||
       description !== descriptionDefault
     setFormTerm(isFormTermFilled)
   }, [
+    title,
     description
   ])
 
@@ -48,7 +54,13 @@ export default function TermEditAdmin({ rdt }: any) {
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setLoading(true)
     console.log('submitting...')
+    setTimeout(() => {
+      sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
+      sessionStorage.setItem('arcane-alert-message','Terms & Conditions edited successfully')
+      router.push('/admin/setting#term')
+    },1000)
   }
 
   return (
@@ -107,6 +119,9 @@ export default function TermEditAdmin({ rdt }: any) {
 
           <form spellCheck="false" onSubmit={handleFormSubmit}>
             <Fieldset>
+              <Input type={"text"} id={"term-title"} name={"term-title"} variant={"secondary"} showLabel={true} required={true} label={"Title"} placeholder={"Enter title here"} defaultValue={titleDefault} onChange={(e) => setTitle(e.target.value)} />
+            </Fieldset>
+            <Fieldset>
               <Textarea id={"term-description"} name={"term-description"} variant={"secondary"} showLabel={true} required={true} label={"Description"} placeholder={"Enter description here"} rows={7} defaultValue={descriptionDefault} onChange={(e) => setDescription(e.target.value)} />
             </Fieldset>
             <div className="flex max-sm:flex-col sm:flex-wrap gap-4 md:ml-auto md:w-fit max-lg:mb-4">
@@ -121,7 +136,7 @@ export default function TermEditAdmin({ rdt }: any) {
               </PopupBody>
               <PopupFooter>
                 <Button type="button" variant="light" loading="none" className="md:w-fit" onClick={handleClosePopupSave}>Cancel</Button>
-                <Button type="submit" variant="primary" className="md:w-fit">Save</Button>
+                <Button type="submit" variant="primary" className="md:w-fit" loading={loading}>Save</Button>
               </PopupFooter>
             </Popup>
           </form>

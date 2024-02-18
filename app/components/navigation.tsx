@@ -24,7 +24,7 @@ const Icon = ({ path }: { path: string }) => {
   )
 }
 
-export function Navigation({links}: any ) {
+export function Navigation({links, socials}: any ) {
   const { walletConnect, role, rdt } = useWallet()
   const pathname = usePathname()
 
@@ -66,7 +66,7 @@ export function Navigation({links}: any ) {
 
   return (
     <>
-      <ul className={`px-6 w-full flex flex-col gap-3 h-[calc(100vh-68px-env(safe-area-inset-bottom))] max-h-[calc(100vh-84px)] lg:h-screen lg:max-h-[calc(100vh-100px)] pb-4 ${walletConnect && 'max-lg:pb-24'} overflow-auto font-maven-pro`}>
+      <ul className={`px-6 w-full flex flex-col gap-3 h-[calc(100vh-68px-env(safe-area-inset-bottom))] max-h-[calc(100vh-84px)] lg:h-screen lg:max-h-[calc(100vh-88px)] pb-4 ${(!walletConnect && pathname.indexOf('/admin') < 0) && 'max-lg:pb-20'} ${(walletConnect && pathname.indexOf('/admin') > -1) && 'max-lg:pb-28'} ${(walletConnect && pathname.indexOf('/admin') < 0) && 'max-lg:pb-40'} overflow-auto font-maven-pro`}>
         {pathname.indexOf('/admin') < 0 &&
           <li className="order-9 lg:order-1">
             <Card className="!bg-primary-100 !shadow-none max-lg:mb-8 max-lg:mt-4 lg:mb-4">
@@ -139,31 +139,50 @@ export function Navigation({links}: any ) {
           )
         })}
 
-        {walletConnect &&
-          (role === RoleType.Admin || role === RoleType.Member || role === RoleType.Unregistered) && (
-            <li className="order-10 mt-auto max-lg:bg-white max-lg:fixed max-lg:bottom-0 max-lg:pb-4 max-lg:w-[calc(100%-3rem)]" style={{marginBottom: 'env(safe-area-inset-bottom)'}}>
-              <hr className="border-t border-gray-300 my-4 max-lg:mt-0" />
-              <button
-                type="button"
-                onClick={logout}
-                className="flex items-center gap-2 relative w-full px-4 py-3 text-left break-words lg:transition rounded-lg text-gray-500 lg:hover:text-primary-900 lg:hover:bg-primary-100 lg:[&:hover_img]:filter-primary-900 [&.active]:font-medium [&.active]:text-primary-900 [&.active]:bg-primary-300 [&.active_img]:filter-primary-900 overflow-hidden"
-              >
-                <Icon path="/icon/log-out-01.svg" />
-                <span className="w-full">Logout</span>
-                <div className={`transition-all ${!loading ? 'opacity-0' : ''}`}>
+        <li className="order-10 mt-auto z-[1] max-lg:bg-white max-lg:fixed max-lg:bottom-0 max-lg:pb-4 max-lg:w-[calc(100%-3rem)]" style={{marginBottom: 'env(safe-area-inset-bottom)'}}>
+          {pathname.indexOf('/admin') < 0 &&
+            <div className="flex px-1 pt-3">
+              {socials.map(( item: any, index: number ) => (
+                <Link key={index} href={item.href} target="_blank" className="m-3 group">
                   <Image
-                    src="/loading.svg"
-                    alt="loading"
-                    className="animate-spin"
-                    width={24}
-                    height={24}
+                    src={item.icon}
+                    alt="icon"
+                    width={26}
+                    height={26}
+                    className="transition group-hover:filter-primary-600"
                     priority
                   />
-                </div>
-              </button>
-            </li>
-          )
-        }
+                  <span className="sr-only">{item.name}</span>
+                </Link>
+              ))}
+            </div>
+          }
+          {walletConnect &&
+            (role === RoleType.Admin || role === RoleType.Member || role === RoleType.Unregistered) && (
+              <>
+                <hr className={`border-t border-gray-300 my-4 ${pathname.indexOf('/admin') > -1 && 'max-lg:mt-0'}`} />
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="flex items-center gap-2 relative w-full px-4 py-3 text-left break-words lg:transition rounded-lg text-gray-500 lg:hover:text-primary-900 lg:hover:bg-primary-100 lg:[&:hover_img]:filter-primary-900 [&.active]:font-medium [&.active]:text-primary-900 [&.active]:bg-primary-300 [&.active_img]:filter-primary-900 overflow-hidden"
+                >
+                  <Icon path="/icon/log-out-01.svg" />
+                  <span className="w-full">Logout</span>
+                  <div className={`transition-all ${!loading ? 'opacity-0' : ''}`}>
+                    <Image
+                      src="/loading.svg"
+                      alt="loading"
+                      className="animate-spin"
+                      width={24}
+                      height={24}
+                      priority
+                    />
+                  </div>
+                </button>
+              </>
+            )
+          }
+        </li>
       </ul>
     </>
   )

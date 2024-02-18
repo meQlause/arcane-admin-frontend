@@ -18,20 +18,12 @@ import { useWallet } from "@/app/auth/wallet";
 export default function SettingAdmin({ rdt }: any) {
   const { account } = useAccount({ rdt })
   const { access_token } = useWallet()
-  const profile: any = {
-    username: account?.address,
-    avatar: '/user/user-1.png',
-    role: 'Admin'
-  }
+
+  const [loadingGeneral, setLoadingGeneral] = useState(false)
 
   const [adminList, setAdminList] = useState<any | null>()
   const [adminData, setAdminData] = useState<any | null>()
   const [selectedAddress, setSelectedAddress] = useState<string>('')
-
-  const currentUrl = new URL(window.location.href)
-  const isGeneral = currentUrl.hash.indexOf('#general') > -1
-  const isMember = currentUrl.hash.indexOf('#member') > -1
-  const isTerm = currentUrl.hash.indexOf('#term') > -1
 
   const avatarDefault = ''
   const nameDefault = ''
@@ -81,11 +73,11 @@ export default function SettingAdmin({ rdt }: any) {
   }
   
   useEffect(() => {
-  const fetchData = async () => {
-    const data = await getAdminList();
-    setAdminList(data);
-  }
-   fetchData();
+    const fetchData = async () => {
+      const data = await getAdminList();
+      setAdminList(data);
+    }
+    fetchData();
   }, [])
 
   const getAddressData = async (address:string) => {
@@ -101,15 +93,6 @@ export default function SettingAdmin({ rdt }: any) {
     ).then((res) => res.json());
   }
 
-
-  useEffect(() => {
-  const fetchData = async () => {
-    const data = await getAdminList();
-    setAdminList(data);
-  }
-   fetchData();
-  }, [])
-
   const [showPopupAvatar, setShowPopupAvatar] = useState(false)
   const [avatarMessage, setAvatarMessage] = useState('')
   const handleClosePopupAvatar = () => {
@@ -118,13 +101,18 @@ export default function SettingAdmin({ rdt }: any) {
 
   const handleFormGeneralSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setLoadingGeneral(true)
     console.log('submitting...')
+    setTimeout(() => {
+      sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
+      sessionStorage.setItem('arcane-alert-message','Profile saved successfully')
+      setLoadingGeneral(false)
+    },1000)
   }
 
   const [searchKeyword, setSearchKeyword] = useState('')
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-
     console.log(searchKeyword)
   }
   const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,42 +138,38 @@ export default function SettingAdmin({ rdt }: any) {
     })
     
     if (result.isErr()) {
-    /*
-    write logic here when the transaction signed on wallet unsucessfull 
-    */
+      /* write logic here when the transaction signed on wallet unsucessfull */
       throw new Error("Minting Error")
     }
-    /*
-    write logic here when the transaction signed on wallet sucessfull 
-    */ 
+
+    /* write logic here when the transaction signed on wallet sucessfull */ 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/make-admin/${addMemberAccount.trim()}`,
-        {
-          method: 'PUT',
-          headers: { 
-            'content-type': 'application/json',
-            'Authorization': `Bearer ${access_token}`
-          },
-        }
-      )
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/make-admin/${addMemberAccount.trim()}`, {
+        method: 'PUT',
+        headers: { 
+          'content-type': 'application/json',
+          'Authorization': `Bearer ${access_token}`
+        },
+      }
+    )
     if (res.ok) {
-      console.log("added successfully")
+      sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
+      sessionStorage.setItem('arcane-alert-message','New admin added successfully')
+      // console.log("added successfully")
     } 
-      /*
-        logic here when data is failed storing on database
-      */ 
+
+    /* logic here when data is failed storing on database */
     const fetchData = async () => {
       const data = await getAdminList();
       setAdminList(data);
+      sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
+      sessionStorage.setItem('arcane-alert-message','New admin is failed to add')
     }
     fetchData();
+
     setAddMemberAccount('')
     setAddMemberLoading(false)
     setAddMemberDisabled(false)
-  }
-  const handleAddMemberSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    console.log('submitting...')
   }
 
   const optionsRole: any = [
@@ -230,35 +214,41 @@ export default function SettingAdmin({ rdt }: any) {
   const [removeMemberAccount, setRemoveMemberAccount] = useState('')
   const handleRemoveMemberSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
     const rtmDeleteAdmin = recallAdminBadge(account?.address.trim(), adminData?.vault_admin_address, adminData?.nft_id).trim()
     const result = await rdt.walletApi.sendTransaction({
       transactionManifest: rtmDeleteAdmin,
       message: 'delete admin role'
     })
-    
+
     if (result.isErr()) {
       console.log(result)
       throw new Error(result.message)
     }
-    
+
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/unmake-admin/${selectedAddress.trim()}`,
-        {
-          method: 'PUT',
-          headers: { 
-            'content-type': 'application/json',
-            'Authorization': `Bearer ${access_token}`
-          },
-        }
-      )
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/unmake-admin/${selectedAddress.trim()}`, {
+        method: 'PUT',
+        headers: { 
+          'content-type': 'application/json',
+          'Authorization': `Bearer ${access_token}`
+        },
+      }
+    )
     if (res.ok) {
-      console.log("removed successfully")
-    } 
+      sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
+      sessionStorage.setItem('arcane-alert-message','One of admin removed successfully')
+      // console.log("removed successfully")
+    }
+
     const fetchData = async () => {
       const data = await getAdminList();
       setAdminList(data);
+      sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
+      sessionStorage.setItem('arcane-alert-message','One of admin is failed to remove')
     }
     fetchData();
+
     setShowPopupRemove(false)
   }
 
@@ -284,24 +274,15 @@ export default function SettingAdmin({ rdt }: any) {
         <>
           <MainTitle
             title={`Setting`}
-            userName={profile.username}
-            userImage={profile.avatar}
-            userRole={profile.role}
+            userName={account.address}
+            userImage={account.avatar}
+            userRole={account.role}
           >
-            {isGeneral &&
-              <Alert variant="success" icon="/icon/check-circle.svg" active={false}>
-                Profile saved successfully
-              </Alert>
+            {sessionStorage.getItem('arcane-alert-status')?.toLocaleLowerCase() === 'success' &&
+              <Alert variant="success" icon="/icon/check-circle.svg" duration={5} source="arcane-alert-message" />
             }
-            {isMember &&
-              <Alert variant="success" icon="/icon/check-circle.svg" active={false}>
-                Member added successfully
-              </Alert>
-            }
-            {isTerm &&
-              <Alert variant="success" icon="/icon/check-circle.svg" active={false}>
-                Terms & Conditions created successfully
-              </Alert>
+            {sessionStorage.getItem('arcane-alert-status')?.toLocaleLowerCase() === 'error' &&
+              <Alert variant="error" icon="/icon/alert-circle.svg" duration={5} source="arcane-alert-message" />
             }
           </MainTitle>
 
@@ -351,7 +332,7 @@ export default function SettingAdmin({ rdt }: any) {
                       </div>
                     </div>
                     <div className="flex max-sm:flex-col sm:flex-wrap gap-4 md:ml-auto md:w-fit">
-                      <Button type="submit" variant="primary" className="md:min-w-[160px]" disabled={!formGeneral}>Save</Button>
+                    <Button type="submit" variant="primary" className="md:min-w-[160px]" loading={loadingGeneral} disabled={!formGeneral}>Save</Button>
                     </div>
                   </form>
                 </div>
@@ -450,17 +431,6 @@ export default function SettingAdmin({ rdt }: any) {
                           </tr>
                         </tfoot>
                       </table>
-                      <form spellCheck="false" className="sr-only" onSubmit={handleAddMemberSubmit}>
-                        <Fieldset>
-                          <Input type={"text"} id={"add-member-account"} name={"add-member-account"} variant={"secondary"} showLabel={false} required={true} label={"Account"} placeholder={"Enter account here"} value={addMemberAccount} onChange={(e) => setAddMemberAccount(e.target.value)} />
-                        </Fieldset>
-                        <Fieldset>
-                          <Select label={"Role"} id={"add-member-role"} name={"add-member-role"} showLabel={false} className={"!w-fit"} value={currentOptionsRole} options={optionsRole} onChange={(e) => handleSelectRole(e.target.value)} />
-                        </Fieldset>
-                        <Fieldset>
-                          <Button type={"submit"} variant="primary">Add</Button>
-                        </Fieldset>
-                      </form>
                     </div>
 
                     <Popup show={showPopupRemove} backdropClose={true} handleClose={handleClosePopupRemove}>
@@ -485,7 +455,7 @@ export default function SettingAdmin({ rdt }: any) {
                 <div className="mt-8 mb-4">
                   <div className="border-b-2 border-dashed border-gray-300 pb-6 mt-2 mb-8 flex justify-between max-md:flex-col gap-4">
                     <h2 className="text-xl font-maven-pro font-semibold w-full">Terms & Conditions</h2>
-                    {terms ?
+                    {terms.description ?
                       <Link href="/admin/setting/term/edit" className="md:w-fit md:whitespace-nowrap md:-mt-3">
                         <Button type={"button"} variant="secondary" loading="none">
                           Edit
@@ -515,11 +485,17 @@ export default function SettingAdmin({ rdt }: any) {
                       </Link>
                     }
                   </div>
-                  <div>
-                    <p className="text-primary-600 mb-6 last:mb-0">Last Update: {formatDate(terms.modified_at)}</p>
-                    <h3 className="font-maven-pro font-semibold text-lg md:text-xl mb-6 last:mb-0">{terms.title}</h3>
-                    <div className="mb-6 last:mb-0" dangerouslySetInnerHTML={{ __html: terms.description.replace(/\n/g, '<br>') }} />
-                  </div>
+                  {terms.description ?
+                    <div>
+                      <p className="text-primary-600 mb-6 last:mb-0">Last Update: {formatDate(terms.modified_at)}</p>
+                      <h3 className="font-maven-pro font-semibold text-lg md:text-xl mb-6 last:mb-0">{terms.title}</h3>
+                      <div className="mb-6 last:mb-0" dangerouslySetInnerHTML={{ __html: terms.description.replace(/\n/g, '<br>') }} />
+                    </div>
+                  :
+                    <div className="text-gray-400 italic">
+                      {`You don't have any Terms & Conditions yet.`}
+                    </div>
+                  }
                 </div>
               </Tab>
             </Tabs>

@@ -30,7 +30,7 @@ export const Badge: FC<BadgeProps> = ({ children, variant = 'default', className
   }
 
   return (
-    <div className={`inline-block rounded-full px-4 py-2 ${variantStyle} ${className || ''}`}>
+    <div className={`inline-block rounded-full px-4 pt-1.5 pb-2 ${variantStyle} ${className || ''}`}>
       {children}
     </div>
   )

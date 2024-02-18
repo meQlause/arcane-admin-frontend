@@ -15,14 +15,15 @@ export const useWallet = () => {
   let role: string = "";
   let address: string = "";
   let access_token: string = "";
+  let nft_id: string = "";
   if (data) {
     const bytes = CryptoJS.AES.decrypt(data, `${process.env.SECRET_JS}`);
     const originalData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
     role = originalData.role;
     address = originalData.address;
     access_token = originalData.access_token;
+    nft_id = originalData.nft_id;
   }
-
   const [isLoading, setIsLoading] = useState(true);
   const [walletConnect, setWalletConnect] = useState(false);
 
@@ -43,5 +44,5 @@ export const useWallet = () => {
     setTimeout(() => setIsLoading(false), 1000);
   }, []);
 
-  return { rdt, role, address, access_token, isLoading, walletConnect };
+  return { isLoading, walletConnect, rdt, role, address, access_token, nft_id };
 };

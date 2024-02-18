@@ -26,6 +26,12 @@ export function Sidebar() {
     { name: "About", href: "/about", icon: "/icon/alert-circle.svg" },
   ]
 
+  const linksSocials = [
+    { name: "Telegram", href: "https://t.me/arcanexrd", icon: "/icon/social-media-telegram.svg" },
+    { name: "Twitter", href: "https://twitter.com/arcanelabyrinth", icon: "/icon/social-media-twitter.svg" },
+    { name: "Website", href: "https://arcanelabyrinth.com/", icon: "/icon/language.svg" },
+  ]
+
   useEffect(() => {
     const body = document.documentElement
     if (body) {
@@ -68,7 +74,7 @@ export function Sidebar() {
           </button>
         </div>
         <div className={`hidden lg:block [&.active]:block ${isMenuOpen ? 'active' : ''}`}>
-          <Navigation links={linksItems} />
+          <Navigation links={linksItems} socials={linksSocials} />
         </div>
       </aside>
       <div className="fixed top-0 left-0 -z-10 w-[calc(calc(100vw-75rem)/2)] h-screen bg-white max-2xl:hidden">

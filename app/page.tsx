@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { redirect, usePathname } from "next/navigation";
 import { useWalletContext } from '@/app/contexts/wallet-context';
-import Proposal from "@/app/proposal/page";
+import About from "@/app/about/page";
 
 export default function Home() {
   const rdt = useWalletContext()
@@ -14,7 +14,7 @@ export default function Home() {
 
   useEffect(() => {
     if ( rdt?.walletApi && pathname === '/' ) {
-      redirect('/proposal')
+      redirect('/about')
     } else {
       setLoadPage(true)
     }
@@ -22,7 +22,7 @@ export default function Home() {
 
   return (
     <>
-      {loadPage && <Proposal />}
+      {loadPage && <About />}
     </>
   )
 }

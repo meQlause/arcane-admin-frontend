@@ -1,18 +1,13 @@
 'use client'
 
-import { usePathname } from "next/navigation";
 import { RoleType } from "@/app/types";
 import { useWallet } from "@/app/auth/wallet";
 import Loading from "@/app/loading";
-import Wallet from "@/app/wallet/page";
 import { Main } from "@/app/components/main";
-import UnderConstruction from "@/app/underconstruction";
-import DashboardMember from "./member";
+import ProposalDetailMember from "./member";
 
-export default function Dashboard() {
+export default function ProposalDetail({ params }: { params: { detail: string } }) {
   const { isLoading, walletConnect, role, rdt } = useWallet()
-
-  const pathname = usePathname()
 
   return (
     <Main>
@@ -21,12 +16,11 @@ export default function Dashboard() {
           {walletConnect ?
             <>
               {(role === RoleType.Admin || role === RoleType.Member) && (
-                // <DashboardMember rdt={rdt} />
-                <UnderConstruction />
+                <ProposalDetailMember rdt={rdt} id={params.detail} />
               )}
             </>
           :
-            <Wallet rdt={rdt} path={pathname} />
+            <ProposalDetailMember id={params.detail} />
           }
         </>
       :

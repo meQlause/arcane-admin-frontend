@@ -1,18 +1,13 @@
 'use client'
 
-import { redirect, usePathname } from "next/navigation";
 import { RoleType } from "@/app/types";
 import { useWallet } from "@/app/auth/wallet";
 import Loading from "@/app/loading";
-import Wallet from "@/app/wallet/page";
 import { Main } from "@/app/components/main";
-import SettingMember from "./member";
+import AboutMember from "./member";
 
-export default function Setting() {
+export default function About() {
   const { isLoading, walletConnect, role, rdt } = useWallet()
-  if ( role === RoleType.Unregistered ) redirect('/signup')
-
-  const pathname = usePathname()
 
   return (
     <Main>
@@ -21,11 +16,11 @@ export default function Setting() {
           {walletConnect ?
             <>
               {(role === RoleType.Admin || role === RoleType.Member) && (
-                <SettingMember rdt={rdt} />
+                <AboutMember rdt={rdt} />
               )}
             </>
           :
-            <Wallet rdt={rdt} path={pathname} />
+            <AboutMember />
           }
         </>
       :

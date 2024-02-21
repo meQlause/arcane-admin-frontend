@@ -16,6 +16,7 @@ import { Fieldset, Input, Radio } from "@/app/components/form";
 import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
+import { Tooltip } from "@/app/components/tooltip";
 import { addVote } from "@/app/rtm_generator";
 
 export type ProposalProps = {
@@ -199,12 +200,12 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
     setFilled(isFormFilled)
   }, [voting])
 
-  const [withdraw, setWithdraw] = useState(true)
+  const [isClosed, setIsClosed] = useState(false)
   useEffect(() => {
     let ends = new Date(end.split('on ')[1])
     let now = new Date()
-    if ( ends < now ) {
-      setWithdraw(false)
+    if ( now < ends ) {
+      setIsClosed(true)
     }
   }, [])
 
@@ -475,15 +476,19 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
                   <form spellCheck="false" onSubmit={handleVoteSubmit}>
                     {vote?.map((item: any, index: number) => (
                       <Fieldset key={index} className="!mb-3 !last:mb-0">
-                        <Radio id={`proposal-voting-${index}`} name={"proposal-voting"} value={item.label} onChange={(e) => setVoting(e.target.value)}>
+                        <Radio id={`proposal-voting-${index}`} name={"proposal-voting"} value={item.label} disabled={!isClosed} onChange={(e) => setVoting(e.target.value)}>
                           {item.label}
                         </Radio>
                       </Fieldset>
                     ))}
-                    <Input type={"number"} className="!mb-3 !last:mb-0" id={"proposal-token"} name={"proposal-token"} variant={"secondary"} showLabel={true} required={true} label={"Token"} placeholder={"Amount of token you will commit"} defaultValue={'0'} onChange={(e) => setTokenAmount(e.target.value)} />
-                    <Button type="button" variant="primary" loading="none" disabled={!filled} onClick={handleOpenPopupVote}>
-                      Vote
-                    </Button>
+                    {isClosed &&
+                      <>
+                        <Input type={"number"} className="!mb-3 !last:mb-0" id={"proposal-token"} name={"proposal-token"} variant={"secondary"} showLabel={true} required={true} label={"Token"} placeholder={"Amount of token you will commit"} defaultValue={'0'} onChange={(e) => setTokenAmount(e.target.value)} />
+                        <Button type="button" variant="primary" loading="none" disabled={!filled} onClick={handleOpenPopupVote}>
+                          Vote
+                        </Button>
+                      </>
+                    }
                     <Popup show={showPopupVote} backdropClose={true} handleClose={handleClosePopupVote}>
                       <PopupHeader variant={"primary"} icon={"/icon/alert-circle.svg"} />
                       <PopupBody>
@@ -533,9 +538,25 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
             }
           </Card>
 
-          <Button type="button" variant="primary" loading="none" disabled={withdraw} className="shadow-main mb-8">
-            Withdraw
-          </Button>
+          <div className="flex items-center gap-4 mb-8">
+            <Button type="button" variant="primary" loading="none" disabled={isClosed} className="shadow-main">
+              Withdraw
+            </Button>
+            {isClosed &&
+              <Tooltip
+                content="You can withdraw your token after proposal closed!"
+                className="[&_.tooltip]:-translate-x-44 [&_.tooltip]:max-w-[27ch]"
+              >
+                <Image
+                  src="/icon/alert-circle.svg"
+                  alt="user"
+                  className="w-6 h-6 min-w-[1.5rem]"
+                  width={24}
+                  height={24}
+                />
+              </Tooltip>
+            }
+          </div>
 
           {(voter && voter.length > 0 && (vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) && !isMobile) &&
             <Card className="mb-8">

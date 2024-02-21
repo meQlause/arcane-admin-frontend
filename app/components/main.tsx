@@ -36,14 +36,15 @@ type MainTitleProps = {
   userName?: string
   userImage?: string
   userRole?: string
+  className?: string
   children?: ReactNode
 }
 
-export const MainTitle: FC<MainTitleProps> = ({ title, userName, userImage, userRole, children }) => {
+export const MainTitle: FC<MainTitleProps> = ({ title, userName, userImage, userRole, className, children }) => {
   return (
     <div className="relative flex items-center justify-between gap-4 mb-8 max-lg:mt-4">
       <h1 className="font-maven-pro font-semibold text-2xl">{title}</h1>
-      <div className="max-md:hidden">
+      <div className={`max-md:hidden ${className || ''}`}>
         {userImage && 
           <Image
             src={userImage}

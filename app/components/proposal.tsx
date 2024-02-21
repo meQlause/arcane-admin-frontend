@@ -199,6 +199,15 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
     setFilled(isFormFilled)
   }, [voting])
 
+  const [withdraw, setWithdraw] = useState(true)
+  useEffect(() => {
+    let ends = new Date(end.split('on ')[1])
+    let now = new Date()
+    if ( ends < now ) {
+      setWithdraw(false)
+    }
+  }, [])
+
   const handleVoteSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
@@ -313,7 +322,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
           </div>
         </div>
         <div className="px-2 mt-2">
-        <h1 className={`${title.length > 0 ? 'text-primary-800 font-semibold' : 'text-gray-300 italic'} text-xl md:text-3xl font-maven-pro mb-6 md:mb-3`}>
+          <h1 className={`${title.length > 0 ? 'text-primary-800 font-semibold' : 'text-gray-300 italic'} text-xl md:text-3xl font-maven-pro mb-6 md:mb-3`}>
             {title.length > 0 ? title : 'Empty title'}
           </h1>
           {isNotCreate &&
@@ -436,7 +445,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
       <section className="grid md:grid-cols-12 gap-x-8">
         <div className="md:col-span-7 xl:col-span-8 h-fit">
           <Card className="mb-8">
-          {description.length > 0 ?
+            {description.length > 0 ?
               <div dangerouslySetInnerHTML={{ __html: description.replace(/\n/g, '<br>') }} />
             :
               <div className="italic text-gray-300">Empty description</div>
@@ -471,7 +480,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
                         </Radio>
                       </Fieldset>
                     ))}
-                    <Input type={"number"} className="!mb-3 !last:mb-0" id={"general-name"} name={"general-name"} variant={"secondary"} showLabel={true} required={true} label={"Token"} placeholder={"Amount of token you will commit"} defaultValue={'0'} onChange={(e) => setTokenAmount(e.target.value)} />
+                    <Input type={"number"} className="!mb-3 !last:mb-0" id={"proposal-token"} name={"proposal-token"} variant={"secondary"} showLabel={true} required={true} label={"Token"} placeholder={"Amount of token you will commit"} defaultValue={'0'} onChange={(e) => setTokenAmount(e.target.value)} />
                     <Button type="button" variant="primary" loading="none" disabled={!filled} onClick={handleOpenPopupVote}>
                       Vote
                     </Button>
@@ -523,6 +532,10 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
               </>
             }
           </Card>
+
+          <Button type="button" variant="primary" loading="none" disabled={withdraw} className="shadow-main mb-8">
+            Withdraw
+          </Button>
 
           {(voter && voter.length > 0 && (vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) && !isMobile) &&
             <Card className="mb-8">

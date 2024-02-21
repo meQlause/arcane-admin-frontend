@@ -15,9 +15,11 @@ export default function Proposal() {
         <>
           {walletConnect ?
             <>
-              {(role === RoleType.Admin || role === RoleType.Member) && (
+              {(role === RoleType.Admin || role === RoleType.Member) ?
                 <ProposalMember rdt={rdt} />
-              )}
+              :
+                <ProposalMember />
+              }
             </>
           :
             <ProposalMember />

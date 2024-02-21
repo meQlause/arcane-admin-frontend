@@ -85,7 +85,7 @@ export function Navigation({links, socials}: any ) {
                 </div>
               </div>
 
-              {!walletConnect && (
+              {(!walletConnect && role === '') && (
                   <>
                     <hr className="border-primary-300 mb-6 max-lg:hidden" />
                     <Button type={"button"} variant={"primary"} loading={"none"} className="lg:!w-fit mx-auto lg:!px-8 lg:py-2.5" onClick={handleOpenPopupSignin}>

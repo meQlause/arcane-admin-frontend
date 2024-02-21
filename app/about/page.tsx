@@ -15,9 +15,11 @@ export default function About() {
         <>
           {walletConnect ?
             <>
-              {(role === RoleType.Admin || role === RoleType.Member) && (
+              {(role === RoleType.Admin || role === RoleType.Member) ?
                 <AboutMember rdt={rdt} />
-              )}
+              :
+                <AboutMember />
+              }
             </>
           :
             <AboutMember />

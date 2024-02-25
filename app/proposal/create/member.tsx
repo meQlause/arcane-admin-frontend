@@ -170,18 +170,18 @@ export default function ProposalCreateMember({ rdt }: any) {
     setLoading(true)
     const votes = votingOptions.map(vote => vote.label);
     const createVoting = createVote(account?.address, nft_id, votes).trim()
-    // console.log(createVoting)
     const result = await rdt.walletApi.sendTransaction({
       transactionManifest: createVoting,
       message: 'create voting'
     })
+    rdt.buttonApi.status$.subscribe((data:any) => {
+      console.log(data);
+    })
     if (result.isErr()) {
-      /* write logic here when the transaction signed on wallet unsucessfull */
       throw new Error("Error creating voting")
     }
-    
-    // console.log(result.value.transactionIntentHash)
-
+    let startDate = new Date();
+    let endDate = new Date(startDate.getTime() + Number(votingDuration) * 1000); 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/create-vote`,
         {
@@ -191,7 +191,10 @@ export default function ProposalCreateMember({ rdt }: any) {
             'title': title, 
             'description': description, 
             'txId': result.value.transactionIntentHash, 
-            'votes': votes}),
+            'votes': votes,
+            "startDate": startDate.toISOString(),
+            "endDate": endDate.toISOString(),
+          }),
           headers: { 
             'content-type': 'application/json',
             'Authorization': `Bearer ${access_token}`

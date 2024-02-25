@@ -3,6 +3,8 @@ import Image from "next/image";
 import { truncateMiddle } from '@/app/functions/truncate';
 import { Sidebar } from "@/app/components/sidebar";
 import { Badge } from "@/app/components/badge";
+import { useWallet } from "../auth/wallet";
+import { mint_arc } from "../rtm_generator";
 
 type MainProps = {
   children: ReactNode
@@ -10,6 +12,7 @@ type MainProps = {
 }
 
 export const Main: FC<MainProps> = ({ children, className }) => {
+  const { address, rdt } = useWallet()
   useEffect(() => {
     const div = document.querySelector('main>div')
     if (div) {
@@ -22,9 +25,18 @@ export const Main: FC<MainProps> = ({ children, className }) => {
   const devMode = true
   const [loading, setLoading] = useState(false)
   const [successMintToken, setSuccessMintToken] = useState(false)
-  const handleMintToken = () => {
+  const handleMintToken = async () => {
     setLoading(true)
-    console.log('minting token...')
+    const mintArcToken = mint_arc(address);
+    // console.log(addVoting)
+    const result = await rdt.walletApi.sendTransaction({
+      transactionManifest: mintArcToken,
+      message: 'mint arc token'
+    })
+    if (result.isErr()) {
+      /* write logic here when the transaction signed on wallet unsucessfull */
+      throw new Error("Error add voting")
+    }
 
     /* logic here when succeed */
     setSuccessMintToken(true)

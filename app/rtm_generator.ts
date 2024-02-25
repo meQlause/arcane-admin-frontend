@@ -1,17 +1,18 @@
-const coreBadgeResourceAddress: string =
-  "resource_tdx_2_1ngc8748dj05ha2mut2f545vz4cf9d9fuxsauz34dtrkg48xr95rj7v";
-const adminBadgeResourceAddress: string =
-  "resource_tdx_2_1n2dpnpcam29rhxd477c2ap3dsznmx452trpd2v5et8vpw6h0sm932e";
-const memberBadgeResourceAddress: string =
-  "resource_tdx_2_1nghgsmxdklt73ps3fdfwv3q88x7xftxwwjatlf2adrzaryxpdxhu9j";
-const componentAddress: string =
-  "component_tdx_2_1cpfzgcnc7dt6pgpd6scdftfg9trzk0l9j6vv3ndwt7e7k2yw4hvz5q";
-const xrd: string =
-  "resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc";
+const CORE_BADGE_RESOURCE_ADDRESS =
+  "resource_tdx_2_1ngen5nkjnfdg4r2t7dfy76dtlru7x6y2w3pktk7xdkxl3h97j7atxw";
+const ADMIN_BADGE_RESOURCE_ADDRESS =
+  "resource_tdx_2_1n2t6xxxren726apmuq4nsuchany682ag93a26zysp8sduslzyqmynt";
+const MEMBER_BADGE_RESOURCE_ADDRESS =
+  "resource_tdx_2_1nfdlwjnrxsaxgnkudh0tn46zfuyyek75f3xaqhdyh66ysrna0yaer2";
+const COMPONENT_ADDRESS =
+  "component_tdx_2_1cpcp75rfh3dujcwuk69eanrxna5xevnem4vpa0lgtd8tg6d2us2lcv";
+const ARC_RESOURCE_ADDRESS =
+  "resource_tdx_2_1tk2zhlv50l4nl5flx2qc2y0zavp65xwt8khufun3kmq7xh90896gvc";
+
 export function signUpMember(address: string): string {
   return `
     CALL_METHOD
-        Address("${componentAddress}")
+        Address("${COMPONENT_ADDRESS}")
         "sign_up"
     ;
     CALL_METHOD
@@ -28,13 +29,13 @@ export function signUpAdmin(addressCore: string, addressAdmin: string): string {
     CALL_METHOD
         Address("${addressCore}")
         "create_proof_of_non_fungibles"
-        Address("${coreBadgeResourceAddress}")
+        Address("${CORE_BADGE_RESOURCE_ADDRESS}")
         Array<NonFungibleLocalId>(
             NonFungibleLocalId("#1#")
         )
     ;
     CALL_METHOD
-        Address("${componentAddress}")
+        Address("${COMPONENT_ADDRESS}")
         "make_admin"
     ;
 
@@ -56,9 +57,9 @@ export function recallAdminBadge(
     CALL_METHOD
         Address("${addressCore}")
         "create_proof_of_non_fungibles"
-        Address("${coreBadgeResourceAddress}")
+        Address("${CORE_BADGE_RESOURCE_ADDRESS}")
         Array<NonFungibleLocalId>(
-            NonFungibleLocalId("{df20666fa828d497-523a92552c997504-1c7d6a7ee570fe77-9fff609f27b967ab}")
+            NonFungibleLocalId("#1#")
         )
     ;
 
@@ -70,7 +71,7 @@ export function recallAdminBadge(
     ;
 
     TAKE_ALL_FROM_WORKTOP
-        Address("${adminBadgeResourceAddress}")
+        Address("${ADMIN_BADGE_RESOURCE_ADDRESS}")
         Bucket("admin_badge")
     ;
     
@@ -88,7 +89,7 @@ export function createVote(
   CALL_METHOD
     Address("${address}")
     "create_proof_of_non_fungibles"
-    Address("${memberBadgeResourceAddress}")
+    Address("${MEMBER_BADGE_RESOURCE_ADDRESS}")
     Array<NonFungibleLocalId>(
         NonFungibleLocalId("${nftId}")
     )
@@ -99,7 +100,7 @@ export function createVote(
   ;
 
   CALL_METHOD
-      Address("${componentAddress}")
+      Address("${COMPONENT_ADDRESS}")
       "create_vote"
       Proof("nft_proof")
       1u64
@@ -119,12 +120,12 @@ export function addVote(
     CALL_METHOD
       Address("${address}")
       "withdraw"
-      Address("${xrd}")
+      Address("${ARC_RESOURCE_ADDRESS}")
       Decimal("${amount}") 
     ;
 
     TAKE_FROM_WORKTOP
-      Address("${xrd}")
+      Address("${ARC_RESOURCE_ADDRESS}")
       Decimal("${amount}")
       Bucket("my_bucket")
     ;
@@ -132,7 +133,7 @@ export function addVote(
     CALL_METHOD
         Address("${address}")
         "create_proof_of_non_fungibles"
-        Address("${memberBadgeResourceAddress}")
+        Address("${MEMBER_BADGE_RESOURCE_ADDRESS}")
         Array<NonFungibleLocalId>(
             NonFungibleLocalId("${nft_id}")
         )
@@ -149,4 +150,51 @@ export function addVote(
         "${key}"
         Bucket("my_bucket")
     ;`;
+}
+
+export function withdraw(
+  address: string,
+  nft_id: string,
+  componentAddressVote: string,
+  key: string
+): string {
+  return `
+  CALL_METHOD
+    Address("${address}")
+    "create_proof_of_non_fungibles"
+    Address("${MEMBER_BADGE_RESOURCE_ADDRESS}")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("${nft_id}")
+    )
+  ;
+  POP_FROM_AUTH_ZONE
+      Proof("proof1")
+  ;
+  CALL_METHOD
+      Address("${componentAddressVote}")
+      "withdraw"
+      Proof("proof1")
+      "${key}"
+  ;
+  CALL_METHOD
+      Address("${address}")
+      "try_deposit_batch_or_refund"
+      Expression("ENTIRE_WORKTOP")
+      Enum<0u8>()
+  ;
+  `;
+}
+
+export function mint_arc(address: string): string {
+  return `
+  CALL_METHOD
+    Address("${COMPONENT_ADDRESS}")
+    "mint_token"
+  ;
+  CALL_METHOD
+      Address("${address}")
+      "try_deposit_batch_or_refund"
+      Expression("ENTIRE_WORKTOP")
+      Enum<0u8>()
+  ;`;
 }

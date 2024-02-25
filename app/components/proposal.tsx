@@ -17,7 +17,7 @@ import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
 import { Tooltip } from "@/app/components/tooltip";
-import { addVote } from "@/app/rtm_generator";
+import { addVote, withdraw } from "@/app/rtm_generator";
 
 export type ProposalProps = {
   id: string
@@ -202,18 +202,30 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
 
   const [isClosed, setIsClosed] = useState(false)
   useEffect(() => {
-    let ends = new Date(end.split('on ')[1])
+    let ends = new Date(end)
     let now = new Date()
-    if ( now < ends ) {
+    if (  now < ends ) {
       setIsClosed(true)
     }
-  }, [])
+  }, [end])
 
+  const handleWithdraw = async () => {
+    let selectedData : string = voter?.filter(voter => voter.user_address === account?.address)[0].selected!;
+    const withdrawFromVote = withdraw(account?.address, nft_id, ComponentAddress!, selectedData).trim();
+    const result = await rdt.walletApi.sendTransaction({
+      transactionManifest: withdrawFromVote,
+      message: 'withdraw'
+    })
+    if (result.isErr()) {
+      /* write logic here when the transaction signed on wallet unsucessfull */
+      throw new Error("Error add voting")
+    }
+  }
   const handleVoteSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
 
-    const addVoting = addVote(account?.address, tokenAmount.trim(), nft_id, ComponentAddress, voting).trim()
+    const addVoting = addVote(account?.address, tokenAmount.trim(), nft_id, ComponentAddress!, voting).trim()
     // console.log(addVoting)
     const result = await rdt.walletApi.sendTransaction({
       transactionManifest: addVoting,
@@ -248,7 +260,6 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
       sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
       sessionStorage.setItem('arcane-alert-message','You have successfully submitted your vote')
     }
-
     if (!res.ok) {
       /* logic here when data is failed storing on database */
       sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
@@ -540,7 +551,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
 
           <Card className="mb-8">
             <div className="flex items-center gap-4">
-              <Button type="button" variant="primary" loading="none" disabled={isClosed} className="shadow-main">
+              <Button type="button" variant="primary" loading="none" disabled={isClosed} className="shadow-main" onClick={handleWithdraw}>
                 Withdraw
               </Button>
               {isClosed &&

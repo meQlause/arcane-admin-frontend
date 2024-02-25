@@ -12,10 +12,10 @@ import {
   RadixNetwork,
   DataRequestBuilder,
 } from '@radixdlt/radix-dapp-toolkit';
-import * as dotenv from 'dotenv';
-import * as CryptoJS from 'crypto-js';
+import CryptoJS from 'crypto-js';
 import Loading from '@/app/loading';
-import { NFTauth, RoleType } from '@/app/types';
+import { NFTauth } from '@/app/types';
+import * as dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -36,7 +36,7 @@ export function WalletContextProvider({
       rdt = RadixDappToolkit({
         dAppDefinitionAddress: `${process.env.NEXT_PUBLIC_RADIX_DAPPS_DEFINITION_ADDRESS}`,
         networkId: RadixNetwork.Stokenet,
-        applicationName: 'Arcane',
+        applicationName: 'Arcane Labyrinth',
         applicationVersion: '1.0.0',
       });
 

@@ -538,25 +538,27 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
             }
           </Card>
 
-          <div className="flex items-center gap-4 mb-8">
-            <Button type="button" variant="primary" loading="none" disabled={isClosed} className="shadow-main">
-              Withdraw
-            </Button>
-            {isClosed &&
-              <Tooltip
-                content="You can withdraw your token after proposal closed!"
-                className="[&_.tooltip]:-translate-x-44 [&_.tooltip]:max-w-[27ch]"
-              >
-                <Image
-                  src="/icon/alert-circle.svg"
-                  alt="user"
-                  className="w-6 h-6 min-w-[1.5rem]"
-                  width={24}
-                  height={24}
-                />
-              </Tooltip>
-            }
-          </div>
+          <Card className="mb-8">
+            <div className="flex items-center gap-4">
+              <Button type="button" variant="primary" loading="none" disabled={isClosed} className="shadow-main">
+                Withdraw
+              </Button>
+              {isClosed &&
+                <Tooltip
+                  content="You can withdraw your token after proposal closed!"
+                  className="[&_.tooltip]:-translate-x-44 [&_.tooltip]:max-w-[27ch]"
+                >
+                  <Image
+                    src="/icon/alert-circle.svg"
+                    alt="user"
+                    className="w-6 h-6 min-w-[1.5rem]"
+                    width={24}
+                    height={24}
+                  />
+                </Tooltip>
+              }
+            </div>
+          </Card>
 
           {(voter && voter.length > 0 && (vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) && !isMobile) &&
             <Card className="mb-8">

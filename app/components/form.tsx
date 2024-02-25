@@ -180,7 +180,7 @@ export function InputFile({label, description, id, name, value, disabled, requir
             />
           </div>
           <p className="font-maven-pro text-lg font-medium my-2">
-            {fileStatus ? `Photo${fileData.fileNames.length > 1 ? 's' : ''} selected` : 'Upload photo here'}
+            {fileStatus ? `Photo${fileData.fileNames.length > 1 ? 's' : ''} selected` : `Upload photo here${required ? '' : ' (Optional)'}`}
           </p>
           <p className="text-sm text-gray-600">{description}</p>
           {fileStatus &&
@@ -428,7 +428,7 @@ export function Radio({children, id, name, defaultValue, value, disabled, requir
   return (
     <fieldset>
       <input type="radio" id={id} name={name} defaultValue={defaultValue} value={value} disabled={disabled} required={required} onChange={onChange} className="sr-only peer" checked={checked} />
-      <label htmlFor={id} className={`relative block px-4 py-3 rounded-lg cursor-pointer border border-gray-200 lg:hover:bg-gray-100 ring-primary-400 peer-checked:ring-1 peer-checked:text-primary-800 peer-checked:bg-primary-100 peer-checked:border-primary-400 focus:border-primary-400 focus:ring-primary-400 focus:outline-none focus-visible:outline-none ${disabled && 'cursor-default bg-gray-100'} ${className ?? ''}`}>
+      <label htmlFor={id} className={`relative block px-4 py-3 rounded-lg cursor-pointer border border-gray-200 lg:hover:bg-gray-100 ring-primary-400 peer-checked:ring-1 peer-checked:text-primary-800 peer-checked:bg-primary-100 peer-checked:border-primary-400 focus:border-primary-400 focus:ring-primary-400 focus:outline-none focus-visible:outline-none ${disabled ? 'cursor-default bg-gray-100' : ''} ${className ?? ''}`}>
         {children}
       </label>
     </fieldset>

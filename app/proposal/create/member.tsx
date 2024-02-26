@@ -95,7 +95,6 @@ export default function ProposalCreateMember({ rdt }: any) {
     const updatedBlobImages = blobImage.filter((_, i) => i !== indexToRemove)
     setBlobImage(updatedBlobImages)
   }
-
   const defaultDuration = [60, 3600, 86400, 259200] // 1 minute, 1 hour, 1 day, 3 days in seconds
   const options: any = { month: 'short', day: 'numeric', year: 'numeric' }
   const currentDate = new Date()
@@ -182,6 +181,28 @@ export default function ProposalCreateMember({ rdt }: any) {
     }
     let startDate = new Date();
     let endDate = new Date(startDate.getTime() + Number(votingDuration) * 1000); 
+    const photos : string[] = [];
+    for (let index = 0; index < blobImage.length; index++) {
+      const value = blobImage[index];
+      const pict = new FormData();
+      pict.append("photos", value, index + "image" + "." + value.type.split('/')[1]);
+      const res1 = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/upload-picts`,
+        {
+          method: 'POST',
+          body: pict,
+          headers: { 
+            'Authorization': `Bearer ${access_token}`
+          },
+        }
+      );
+      
+      if (res1.ok) {
+        const text = await res1.text();
+        console.log(text);
+        photos.push(text);
+      }
+    }
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/create-vote`,
         {
@@ -192,6 +213,7 @@ export default function ProposalCreateMember({ rdt }: any) {
             'description': description, 
             'txId': result.value.transactionIntentHash, 
             'votes': votes,
+            'photos': photos,
             "startDate": startDate.toISOString(),
             "endDate": endDate.toISOString(),
           }),

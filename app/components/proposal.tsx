@@ -16,7 +16,8 @@ import { Fieldset, Input, Radio } from "@/app/components/form";
 import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
-import { addVote } from "@/app/rtm_generator";
+import { Tooltip } from "@/app/components/tooltip";
+import { addVote, withdraw } from "@/app/rtm_generator";
 
 export type ProposalProps = {
   id: string
@@ -199,11 +200,32 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
     setFilled(isFormFilled)
   }, [voting])
 
+  const [isClosed, setIsClosed] = useState(false)
+  useEffect(() => {
+    let ends = new Date(end)
+    let now = new Date()
+    if (  now < ends ) {
+      setIsClosed(true)
+    }
+  }, [end])
+
+  const handleWithdraw = async () => {
+    let selectedData : string = voter?.filter(voter => voter.user_address === account?.address)[0].selected!;
+    const withdrawFromVote = withdraw(account?.address, nft_id, ComponentAddress!, selectedData).trim();
+    const result = await rdt.walletApi.sendTransaction({
+      transactionManifest: withdrawFromVote,
+      message: 'withdraw'
+    })
+    if (result.isErr()) {
+      /* write logic here when the transaction signed on wallet unsucessfull */
+      throw new Error("Error add voting")
+    }
+  }
   const handleVoteSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
 
-    const addVoting = addVote(account?.address, tokenAmount.trim(), nft_id, ComponentAddress, voting).trim()
+    const addVoting = addVote(account?.address, tokenAmount.trim(), nft_id, ComponentAddress!, voting).trim()
     // console.log(addVoting)
     const result = await rdt.walletApi.sendTransaction({
       transactionManifest: addVoting,
@@ -238,7 +260,6 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
       sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
       sessionStorage.setItem('arcane-alert-message','You have successfully submitted your vote')
     }
-
     if (!res.ok) {
       /* logic here when data is failed storing on database */
       sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
@@ -313,7 +334,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
           </div>
         </div>
         <div className="px-2 mt-2">
-        <h1 className={`${title.length > 0 ? 'text-primary-800 font-semibold' : 'text-gray-300 italic'} text-xl md:text-3xl font-maven-pro mb-6 md:mb-3`}>
+          <h1 className={`${title.length > 0 ? 'text-primary-800 font-semibold' : 'text-gray-300 italic'} text-xl md:text-3xl font-maven-pro mb-6 md:mb-3`}>
             {title.length > 0 ? title : 'Empty title'}
           </h1>
           {isNotCreate &&
@@ -436,7 +457,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
       <section className="grid md:grid-cols-12 gap-x-8">
         <div className="md:col-span-7 xl:col-span-8 h-fit">
           <Card className="mb-8">
-          {description.length > 0 ?
+            {description.length > 0 ?
               <div dangerouslySetInnerHTML={{ __html: description.replace(/\n/g, '<br>') }} />
             :
               <div className="italic text-gray-300">Empty description</div>
@@ -466,15 +487,19 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
                   <form spellCheck="false" onSubmit={handleVoteSubmit}>
                     {vote?.map((item: any, index: number) => (
                       <Fieldset key={index} className="!mb-3 !last:mb-0">
-                        <Radio id={`proposal-voting-${index}`} name={"proposal-voting"} value={item.label} onChange={(e) => setVoting(e.target.value)}>
+                        <Radio id={`proposal-voting-${index}`} name={"proposal-voting"} value={item.label} disabled={!isClosed} onChange={(e) => setVoting(e.target.value)}>
                           {item.label}
                         </Radio>
                       </Fieldset>
                     ))}
-                    <Input type={"number"} className="!mb-3 !last:mb-0" id={"general-name"} name={"general-name"} variant={"secondary"} showLabel={true} required={true} label={"Token"} placeholder={"Amount of token you will commit"} defaultValue={'0'} onChange={(e) => setTokenAmount(e.target.value)} />
-                    <Button type="button" variant="primary" loading="none" disabled={!filled} onClick={handleOpenPopupVote}>
-                      Vote
-                    </Button>
+                    {isClosed &&
+                      <>
+                        <Input type={"number"} className="!mb-3 !last:mb-0" id={"proposal-token"} name={"proposal-token"} variant={"secondary"} showLabel={true} required={true} label={"Token"} placeholder={"Amount of token you will commit"} defaultValue={'0'} onChange={(e) => setTokenAmount(e.target.value)} />
+                        <Button type="button" variant="primary" loading="none" disabled={!filled} onClick={handleOpenPopupVote}>
+                          Vote
+                        </Button>
+                      </>
+                    }
                     <Popup show={showPopupVote} backdropClose={true} handleClose={handleClosePopupVote}>
                       <PopupHeader variant={"primary"} icon={"/icon/alert-circle.svg"} />
                       <PopupBody>
@@ -522,6 +547,28 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
                 </Popup>
               </>
             }
+          </Card>
+
+          <Card className="mb-8">
+            <div className="flex items-center gap-4">
+              <Button type="button" variant="primary" loading="none" disabled={isClosed} className="shadow-main" onClick={handleWithdraw}>
+                Withdraw
+              </Button>
+              {isClosed &&
+                <Tooltip
+                  content="You can withdraw your token after proposal closed!"
+                  className="[&_.tooltip]:-translate-x-44 [&_.tooltip]:max-w-[27ch]"
+                >
+                  <Image
+                    src="/icon/alert-circle.svg"
+                    alt="user"
+                    className="w-6 h-6 min-w-[1.5rem]"
+                    width={24}
+                    height={24}
+                  />
+                </Tooltip>
+              }
+            </div>
           </Card>
 
           {(voter && voter.length > 0 && (vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) && !isMobile) &&

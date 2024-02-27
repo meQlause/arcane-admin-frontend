@@ -66,7 +66,7 @@ export function Navigation({links, socials}: any ) {
 
   return (
     <>
-      <ul className={`px-6 w-full flex flex-col gap-3 h-[calc(100vh-68px-env(safe-area-inset-bottom))] max-h-[calc(100vh-84px)] lg:h-screen lg:max-h-[calc(100vh-88px)] pb-4 ${(!walletConnect && pathname.indexOf('/admin') < 0) && 'max-lg:pb-20'} ${(walletConnect && pathname.indexOf('/admin') > -1) && 'max-lg:pb-28'} ${(walletConnect && pathname.indexOf('/admin') < 0) && 'max-lg:pb-40'} overflow-auto font-maven-pro`}>
+      <ul className={`px-6 w-full flex flex-col gap-3 h-[calc(100vh-68px-env(safe-area-inset-bottom))] max-h-[calc(100vh-84px)] lg:h-screen lg:max-h-[calc(100vh-88px)] pb-4 ${(!walletConnect && pathname.indexOf('/admin') < 0) ? 'max-lg:pb-20' : ''} ${(walletConnect && pathname.indexOf('/admin') > -1) ? 'max-lg:pb-28' : ''} ${(walletConnect && pathname.indexOf('/admin') < 0) ? 'max-lg:pb-40' : ''} scroll-bg-white overflow-auto font-maven-pro`}>
         {pathname.indexOf('/admin') < 0 &&
           <li className="order-9 lg:order-1">
             <Card className="!bg-primary-100 !shadow-none max-lg:mb-8 max-lg:mt-4 lg:mb-4">
@@ -85,7 +85,7 @@ export function Navigation({links, socials}: any ) {
                 </div>
               </div>
 
-              {!walletConnect && (
+              {(!walletConnect && role === '') && (
                   <>
                     <hr className="border-primary-300 mb-6 max-lg:hidden" />
                     <Button type={"button"} variant={"primary"} loading={"none"} className="lg:!w-fit mx-auto lg:!px-8 lg:py-2.5" onClick={handleOpenPopupSignin}>
@@ -160,7 +160,7 @@ export function Navigation({links, socials}: any ) {
           {walletConnect &&
             (role === RoleType.Admin || role === RoleType.Member || role === RoleType.Unregistered) && (
               <>
-                <hr className={`border-t border-gray-300 my-4 ${pathname.indexOf('/admin') > -1 && 'max-lg:mt-0'}`} />
+                <hr className={`border-t border-gray-300 my-4 ${pathname.indexOf('/admin') > -1 ? 'max-lg:mt-0' : ''}`} />
                 <button
                   type="button"
                   onClick={logout}

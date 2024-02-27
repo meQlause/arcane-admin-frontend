@@ -15,9 +15,11 @@ export default function ProposalDetail({ params }: { params: { detail: string } 
         <>
           {walletConnect ?
             <>
-              {(role === RoleType.Admin || role === RoleType.Member) && (
+              {(role === RoleType.Admin || role === RoleType.Member) ?
                 <ProposalDetailMember rdt={rdt} id={params.detail} />
-              )}
+              :
+                <ProposalDetailMember id={params.detail} />
+              }
             </>
           :
             <ProposalDetailMember id={params.detail} />

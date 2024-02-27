@@ -12,12 +12,12 @@ export default function ProposalDetailMember({ rdt, id }: any) {
     id:'',
     user_address: '',
     user_role: '',
-    avatar: '/user/user-1.png',
+    avatar: '',
     title: '',
-    photos: ['/upload/proposal-1.png','/upload/proposal-1.png'],
+    photos: [],
     description: '',
-    end: `Ends on ${new Date(new Date('').setDate(new Date('').getDate() + 7)).toLocaleDateString()}`,
-    status: 'active',
+    end: '',
+    status: '',
     vote: [],
     voter: [],
     ComponentAddress: '',
@@ -184,7 +184,7 @@ export default function ProposalDetailMember({ rdt, id }: any) {
         avatar: '/user/user-1.png',
         selected: selected,
         amount: Number(amount),
-        label: 'XRD'
+        label: 'ARC'
       }));
       setDataProposal({
         id: data?.id,
@@ -192,9 +192,9 @@ export default function ProposalDetailMember({ rdt, id }: any) {
         user_role: data?.address.role,
         avatar: '/user/user-1.png',
         title: data?.title,
-        photos: ['/upload/proposal-1.png','/upload/proposal-1.png'],
+        photos: Object.keys(data?.photos),
         description: data?.description,
-        end: `Ends on ${new Date(new Date(data.endDate).setDate(new Date(data.endDate).getDate() + 7)).toLocaleDateString()}`,
+        end: `${new Date(data.endDate).toISOString()}`,
         status: data?.isPending ? 'pending' : 'active',
         vote: vote_list,
         voter: voter,
@@ -205,7 +205,6 @@ export default function ProposalDetailMember({ rdt, id }: any) {
     setIsLoading(false);
   }, [])
 
-  console.log(dataProposal);
   const router = useRouter()
 
   const handleBack = () => {

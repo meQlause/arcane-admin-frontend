@@ -96,7 +96,7 @@ export default function ProposalMember({ rdt }: any) {
           avatar: '/user/user-1.png',
           title: item.title,
           description: item.description,
-          end: `Ends on ${new Date(new Date(item.endDate).setDate(new Date(item.endDate).getDate() + 7)).toLocaleDateString()}`,
+          end: `Ends on ${new Date(item.endDate).toLocaleDateString()}`,
           status: item.isPending ? 'pending' : 'active',
           vote: Object.entries(item.voteTokenAmount).map(([label, amount]) => ({ label, amount }))
         };

@@ -332,11 +332,12 @@ export default function ProposalCreateAdmin({ rdt }: any) {
               <>
                 <ProposalDetail
                   id={`1`}
-                  user_address={account.username}
+                  user_address={account.address}
                   user_role={account.role}
                   avatar={account.avatar}
                   title={title ? title : ''}
                   description={description ? description : ''}
+                  ComponentAddress=""
                   photos={blobImage}
                   start={today}
                   end={getEndDate(Number(votingDuration))}

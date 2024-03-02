@@ -1,5 +1,5 @@
-import fs from 'fs';
-import https from 'https';
+const fs = require('fs');
+const https = require('https');
 
 // Load the certificate
 const cert = fs.readFileSync('./app/cert/cert.crt');
@@ -21,4 +21,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

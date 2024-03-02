@@ -185,7 +185,7 @@ export default function ProposalCreateMember({ rdt }: any) {
     for (let index = 0; index < blobImage.length; index++) {
       const value = blobImage[index];
       const pict = new FormData();
-      pict.append("photos", value, index + "image" + "." + value.type.split('/')[1]);
+      pict.append("photo", value, index + "image" + "." + value.type.split('/')[1]);
       const res1 = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/upload-pict`,
         {

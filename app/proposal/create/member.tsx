@@ -14,6 +14,7 @@ import { formatDate } from "@/app/functions/datetime";
 import { createVote } from "@/app/rtm_generator";
 import { useWallet } from "@/app/auth/wallet";
 
+
 export default function ProposalCreateMember({ rdt }: any) {
   const { account } = useAccount({ rdt })
   const { nft_id , access_token} = useWallet()

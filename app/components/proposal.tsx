@@ -147,7 +147,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
   }
 
    // custom load for image to fix https issue
-  const customImageLoader = async ({ src, width, quality } : ImageLoaderProps) => {
+  const customImageLoader = async (src:string ) => {
     try {
       const instance = axios.create({
         httpsAgent: new https.Agent({ 

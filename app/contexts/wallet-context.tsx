@@ -11,6 +11,7 @@ import {
   RadixDappToolkit,
   RadixNetwork,
   DataRequestBuilder,
+  createLogger,
 } from '@radixdlt/radix-dapp-toolkit';
 import CryptoJS from 'crypto-js';
 import Loading from '@/app/loading';
@@ -36,8 +37,7 @@ export function WalletContextProvider({
       rdt = RadixDappToolkit({
         dAppDefinitionAddress: `${process.env.NEXT_PUBLIC_RADIX_DAPPS_DEFINITION_ADDRESS}`,
         networkId: RadixNetwork.Stokenet,
-        applicationName: 'Arcane Labyrinth',
-        applicationVersion: '1.0.0',
+        logger: createLogger(1),
       });
 
       rdt.walletApi.setRequestData(

@@ -187,7 +187,7 @@ export default function ProposalCreateMember({ rdt }: any) {
       const pict = new FormData();
       pict.append("photos", value, index + "image" + "." + value.type.split('/')[1]);
       const res1 = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/upload-picts`,
+        `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/upload-pict`,
         {
           method: 'POST',
           body: pict,

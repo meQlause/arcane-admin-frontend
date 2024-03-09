@@ -35,7 +35,7 @@ export function WalletContextProvider({
   useEffect(() => {
     if (typeof window !== 'undefined' && !rdt) {
       rdt = RadixDappToolkit({
-        dAppDefinitionAddress: `${process.env.NEXT_PUBLIC_RADIX_DAPPS_DEFINITION_ADDRESS}`,
+        dAppDefinitionAddress: 'account_tdx_2_1293z892mr8wx3ga73zlrfwmlakx38te882yjfe2ehuxhk5z2cgp8rc',
         networkId: RadixNetwork.Stokenet,
         logger: createLogger(1),
       });

@@ -2,7 +2,7 @@
 
 import React, { FC, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import Image from "next/image";
+import Image, { ImageLoaderProps } from "next/image";
 import Link from "next/link";
 import { RoleType } from "@/app/types";
 import { useWallet } from "@/app/auth/wallet";
@@ -18,6 +18,9 @@ import { useKeenSlider } from "keen-slider/react";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
 import { Tooltip } from "@/app/components/tooltip";
 import { addVote, withdraw } from "@/app/rtm_generator";
+import fs from 'fs/promises';
+import https from 'https';
+import axios from 'axios';
 
 export type ProposalProps = {
   id: string
@@ -132,7 +135,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
   const router = useRouter()
   const [tokenAmount, setTokenAmount] = useState<string>('0')
   const [loading, setLoading] = useState(false)
-
+  const [imagesData, setImagesData] = useState<string[]>([]);
   const isNotCreate = pathname.indexOf('/create') < 0
 
   const [showPopupSignin, setShowPopupSignin] = useState(false)
@@ -142,6 +145,39 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
   const handleClosePopupSignin = () => {
     setShowPopupSignin(false)
   }
+
+   // custom load for image to fix https issue
+  const customImageLoader = async (src:string ) => {
+    try {
+      const instance = axios.create({
+        httpsAgent: new https.Agent({ 
+          rejectUnauthorized: false
+        })
+      });
+    
+      const response = await instance.get(src, {
+        responseType: 'arraybuffer'
+      });
+    
+      const base64 = Buffer.from(response.data, 'binary').toString('base64');
+      const dataUrl = `data:${response.headers['content-type']};base64,${base64}`;
+    
+      return dataUrl;
+    } catch (err) {
+      console.error('Error reading certificate file:', err);
+    }
+    
+  };
+
+  useEffect(() => {
+    photos.forEach((photo : any) => {
+      customImageLoader(photo)
+        .then((dataUrl)=> {
+          if (dataUrl) {
+            setImagesData(prevData => [...prevData, dataUrl])};
+          }
+  )});
+  }, [photos]);
 
   const [showPopupVote, setShowPopupVote] = useState(false)
   const handleOpenPopupVote = () => {
@@ -621,7 +657,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
           {photos.length > 0 &&
             <Card className="mb-8 !bg-primary-400 !p-2 overflow-hidden">
               <div className="rounded-md overflow-hidden max-w-[calc(100vw-4rem)] keen-slider" ref={sliderRef}>
-                {photos?.map((item: any, index: number) => (
+                {imagesData?.map((item: any, index: number) => (
                   <div key={index} className="keen-slider__slide">
                     <Image
                       src={typeof item === 'string' ? item : URL.createObjectURL(item)}

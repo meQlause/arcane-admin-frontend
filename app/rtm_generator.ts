@@ -1,11 +1,11 @@
 const CORE_BADGE_RESOURCE_ADDRESS =
-  "resource_tdx_2_1ngen5nkjnfdg4r2t7dfy76dtlru7x6y2w3pktk7xdkxl3h97j7atxw";
+  "resource_tdx_2_1ng4xhqj2vjczp8xzf5v5f5d76xc4dkg54src0uhwzkd8wp3gzkmwzu";
 const ADMIN_BADGE_RESOURCE_ADDRESS =
-  "resource_tdx_2_1n2t6xxxren726apmuq4nsuchany682ag93a26zysp8sduslzyqmynt";
+  "resource_tdx_2_1ngmp8e3zasngr9u5c9kqp543vsyfuv3skjm6q4f8tsx8ylv44g0ptj";
 const MEMBER_BADGE_RESOURCE_ADDRESS =
-  "resource_tdx_2_1nfdlwjnrxsaxgnkudh0tn46zfuyyek75f3xaqhdyh66ysrna0yaer2";
+  "resource_tdx_2_1nfxr3gc7zn3dut5dp3vv9z3mrhd6pntl5ty6sqnm8a8vv5nxszm49t";
 const COMPONENT_ADDRESS =
-  "component_tdx_2_1cpcp75rfh3dujcwuk69eanrxna5xevnem4vpa0lgtd8tg6d2us2lcv";
+  "package_tdx_2_1p5qr3ujwdvpzg92ufk8fhg4tpclzu0vp7j77pu0ew70n8288j7255s";
 const ARC_RESOURCE_ADDRESS =
   "resource_tdx_2_1tk2zhlv50l4nl5flx2qc2y0zavp65xwt8khufun3kmq7xh90896gvc";
 

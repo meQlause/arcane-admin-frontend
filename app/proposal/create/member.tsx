@@ -215,8 +215,8 @@ export default function ProposalCreateMember({ rdt }: any) {
             'txId': result.value.transactionIntentHash, 
             'votes': votes,
             'photos': photos,
-            "startDate": startDate.toISOString(),
-            "endDate": endDate.toISOString(),
+            'startDate': startDate.toISOString(),
+            'endDate': endDate.toISOString(),
           }),
           headers: { 
             'content-type': 'application/json',

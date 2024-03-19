@@ -119,7 +119,7 @@ export function addVote(
   return `
     CALL_METHOD
       Address("${address}")
-      "withdraw"
+      "withdraw_vote"
       Address("${ARC_RESOURCE_ADDRESS}")
       Decimal("${amount}") 
     ;

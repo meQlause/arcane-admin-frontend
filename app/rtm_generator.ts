@@ -5,7 +5,7 @@ const ADMIN_BADGE_RESOURCE_ADDRESS =
 const MEMBER_BADGE_RESOURCE_ADDRESS =
   "resource_tdx_2_1nfxr3gc7zn3dut5dp3vv9z3mrhd6pntl5ty6sqnm8a8vv5nxszm49t";
 const COMPONENT_ADDRESS =
-  "package_tdx_2_1p5qr3ujwdvpzg92ufk8fhg4tpclzu0vp7j77pu0ew70n8288j7255s";
+  "component_tdx_2_1cqwe379ha8ds4nfls65a7e3a968w6ezc8zwmrlshg7apdug70dun5k";
 const ARC_RESOURCE_ADDRESS =
   "resource_tdx_2_1tk2zhlv50l4nl5flx2qc2y0zavp65xwt8khufun3kmq7xh90896gvc";
 
@@ -187,9 +187,9 @@ export function withdraw(
 
 export function mint_arc(address: string): string {
   return `
-  CALL_METHOD
-    Address("${COMPONENT_ADDRESS}")
-    "mint_token"
+  MINT_FUNGIBLE
+    Address("${ARC_RESOURCE_ADDRESS}")
+    Decimal("1000")
   ;
   CALL_METHOD
       Address("${address}")

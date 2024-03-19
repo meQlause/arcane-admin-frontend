@@ -1,11 +1,11 @@
 const CORE_BADGE_RESOURCE_ADDRESS =
-  "resource_tdx_2_1ng4xhqj2vjczp8xzf5v5f5d76xc4dkg54src0uhwzkd8wp3gzkmwzu";
+  "resource_tdx_2_1n20fntprpwav2hssr4xtuyljdcrnl7pkhl4l4f8l09shjm9gs5ywr8";
 const ADMIN_BADGE_RESOURCE_ADDRESS =
-  "resource_tdx_2_1ngmp8e3zasngr9u5c9kqp543vsyfuv3skjm6q4f8tsx8ylv44g0ptj";
+  "resource_tdx_2_1n20s88r6c9a4y4ufuws3e5dn28fkee0xgzqama3d4p0tnw5dcksd2p";
 const MEMBER_BADGE_RESOURCE_ADDRESS =
-  "resource_tdx_2_1nfxr3gc7zn3dut5dp3vv9z3mrhd6pntl5ty6sqnm8a8vv5nxszm49t";
+  "resource_tdx_2_1nt8ze7dfwnduzgxth56q5lfrf3l0snya5qdszjf5fw2j7evv9vhr76";
 const COMPONENT_ADDRESS =
-  "component_tdx_2_1cqwe379ha8ds4nfls65a7e3a968w6ezc8zwmrlshg7apdug70dun5k";
+  "component_tdx_2_1cqnnsjstq8cv2t5n5y9r8xupfhpsnketxjmkg2numk4wzu8gur3wma";
 const ARC_RESOURCE_ADDRESS =
   "resource_tdx_2_1tk2zhlv50l4nl5flx2qc2y0zavp65xwt8khufun3kmq7xh90896gvc";
 
@@ -31,7 +31,7 @@ export function signUpAdmin(addressCore: string, addressAdmin: string): string {
         "create_proof_of_non_fungibles"
         Address("${CORE_BADGE_RESOURCE_ADDRESS}")
         Array<NonFungibleLocalId>(
-            NonFungibleLocalId("#1#")
+            NonFungibleLocalId("#0#")
         )
     ;
     CALL_METHOD

@@ -172,7 +172,7 @@ export function withdraw(
   ;
   CALL_METHOD
       Address("${componentAddressVote}")
-      "withdraw_vote"
+      "withdraw"
       Proof("proof1")
       "${key}"
   ;

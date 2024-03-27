@@ -18,6 +18,7 @@ export default function SignUp() {
 
   const [loading, setLoading] = useState(false)
   const [successReg, setSuccessReg] = useState(false)
+  const [failedReg, setFailedReg] = useState(false)
   const [reconnect, setReconnect] = useState(false)
 
   const handleReconnect = () => {
@@ -32,12 +33,17 @@ export default function SignUp() {
       transactionManifest: rtm_signup,
       message: 'Mint Member Arcane Badge'
     })
+
     if (result.isErr()) {
       /* write logic here when the transaction signed on wallet unsucessfull */
       setLoading(false)
-      throw new Error("Minting Error")
+      // throw new Error("Minting Error")
+      setFailedReg(true)
+      setTimeout(() => {
+        setFailedReg(false)
+      },3000)
     }
-    
+
     /* write logic here when the transaction signed on wallet sucessfull */
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/register`,
@@ -58,6 +64,10 @@ export default function SignUp() {
 
     /* logic here when data is failed storing on database */
     setLoading(false)
+    setFailedReg(true)
+    setTimeout(() => {
+      setFailedReg(false)
+    },3000)
   }
 
   return (
@@ -66,6 +76,11 @@ export default function SignUp() {
         <>
           {!successReg ?
             <>
+              {failedReg &&
+                <div className="bg-error-100 text-error-600 px-4 py-3 rounded-lg mb-4">
+                  You failed to join as member, please to sign up again.
+                </div>
+              }
               <Image
                 src="/icon/alert-circle.svg"
                 alt="icon"

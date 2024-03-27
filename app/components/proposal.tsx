@@ -31,7 +31,7 @@ export type ProposalProps = {
   ComponentAddress: string
   avatar: string
   start?: string
-  end: string
+  end?: string
   status?: string
   vote?: ProposalVoteProps[] | null
   vote_hide?: string
@@ -63,9 +63,13 @@ export const ProposalList: FC<ProposalProps> = ({ id, user_address, title, descr
           <div className="break-all line-clamp-1 md:hidden" title={user_address}>{user_address}</div>
         </div>
         <div className="flex items-center max-md:justify-between gap-4 text-sm text-gray-600 md:ml-auto">
-          <span>{end}</span>
-          <div className="w-px h-8 bg-gray-300 max-md:hidden"></div>
-          <Badge variant={status?.toLowerCase() === 'active' ? 'success' : status?.toLowerCase() === 'pending' ? 'warning' : status?.toLowerCase() === 'rejected' ? 'error' : 'info'}>{status}</Badge>
+          {(status?.toLowerCase() === 'active' || status?.toLowerCase() === 'pending' || status?.toLowerCase() === 'closed') &&
+            <>
+              <span>{end}</span>
+              <div className="w-px h-8 bg-gray-300 max-md:hidden"></div>
+            </>
+          }
+          <Badge variant={status?.toLowerCase() === 'active' ? 'success' : status?.toLowerCase() === 'closed' ? 'info' : status?.toLowerCase() === 'rejected' ? 'error' : 'warning'}>{status}</Badge>
         </div>
       </div>
       <div className="font-maven-pro font-semibold text-lg mb-3">{title}</div>
@@ -238,25 +242,46 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
 
   const [isClosed, setIsClosed] = useState(false)
   useEffect(() => {
-    let ends = new Date(end)
-    let now = new Date()
-    if (  now < ends ) {
-      setIsClosed(true)
+    if ( end ) {
+      let ends = new Date(end)
+      let now = new Date()
+      if ( now < ends ) {
+        setIsClosed(true)
+      }
     }
   }, [end])
 
   const handleWithdraw = async () => {
+    setLoading(true)
+
     let selectedData : string = voter?.filter(voter => voter.user_address === account?.address)[0].selected!;
     const withdrawFromVote = withdraw(account?.address, nft_id, ComponentAddress!, selectedData).trim();
     const result = await rdt.walletApi.sendTransaction({
       transactionManifest: withdrawFromVote,
       message: 'withdraw'
     })
+
     if (result.isErr()) {
       /* write logic here when the transaction signed on wallet unsucessfull */
-      throw new Error("Error add voting")
+      // throw new Error("Error add voting")
+      sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
+      sessionStorage.setItem('arcane-alert-message','You failed to withdraw')
+      if ( pathname.indexOf('admin') > -1 ) {
+        router.push('/admin/proposal')
+      } else {
+        router.push('/proposal')
+      }
+    }
+
+    sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
+    sessionStorage.setItem('arcane-alert-message','You have successfully withdrawn')
+    if ( pathname.indexOf('admin') > -1 ) {
+      router.push('/admin/proposal')
+    } else {
+      router.push('/proposal')
     }
   }
+
   const handleVoteSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
@@ -267,9 +292,17 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
       transactionManifest: addVoting,
       message: 'add voting'
     })
+
     if (result.isErr()) {
       /* write logic here when the transaction signed on wallet unsucessfull */
-      throw new Error("Error add voting")
+      // throw new Error("Error add voting")
+      sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
+      sessionStorage.setItem('arcane-alert-message','You failed to submit your vote')
+      if ( pathname.indexOf('admin') > -1 ) {
+        router.push('/admin/proposal')
+      } else {
+        router.push('/proposal')
+      }
     }
 
     // console.log(result.value.transactionIntentHash)
@@ -296,6 +329,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
       sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
       sessionStorage.setItem('arcane-alert-message','You have successfully submitted your vote')
     }
+
     if (!res.ok) {
       /* logic here when data is failed storing on database */
       sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
@@ -346,7 +380,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
                 }
               </div>
               {user_role && 
-                 <Badge variant="primary" className="max-md:text-sm max-md:px-3 max-md:pt-0.5 max-md:pb-1">{user_role}</Badge>
+                <Badge variant="primary" className="max-md:text-sm max-md:px-3 max-md:pt-0.5 max-md:pb-1">{user_role}</Badge>
               }
             </div>
             {isNotCreate &&
@@ -363,7 +397,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
                   Share
                 </Button>
                 {status && 
-                  <Badge variant={status?.toLowerCase() === 'active' ? 'success' : status?.toLowerCase() === 'pending' ? 'warning' : status?.toLowerCase() === 'rejected' ? 'error' : 'info'}>{status}</Badge>
+                  <Badge variant={status?.toLowerCase() === 'active' ? 'success' : status?.toLowerCase() === 'closed' ? 'info' : status?.toLowerCase() === 'rejected' ? 'error' : 'warning'}>{status}</Badge>
                 }
               </div>
             }
@@ -377,7 +411,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
             <>
               <div className="flex items-center justify-between gap-4 mb-3 md:hidden">
                 {status && 
-                  <Badge variant={status?.toLowerCase() === 'active' ? 'success' : status?.toLowerCase() === 'pending' ? 'warning' : status?.toLowerCase() === 'rejected' ? 'error' : 'info'} className="max-md:text-sm max-md:px-3 max-md:pt-0.5 max-md:pb-1">{status}</Badge>
+                  <Badge variant={status?.toLowerCase() === 'active' ? 'success' : status?.toLowerCase() === 'closed' ? 'info' : status?.toLowerCase() === 'rejected' ? 'error' : 'warning'} className="max-md:text-sm max-md:px-3 max-md:pt-0.5 max-md:pb-1">{status}</Badge>
                 }
                 <Button type="button" variant="light" loading="none" className="!border-0 !bg-transparent !w-fit !p-0 !text-gray-700 font-normal max-md:text-sm" onClick={handleOpenPopupShare}>
                   <Image
@@ -502,7 +536,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
 
           {/* <Card className="mb-8">
             <Link href="/admin/discussion">
-              <Button type={"button"} variant="light" loading="none">
+              <Button type="button" variant="light" loading="none">
                 Forum Discussion
                 <Image
                   src="/icon/arrow-up-right.svg"
@@ -518,7 +552,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
           <Card className="mb-8">
             <h2 className="text-lg font-maven-pro font-semibold text-center mb-6">Cast Your Vote</h2>
             {(account || walletConnect) ?
-            <>
+              <>
                 {isNotCreate ?
                   <form spellCheck="false" onSubmit={handleVoteSubmit}>
                     {vote?.map((item: any, index: number) => (
@@ -530,7 +564,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
                     ))}
                     {isClosed &&
                       <>
-                        <Input type={"number"} className="!mb-3 !last:mb-0" id={"proposal-token"} name={"proposal-token"} variant={"secondary"} showLabel={true} required={true} label={"Token"} placeholder={"Amount of token you will commit"} defaultValue={'0'} onChange={(e) => setTokenAmount(e.target.value)} />
+                        <Input type={"number"} className="!mb-3 !last:mb-0" id={"proposal-token"} name={"proposal-token"} variant={"secondary"} showLabel={true} required={true} label={"Token"} placeholder={"Amount of token you will commit"} defaultValue={"0"} onChange={(e) => setTokenAmount(e.target.value)} />
                         <Button type="button" variant="primary" loading="none" disabled={!filled} onClick={handleOpenPopupVote}>
                           Vote
                         </Button>
@@ -587,7 +621,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
 
           <Card className="mb-8">
             <div className="flex items-center gap-4">
-              <Button type="button" variant="primary" loading="none" disabled={isClosed} className="shadow-main" onClick={handleWithdraw}>
+              <Button type="button" variant="primary" loading={loading} disabled={isClosed} className="shadow-main" onClick={handleWithdraw}>
                 Withdraw
               </Button>
               {isClosed &&
@@ -611,7 +645,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
             <Card className="mb-8">
               <div className="flex items-center justify-between gap-4 mb-2">
                 <h2 className="text-lg font-maven-pro font-semibold">Voters</h2>
-                <Button type="button" variant="light" className="!w-fit pointer-events-none">{voter.length} voter{voter.length > 1 && 's'}</Button>
+                <Button type="button" variant="light" className="!w-fit pointer-events-none">{formatNumber(voter.length)} voter{voter.length > 1 && 's'}</Button>
               </div>
               <div className="max-h-[500px] max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-white -mb-4 -mx-6 px-6">
                 <table className="w-full">
@@ -751,7 +785,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
             <Card className="mb-8">
               <div className="flex items-center justify-between gap-4 mb-2">
                 <h2 className="text-lg font-maven-pro font-semibold">Voters</h2>
-                <Button type="button" variant="light" className="!w-fit pointer-events-none">{voter.length} voter{voter.length > 1 && 's'}</Button>
+                <Button type="button" variant="light" className="!w-fit pointer-events-none">{formatNumber(voter.length)} voter{voter.length > 1 && 's'}</Button>
               </div>
               <table className="w-full">
                 <tbody>

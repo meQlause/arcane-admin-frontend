@@ -6,7 +6,6 @@ import { useWallet } from "@/app/auth/wallet";
 import Loading from "@/app/loading";
 import Wallet from "@/app/wallet/page";
 import { Main } from "@/app/components/main";
-import UnderConstruction from "@/app/underconstruction";
 import DashboardMember from "./member";
 
 export default function Dashboard() {
@@ -21,8 +20,7 @@ export default function Dashboard() {
           {walletConnect ?
             <>
               {(role === RoleType.Admin || role === RoleType.Member) && (
-                // <DashboardMember rdt={rdt} />
-                <UnderConstruction />
+                <DashboardMember rdt={rdt} />
               )}
             </>
           :

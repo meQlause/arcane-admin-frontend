@@ -9,6 +9,7 @@ import { Card } from "@/app/components/card";
 import { Fieldset, Select } from "@/app/components/form";
 import { Alert } from "@/app/components/alert";
 import Chart from "@/app/components/chart";
+import { formatNumber } from "@/app/functions/notation";
 import { ProposalList, ProposalProps } from "@/app/components/proposal";
 
 export default function DashboardAdmin({ rdt }: any) {
@@ -205,7 +206,7 @@ export default function DashboardAdmin({ rdt }: any) {
                   </div>
                 </div>
                 <div className="mt-6">
-                  <span className="font-semibold text-2xl md:text-4xl mr-4">4</span>
+                  <span className="font-semibold text-2xl md:text-4xl mr-4">{formatNumber(4)}</span>
                   <Image
                     src="/icon/arrow-up.svg"
                     alt="icon"
@@ -236,7 +237,7 @@ export default function DashboardAdmin({ rdt }: any) {
                   </div>
                 </div>
                 <div className="mt-6">
-                  <span className="font-semibold text-2xl md:text-4xl mr-4">1</span>
+                  <span className="font-semibold text-2xl md:text-4xl mr-4">{formatNumber(1)}</span>
                   <Image
                     src="/icon/arrow-down.svg"
                     alt="icon"

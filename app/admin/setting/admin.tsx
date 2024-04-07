@@ -12,7 +12,7 @@ import { Button } from "@/app/components/button";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
 import { formatDate } from "@/app/functions/datetime";
 import { Alert } from "@/app/components/alert";
-import { recallAdminBadge, signUpAdmin } from "@/app/rtm_generator";
+// import { recallAdminBadge, signUpAdmin } from "@/app/rtm_generator";
 import { useWallet } from "@/app/auth/wallet";
 
 export default function SettingAdmin({ rdt }: any) {
@@ -131,11 +131,11 @@ export default function SettingAdmin({ rdt }: any) {
     // } catch (error) {
     //   console.error("Error during action:", error)
     // }
-    const rtmSignupAdmin = signUpAdmin(account?.address.trim(), addMemberAccount.trim()).trim()
-    const result = await rdt.walletApi.sendTransaction({
-      transactionManifest: rtmSignupAdmin,
-      message: 'Make particular address becomes admin'
-    })
+    // const rtmSignupAdmin = signUpAdmin(account?.address.trim(), addMemberAccount.trim()).trim()
+    // const result = await rdt.walletApi.sendTransaction({
+    //   transactionManifest: rtmSignupAdmin,
+    //   message: 'Make particular address becomes admin'
+    // })
     
     if (result.isErr()) {
       /* write logic here when the transaction signed on wallet unsucessfull */
@@ -215,11 +215,11 @@ export default function SettingAdmin({ rdt }: any) {
   const handleRemoveMemberSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    const rtmDeleteAdmin = recallAdminBadge(account?.address.trim(), adminData?.vault_admin_address, adminData?.nft_id).trim()
-    const result = await rdt.walletApi.sendTransaction({
-      transactionManifest: rtmDeleteAdmin,
-      message: 'delete admin role'
-    })
+    // const rtmDeleteAdmin = recallAdminBadge(account?.address.trim(), adminData?.vault_admin_address, adminData?.nft_id).trim()
+    // const result = await rdt.walletApi.sendTransaction({
+    //   transactionManifest: rtmDeleteAdmin,
+    //   message: 'delete admin role'
+    // })
 
     if (result.isErr()) {
       console.log(result)

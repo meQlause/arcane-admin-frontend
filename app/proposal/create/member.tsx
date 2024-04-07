@@ -97,7 +97,7 @@ export default function ProposalCreateMember({ rdt }: any) {
     const updatedBlobImages = blobImage.filter((_, i) => i !== indexToRemove)
     setBlobImage(updatedBlobImages)
   }
-  const defaultDuration = [1,2,3] // qarter 1, 2, 3
+  const defaultDuration = [1,2,3] 
   const options: any = { month: 'short', day: 'numeric', year: 'numeric' }
   const currentDate = new Date()
   const today = currentDate.toLocaleDateString('en-US', options)
@@ -169,9 +169,23 @@ export default function ProposalCreateMember({ rdt }: any) {
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
+
+    let meta: any = "";
+    const options = {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-Api-Key': 'sk_live_00998243-feff-49f8-a092-8cb33d87e5c9'},
+      body: `{"name":"arcane","content": {"title": "${title}", "description": "${description}"} , "metadata":{"title": "${title}", "description": "${description}"}}`
+    };
+
+    try {
+      const response = await fetch('https://api.starton.com/v3/ipfs/json', options);
+      meta = await response.json();
+    } catch (error) {
+      console.error(error);
+    }
+
     const votes = votingOptions.map(vote => vote.label);
-    console.log(account)
-    const manifest = RTMGenerator.createVote(account?.address, nft_id, votes, 3)
+    const manifest = RTMGenerator.createVote(account?.address, nft_id, votes, meta.id, votingDuration)
     const result = await rdt.walletApi.sendTransaction({
       transactionManifest: manifest,
       message: 'Create New Proposal'

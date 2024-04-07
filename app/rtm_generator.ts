@@ -21,12 +21,6 @@ export class RTMGenerator {
         "sign_up"
         Address("${address}")
     ;
-    CALL_METHOD
-        Address("${address}")
-        "try_deposit_batch_or_refund"
-        Expression("ENTIRE_WORKTOP")
-        Enum<0u8>()
-    ;
     `;
   }
 
@@ -34,7 +28,8 @@ export class RTMGenerator {
     address: string,
     nftId: string,
     votes: string[],
-    duration: number
+    id: string,
+    duration: string
   ): string {
     return `
     CALL_METHOD
@@ -55,7 +50,7 @@ export class RTMGenerator {
         "create_vote"
         Proof("nft_proof")
         Address("${arcaneVoteStyle}")
-        "http://arcane.xrd/"
+        "${id}"
         ${duration}u8
         Array<String>(${votes.map((item) => `"${item}"`).join(", ")})
     ;
@@ -138,9 +133,9 @@ export class RTMGenerator {
   }
   static mint_arc(address: string): string {
     return `
-    CALL_METHOD
-      Address("component_tdx_2_1cqnnsjstq8cv2t5n5y9r8xupfhpsnketxjmkg2numk4wzu8gur3wma")
-      "mint_token"
+    MINT_FUNGIBLE
+      Address("resource_tdx_2_1tk2zhlv50l4nl5flx2qc2y0zavp65xwt8khufun3kmq7xh90896gvc")
+      Decimal("900")
     ;
     CALL_METHOD
         Address("${address}")

@@ -286,10 +286,9 @@ export default function DashboardMember({ rdt }: any) {
         const response = await (await fetch(`https://localhost:4001/votes/get-voter-data/${nft_id.slice(1, -1)}`)).json();
         let dataH : any = []
         for(let x = 0; x < response.length; x++) {
-          console.log(response[x])
           dataH.push({
             user_address: response[x].voter,
-            title: 'Save v3 MVP deploy',
+            title: response[x].title,
             amount: response[x].amount,
             label: 'ARC'
           })

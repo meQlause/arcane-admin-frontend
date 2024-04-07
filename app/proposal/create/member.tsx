@@ -97,12 +97,12 @@ export default function ProposalCreateMember({ rdt }: any) {
     const updatedBlobImages = blobImage.filter((_, i) => i !== indexToRemove)
     setBlobImage(updatedBlobImages)
   }
-  const defaultDuration = [60, 3600, 86400, 259200] // 1 minute, 1 hour, 1 day, 3 days in seconds
+  const defaultDuration = [1,2,3] // qarter 1, 2, 3
   const options: any = { month: 'short', day: 'numeric', year: 'numeric' }
   const currentDate = new Date()
   const today = currentDate.toLocaleDateString('en-US', options)
   const getEndDate = (second: number) => {
-    const endDate = new Date(currentDate.getTime() + second * 1000)
+    const endDate = new Date(currentDate.getTime() + ((1*60*40) * second))
     return endDate.toLocaleDateString('en-US', options)
   }
 
@@ -170,6 +170,7 @@ export default function ProposalCreateMember({ rdt }: any) {
     e.preventDefault()
     setLoading(true)
     const votes = votingOptions.map(vote => vote.label);
+    console.log(account)
     const manifest = RTMGenerator.createVote(account?.address, nft_id, votes, 3)
     const result = await rdt.walletApi.sendTransaction({
       transactionManifest: manifest,
@@ -397,12 +398,18 @@ export default function ProposalCreateMember({ rdt }: any) {
                   {defaultDuration.map((duration) => 
                     <Radio key={`proposal-voting-duration-${duration}`} id={`proposal-voting-duration-${duration}`} name={"proposal-voting-duration"} value={duration.toString()} onChange={(e) => setVotingDuration(e.target.value)} required={true}>
                       <p className="font-maven-pro text-lg -mb-1">
-                        {duration < 60 ? `${duration} Second${duration > 1 ? 's' : ''}` :
+                        {/* {duration < 60 ? `${duration} Second${duration > 1 ? 's' : ''}` :
                           duration < 3600 ? `${Math.floor(duration / 60)} Minute${Math.floor(duration / 60) > 1 ? 's' : ''}` :
                           duration < 86400 ? `${Math.floor(duration / 3600)} Hour${Math.floor(duration / 3600) > 1 ? 's' : ''}` :
                           duration < 172800 ? `${Math.round(duration / 24 / 3600)} Day${Math.round(duration / 24 / 3600) > 1 ? 's' : ''}` :
                           `${Math.floor(duration / 24 / 3600)} Day${Math.floor(duration / 24 / 3600) > 1 ? 's' : ''}`
-                        }
+                        } */}
+                        {duration < 60 ? `Quarter ${duration}` :
+                        duration < 3600 ? `${Math.floor(duration / 60)} Minute${Math.floor(duration / 60) > 1 ? 's' : ''}` :
+                        duration < 86400 ? `${Math.floor(duration / 3600)} Hour${Math.floor(duration / 3600) > 1 ? 's' : ''}` :
+                        duration < 172800 ? `${Math.round(duration / 24 / 3600)} Day${Math.round(duration / 24 / 3600) > 1 ? 's' : ''}` :
+                        `${Math.floor(duration / 24 / 3600)} Day${Math.floor(duration / 24 / 3600) > 1 ? 's' : ''}`
+                      }
                       </p>
                       <small className="opacity-50">{`Until ${getEndDate(duration)}`}</small>
                     </Radio>

@@ -307,30 +307,30 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
 
     // console.log(result.value.transactionIntentHash)
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/add-vote`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            'address' : account?.address, 
-            'key': voting, 
-            'tokenAmount': Number(tokenAmount), 
-            'voteId': Number(id)
-          }),
-          headers: { 
-            'content-type': 'application/json',
-            'Authorization': `Bearer ${access_token}`
-          },
-        }
-    )
+    // const res = await fetch(
+    //   `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/add-vote`,
+    //     {
+    //       method: 'POST',
+    //       body: JSON.stringify({
+    //         'address' : account?.address, 
+    //         'key': voting, 
+    //         'tokenAmount': Number(tokenAmount), 
+    //         'voteId': Number(id)
+    //       }),
+    //       headers: { 
+    //         'content-type': 'application/json',
+    //         'Authorization': `Bearer ${access_token}`
+    //       },
+    //     }
+    // )
 
-    if (res.ok) {
+    if (!result.isErr()) {
       /* logic here when data is recorded on database */
       sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
       sessionStorage.setItem('arcane-alert-message','You have successfully submitted your vote')
     }
 
-    if (!res.ok) {
+    if (result.isErr()) {
       /* logic here when data is failed storing on database */
       sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
       sessionStorage.setItem('arcane-alert-message','You failed to submit your vote')

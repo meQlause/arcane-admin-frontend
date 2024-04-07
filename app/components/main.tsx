@@ -4,7 +4,7 @@ import { truncateMiddle } from '@/app/functions/truncate';
 import { Sidebar } from "@/app/components/sidebar";
 import { Badge } from "@/app/components/badge";
 import { useWallet } from "@/app/auth/wallet";
-import { mint_arc } from "@/app/rtm_generator";
+import { RTMGenerator } from "../rtm_generator";
 
 type MainProps = {
   children: ReactNode
@@ -30,7 +30,7 @@ export const Main: FC<MainProps> = ({ children, className }) => {
 
   const handleMintToken = async () => {
     setLoading(true)
-    const mintArcToken = mint_arc(address)
+    const mintArcToken = RTMGenerator.mint_arc(address)
     // console.log(addVoting)
     const result = await rdt.walletApi.sendTransaction({
       transactionManifest: mintArcToken,

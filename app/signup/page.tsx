@@ -7,7 +7,7 @@ import { RoleType } from "@/app/types";
 import { useWallet } from "@/app/auth/wallet";
 import Wallet from "@/app/wallet/page";
 import { useAccount } from "@/app/auth/account";
-import { signUpMember } from "@/app/rtm_generator";
+import { RTMGenerator } from "../rtm_generator";
 import { Button } from "@/app/components/button";
 
 export default function SignUp() {
@@ -28,7 +28,7 @@ export default function SignUp() {
   const sign_up = async () => {
     setLoading(true)
 
-    const rtm_signup = signUpMember(account?.address).trim()
+    const rtm_signup = RTMGenerator.signUp(account?.address).trim()
     const result = await rdt.walletApi.sendTransaction({
       transactionManifest: rtm_signup,
       message: 'Mint Member Arcane Badge'
@@ -45,16 +45,16 @@ export default function SignUp() {
     }
 
     /* write logic here when the transaction signed on wallet sucessfull */
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/register`,
-        {
-          method: 'POST',
-          body: JSON.stringify({'address' : account?.address}),
-          headers: { 'content-type': 'application/json' },
-        }
-    )
+    // const res = await fetch(
+    //   `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/register`,
+    //     {
+    //       method: 'POST',
+    //       body: JSON.stringify({'address' : account?.address}),
+    //       headers: { 'content-type': 'application/json' },
+    //     }
+    // )
 
-    if (res.ok) {
+    if (!result.isErr()) {
       /* logic here when data is recorded on database */
       setLoading(false)
       rdt.disconnect()

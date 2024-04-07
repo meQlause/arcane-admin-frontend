@@ -12,6 +12,7 @@ import {
   RadixNetwork,
   DataRequestBuilder,
   createLogger,
+  RdtState,
 } from '@radixdlt/radix-dapp-toolkit';
 import CryptoJS from 'crypto-js';
 import Loading from '@/app/loading';
@@ -73,7 +74,6 @@ export function WalletContextProvider({
         ).toString();
         localStorage.setItem('arcane', ciphertext);
       });
-
       setIsLoading(false);
     }
   }, []);

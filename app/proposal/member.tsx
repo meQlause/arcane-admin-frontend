@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { RoleType } from "@/app/types";
 import { useAccount } from "@/app/auth/account";
 import { MainTitle } from "@/app/components/main";
 import { Card } from "@/app/components/card";
@@ -105,7 +106,6 @@ export default function ProposalMember({ rdt }: any) {
     }
     fetchData();
   }, [])
-  
 
   // const dataProposal: ProposalProps[] = [
   //   {
@@ -183,7 +183,7 @@ export default function ProposalMember({ rdt }: any) {
                 <input type="text" id="search-proposal" name="search-proposal" placeholder="Search Proposal" className="w-full appearance-none rounded-xl py-3 pr-4 pl-11 text-gray-500 bg-gray-100 border-2 border-transparent placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default" onChange={handleSearchInput} />
               </Fieldset>
             </form>
-            {account &&
+            {/* {(account && (account.role === RoleType.Admin || account.role === RoleType.Member)) && */}
               <Link href="/proposal/create" className="md:w-fit md:whitespace-nowrap">
                 <Button type="button" variant="primary" loading="none">
                   Create New Proposal
@@ -197,7 +197,7 @@ export default function ProposalMember({ rdt }: any) {
                   />
                 </Button>
               </Link>
-            }
+            {/* } */}
           </div>
         </div>
         <div className="grid gap-6 mb-2 lg:mb-1">

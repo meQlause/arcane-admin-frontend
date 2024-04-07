@@ -3,8 +3,8 @@ import Image from "next/image";
 import { truncateMiddle } from '@/app/functions/truncate';
 import { Sidebar } from "@/app/components/sidebar";
 import { Badge } from "@/app/components/badge";
-import { useWallet } from "../auth/wallet";
-import { mint_arc } from "../rtm_generator";
+import { useWallet } from "@/app/auth/wallet";
+import { RTMGenerator } from "../rtm_generator";
 
 type MainProps = {
   children: ReactNode
@@ -13,6 +13,7 @@ type MainProps = {
 
 export const Main: FC<MainProps> = ({ children, className }) => {
   const { address, rdt } = useWallet()
+
   useEffect(() => {
     const div = document.querySelector('main>div')
     if (div) {
@@ -25,17 +26,25 @@ export const Main: FC<MainProps> = ({ children, className }) => {
   const devMode = true
   const [loading, setLoading] = useState(false)
   const [successMintToken, setSuccessMintToken] = useState(false)
+  const [failedMintToken, setFailedMintToken] = useState(false)
+
   const handleMintToken = async () => {
     setLoading(true)
-    const mintArcToken = mint_arc(address);
+    const mintArcToken = RTMGenerator.mint_arc(address)
     // console.log(addVoting)
     const result = await rdt.walletApi.sendTransaction({
       transactionManifest: mintArcToken,
       message: 'mint arc token'
     })
+
     if (result.isErr()) {
       /* write logic here when the transaction signed on wallet unsucessfull */
-      throw new Error("Error add voting")
+      // throw new Error("Error add voting")
+      setLoading(false)
+      setFailedMintToken(true)
+      setTimeout(() => {
+        setFailedMintToken(false)
+      },3000)
     }
 
     /* logic here when succeed */
@@ -50,26 +59,31 @@ export const Main: FC<MainProps> = ({ children, className }) => {
     <section className="lg:flex w-full max-w-8xl mx-auto">
       <Sidebar className={devMode ? 'lg:!pt-12 lg:[&>div>ul]:!max-h-[calc(100vh-88px-24px)]' : ''} />
       {devMode &&
-        <div className={`sticky lg:fixed top-[69px] lg:top-0 left-0 w-full h-fit z-[9] lg:z-20 px-4 py-2 text-xs text-center ${successMintToken ? 'bg-success-100 text-success-600' : 'bg-primary-100 text-primary-700'}`}>
+        <div className={`sticky lg:fixed top-[69px] lg:top-0 left-0 w-full h-fit z-[9] lg:z-20 px-4 py-2 text-xs text-center ${successMintToken ? 'bg-success-100 text-success-600' : failedMintToken ? 'bg-error-100 text-error-600' : 'bg-primary-100 text-primary-700'}`}>
           {successMintToken ?
             <>
               {`Mint $ARC tokens successfully!`}
             </>
           :
-            <>
-              {`This dApp is configured to use the testnet Stokenet. It does not use the Radix Public Network mainnet. Click`}
-              <button type="button" className="inline-block mx-1 underline" onClick={handleMintToken}>
-                HERE
-                <Image
-                  src="/loading.svg"
-                  alt="loading"
-                  className={`animate-spin ml-1 mr-0.5 ${!loading ? 'hidden' : 'inline-block'}`}
-                  width={16}
-                  height={16}
-                />
-              </button>
-              {`to mint $ARC tokens and you can use them for voting on Stokenet.`}
-            </>
+            failedMintToken ?
+              <>
+                {`Failed to mint $ARC tokens!`}
+              </>
+            :
+              <>
+                {`This dApp is configured to use the testnet Stokenet. It does not use the Radix Public Network mainnet. Click`}
+                <button type="button" className="inline-block mx-1 underline" onClick={handleMintToken}>
+                  HERE
+                  <Image
+                    src="/loading.svg"
+                    alt="loading"
+                    className={`animate-spin ml-1 mr-0.5 ${!loading ? 'hidden' : 'inline-block'}`}
+                    width={16}
+                    height={16}
+                  />
+                </button>
+                {`to mint $ARC tokens and you can use them for voting on Stokenet.`}
+              </>
           }
         </div>
       }

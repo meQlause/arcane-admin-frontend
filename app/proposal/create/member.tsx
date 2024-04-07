@@ -11,8 +11,9 @@ import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/pop
 import { Alert } from "@/app/components/alert";
 import { ProposalDetail } from "@/app/components/proposal";
 import { formatDate } from "@/app/functions/datetime";
-import { createVote } from "@/app/rtm_generator";
+import { RTMGenerator } from "@/app/rtm_generator";
 import { useWallet } from "@/app/auth/wallet";
+
 
 
 export default function ProposalCreateMember({ rdt }: any) {
@@ -96,12 +97,12 @@ export default function ProposalCreateMember({ rdt }: any) {
     const updatedBlobImages = blobImage.filter((_, i) => i !== indexToRemove)
     setBlobImage(updatedBlobImages)
   }
-  const defaultDuration = [60, 3600, 86400, 259200] // 1 minute, 1 hour, 1 day, 3 days in seconds
+  const defaultDuration = [1,2,3] 
   const options: any = { month: 'short', day: 'numeric', year: 'numeric' }
   const currentDate = new Date()
   const today = currentDate.toLocaleDateString('en-US', options)
   const getEndDate = (second: number) => {
-    const endDate = new Date(currentDate.getTime() + second * 1000)
+    const endDate = new Date(currentDate.getTime() + ((1*60*40) * second))
     return endDate.toLocaleDateString('en-US', options)
   }
 
@@ -168,71 +169,86 @@ export default function ProposalCreateMember({ rdt }: any) {
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
+
+    let meta: any = "";
+    const options = {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-Api-Key': 'sk_live_00998243-feff-49f8-a092-8cb33d87e5c9'},
+      body: `{"name":"arcane","content": {"title": "${title}", "description": "${description}"} , "metadata":{"title": "${title}", "description": "${description}"}}`
+    };
+
+    try {
+      const response = await fetch('https://api.starton.com/v3/ipfs/json', options);
+      meta = await response.json();
+    } catch (error) {
+      console.error(error);
+    }
+
     const votes = votingOptions.map(vote => vote.label);
-    const createVoting = createVote(account?.address, nft_id, votes).trim()
+    const manifest = RTMGenerator.createVote(account?.address, nft_id, votes, meta.id, votingDuration)
     const result = await rdt.walletApi.sendTransaction({
-      transactionManifest: createVoting,
-      message: 'create voting'
+      transactionManifest: manifest,
+      message: 'Create New Proposal'
     })
     rdt.buttonApi.status$.subscribe((data:any) => {
       console.log(data);
     })
-    if (result.isErr()) {
-      throw new Error("Error creating voting")
-    }
-    let startDate = new Date();
-    let endDate = new Date(startDate.getTime() + Number(votingDuration) * 1000); 
-    const photos : string[] = [];
-    for (let index = 0; index < blobImage.length; index++) {
-      const value = blobImage[index];
-      const pict = new FormData();
-      pict.append("photo", value, index + "image" + "." + value.type.split('/')[1]);
-      const res1 = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/upload-pict`,
-        {
-          method: 'POST',
-          body: pict,
-          headers: { 
-            'Authorization': `Bearer ${access_token}`
-          },
-        }
-      );
+    // if (result.isErr()) {
+    //   throw new Error("Error creating voting")
+    // }
+    // let startDate = new Date();
+    // let endDate = new Date(startDate.getTime() + Number(votingDuration) * 1000); 
+    // const photos : string[] = [];
+    // for (let index = 0; index < blobImage.length; index++) {
+    //   const value = blobImage[index];
+    //   const pict = new FormData();
+    //   pict.append("photo", value, index + "image" + "." + value.type.split('/')[1]);
+    //   const res1 = await fetch(
+    //     `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/upload-pict`,
+    //     {
+    //       method: 'POST',
+    //       body: pict,
+    //       headers: { 
+    //         'Authorization': `Bearer ${access_token}`
+    //       },
+    //     }
+    //   );
       
-      if (res1.ok) {
-        const text = await res1.text();
-        console.log(text);
-        photos.push(text);
-      }
-    }
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/create-vote`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            'address' : account?.address, 
-            'title': title, 
-            'description': description, 
-            'txId': result.value.transactionIntentHash, 
-            'votes': votes,
-            'photos': photos,
-            'startDate': startDate.toISOString(),
-            'endDate': endDate.toISOString(),
-          }),
-          headers: { 
-            'content-type': 'application/json',
-            'Authorization': `Bearer ${access_token}`
-          },
-        }
-    )
+    //   if (res1.ok) {
+    //     const text = await res1.text();
+    //     console.log(text);
+    //     photos.push(text);
+    //   }
+    // }
+    // const res = await fetch(
+    //   `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/create-vote`,
+    //     {
+    //       method: 'POST',
+    //       body: JSON.stringify({
+    //         'address' : account?.address, 
+    //         'title': title, 
+    //         'description': description, 
+    //         'txId': result.value.transactionIntentHash, 
+    //         'votes': votes,
+    //         'photos': photos,
+    //         'startDate': startDate.toISOString(),
+    //         'endDate': endDate.toISOString(),
+    //       }),
+    //       headers: { 
+    //         'content-type': 'application/json',
+    //         'Authorization': `Bearer ${access_token}`
+    //       },
+    //     }
+    // )
 
-    if (res.ok) {
+    if (!result.isErr()) {
       /* logic here when data is recorded on database */
       sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
       sessionStorage.setItem('arcane-alert-message','Proposal created successfully')
       router.push('/proposal')
     }
 
-    if (!res.ok) {
+    if (result.isErr()) {
       /* logic here when data is failed storing on database */
       sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
       sessionStorage.setItem('arcane-alert-message','Proposal failed to be create')
@@ -396,12 +412,18 @@ export default function ProposalCreateMember({ rdt }: any) {
                   {defaultDuration.map((duration) => 
                     <Radio key={`proposal-voting-duration-${duration}`} id={`proposal-voting-duration-${duration}`} name={"proposal-voting-duration"} value={duration.toString()} onChange={(e) => setVotingDuration(e.target.value)} required={true}>
                       <p className="font-maven-pro text-lg -mb-1">
-                        {duration < 60 ? `${duration} Second${duration > 1 ? 's' : ''}` :
+                        {/* {duration < 60 ? `${duration} Second${duration > 1 ? 's' : ''}` :
                           duration < 3600 ? `${Math.floor(duration / 60)} Minute${Math.floor(duration / 60) > 1 ? 's' : ''}` :
                           duration < 86400 ? `${Math.floor(duration / 3600)} Hour${Math.floor(duration / 3600) > 1 ? 's' : ''}` :
                           duration < 172800 ? `${Math.round(duration / 24 / 3600)} Day${Math.round(duration / 24 / 3600) > 1 ? 's' : ''}` :
                           `${Math.floor(duration / 24 / 3600)} Day${Math.floor(duration / 24 / 3600) > 1 ? 's' : ''}`
-                        }
+                        } */}
+                        {duration < 60 ? `Quarter ${duration}` :
+                        duration < 3600 ? `${Math.floor(duration / 60)} Minute${Math.floor(duration / 60) > 1 ? 's' : ''}` :
+                        duration < 86400 ? `${Math.floor(duration / 3600)} Hour${Math.floor(duration / 3600) > 1 ? 's' : ''}` :
+                        duration < 172800 ? `${Math.round(duration / 24 / 3600)} Day${Math.round(duration / 24 / 3600) > 1 ? 's' : ''}` :
+                        `${Math.floor(duration / 24 / 3600)} Day${Math.floor(duration / 24 / 3600) > 1 ? 's' : ''}`
+                      }
                       </p>
                       <small className="opacity-50">{`Until ${getEndDate(duration)}`}</small>
                     </Radio>

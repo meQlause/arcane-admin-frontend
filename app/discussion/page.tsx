@@ -7,6 +7,7 @@ import Loading from "@/app/loading";
 import Wallet from "@/app/wallet/page";
 import { Main } from "@/app/components/main";
 import Unavailable from "@/app/unavailable";
+import UnderConstruction from "@/app/underconstruction";
 import DiscussionMember from "./member";
 
 export default function Discussion() {
@@ -21,8 +22,9 @@ export default function Discussion() {
           {walletConnect ?
             <>
               {(role === RoleType.Admin || role === RoleType.Member) && (
-                <Unavailable />
                 // <DiscussionMember rdt={rdt} />
+                // <UnderConstruction />
+                <Unavailable />
               )}
             </>
           :

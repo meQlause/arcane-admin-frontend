@@ -17,7 +17,7 @@ import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
 import { Tooltip } from "@/app/components/tooltip";
-import { addVote, withdraw } from "@/app/rtm_generator";
+import { RTMGenerator } from "@/app/rtm_generator";
 import fs from 'fs/promises';
 import https from 'https';
 import axios from 'axios';
@@ -152,6 +152,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
 
    // custom load for image to fix https issue
   const customImageLoader = async (src:string ) => {
+    return src;
     try {
       const instance = axios.create({
         httpsAgent: new https.Agent({ 
@@ -170,17 +171,17 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
     } catch (err) {
       console.error('Error reading certificate file:', err);
     }
-    
   };
 
   useEffect(() => {
-    photos.forEach((photo : any) => {
-      customImageLoader(photo)
-        .then((dataUrl)=> {
-          if (dataUrl) {
-            setImagesData(prevData => [...prevData, dataUrl])};
-          }
-  )});
+    setImagesData([photos])
+  //   photos.forEach((photo : any) => {
+  //     customImageLoader(photo)
+  //       .then((dataUrl)=> {
+  //         if (dataUrl) {
+  //           setImagesData(prevData => [...prevData, dataUrl])};
+  //         }
+  // )});
   }, [photos]);
 
   const [showPopupVote, setShowPopupVote] = useState(false)
@@ -255,7 +256,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
     setLoading(true)
 
     let selectedData : string = voter?.filter(voter => voter.user_address === account?.address)[0].selected!;
-    const withdrawFromVote = withdraw(account?.address, nft_id, ComponentAddress!, selectedData).trim();
+    const withdrawFromVote = RTMGenerator.withdraw(account?.address, nft_id, ComponentAddress!, selectedData).trim();
     const result = await rdt.walletApi.sendTransaction({
       transactionManifest: withdrawFromVote,
       message: 'withdraw'
@@ -286,11 +287,10 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
     e.preventDefault()
     setLoading(true)
 
-    const addVoting = addVote(account?.address, tokenAmount.trim(), nft_id, ComponentAddress!, voting).trim()
-    // console.log(addVoting)
+    const addVoting = RTMGenerator.vote(account?.address, tokenAmount.trim(), nft_id, ComponentAddress!, voting).trim()
     const result = await rdt.walletApi.sendTransaction({
       transactionManifest: addVoting,
-      message: 'add voting'
+      message: 'Vote to a proposal'
     })
 
     if (result.isErr()) {
@@ -694,7 +694,9 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
                 {imagesData?.map((item: any, index: number) => (
                   <div key={index} className="keen-slider__slide">
                     <Image
-                      src={typeof item === 'string' ? item : URL.createObjectURL(item)}
+                      // src={typeof item === 'string' ? item : URL.createObjectURL(item)}
+                      src={item}
+
                       alt="photo"
                       className="w-full h-auto"
                       width={300}

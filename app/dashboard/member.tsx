@@ -14,11 +14,56 @@ import { truncateMiddle } from "@/app/functions/truncate";
 import { formatNumber } from "@/app/functions/notation";
 import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
+type VaultResponse = {
+  address: string,
+  ancestor_identities: undefined,
+  details: any,
+  metadata: any
+  fungible_resources : {
+    total_count: number,
+    items: 
+      {
+        aggregation_level: any,
+        resource_address: string,
+        vaults: {
+          total_count: number,
+          items: 
+            {
+              vault_address: string,
+              amount: number,
+              last_updated_at_state_version: number
+          }[]        
+        }
+    }[]
+  },
+  non_fungible_resources: {
+    total_count: number,
+    items: 
+      {
+      aggregation_level: string,
+      resource_address: string,
+      vaults: {
+        total_count: number,
+        items: 
+          {
+            total_count: number,
+            items: string[],
+            vault_address: string,
+            last_updated_at_state_version: number
+          }[]
+      }
+    }[]
+  }
+}
 
 export default function DashboardMember({ rdt }: any) {
-  const { account } = useAccount({ rdt })
-
+  const { account, nft_id } = useAccount({ rdt })
   const [currentOptionsProposal, setCurrentOptionsProposal] = useState('All')
+  const [totalNFT, setTotalNFT] = useState<number>(0)
+  const [dataToken, setDataToken] = useState<any>([]);
+  const [dataNFT, setDataNFT] = useState<any>([]);
+  const [dataHistoryVote, setDataHistoryVote] = useState<any>([]);
+  const [dataProposal, setDataProposal] = useState<ProposalProps[]>([]);
   const optionsProposal: any = [
     {
       value: 'All',
@@ -44,17 +89,14 @@ export default function DashboardMember({ rdt }: any) {
   const handleSelectActive = (value: string) => {
     setCurrentOptionsProposal(value)
   }
-
   const [searchKeyword, setSearchKeyword] = useState('')
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-
     console.log(searchKeyword)
   }
   const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchKeyword(e.target.value)
   }
-
   const [sliderCurrent, setSliderCurrent] = useState(0)
   const [sliderLoaded, setSliderLoaded] = useState(false)
   const [sliderRef, instanceRef] = useKeenSlider({
@@ -121,151 +163,250 @@ export default function DashboardMember({ rdt }: any) {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  const dataProposal: ProposalProps[] = [
-    {
-      id: '1',
-      user_address: 'rdx1shb1412422216dba',
-      title: 'Arcane Labyrinth',
-      avatar: '/user/user-1.png',
-      description: 'Incididunt ipsum dolore cupidatat irure laboris duis in amet sit reprehenderit occaecat deserunt proident. Velit ipsum laboris sunt adipisicing veniam non laboris sint ullamco incididunt. Amet exercitation enim officia dolor esse.',
-      ComponentAddress: 'string',
-      end: 'Ended, 28 Nov 2023',
-      status: 'Active',
-      vote: [
-        {
-          label: 'Yes',
-          amount: 50
-        },
-        {
-          label: 'No',
-          amount: 30
+  // const dataProposal: ProposalProps[] = [
+  //   {
+  //     id: '1',
+  //     user_address: 'rdx1shb1412422216dba',
+  //     title: 'Arcane Labyrinth',
+  //     avatar: '/user/user-1.png',
+  //     description: 'Incididunt ipsum dolore cupidatat irure laboris duis in amet sit reprehenderit occaecat deserunt proident. Velit ipsum laboris sunt adipisicing veniam non laboris sint ullamco incididunt. Amet exercitation enim officia dolor esse.',
+  //     ComponentAddress: 'string',
+  //     end: 'Ended, 28 Nov 2023',
+  //     status: 'Active',
+  //     vote: [
+  //       {
+  //         label: 'Yes',
+  //         amount: 50
+  //       },
+  //       {
+  //         label: 'No',
+  //         amount: 30
+  //       }
+  //     ]
+  //   },
+  //   {
+  //     id: '2',
+  //     user_address: 'rdx1shb1412422216dbb',
+  //     title: 'Arcane Labyrinth',
+  //     avatar: '/user/user-1.png',
+  //     description: 'Minim tempor anim ipsum aute. Non et labore do cupidatat. Dolore sunt non id Lorem voluptate ad incididunt aute. Non dolore elit est do magna pariatur adipisicing ea exercitation Lorem ullamco.',
+  //     ComponentAddress: 'string',
+  //     end: 'Ended, 28 Nov 2023',
+  //     status: 'Review'
+  //   },
+  //   {
+  //     id: '3',
+  //     user_address: 'rdx1shb1412422216dbc',
+  //     title: 'Arcane Labyrinth',
+  //     avatar: '/user/user-1.png',
+  //     description: 'Reprehenderit exercitation excepteur quis irure eiusmod nisi aute consectetur excepteur ea. Officia veniam reprehenderit laboris ex id consequat commodo cillum elit dolor proident amet dolor est. Esse veniam labore incididunt amet.',
+  //     ComponentAddress: 'string',
+  //     end: 'Ended, 28 Nov 2023',
+  //     status: 'Rejected'
+  //   },
+  //   {
+  //     id: '4',
+  //     user_address: 'rdx1shb1412422216dbb',
+  //     title: 'Arcane Labyrinth',
+  //     avatar: '/user/user-1.png',
+  //     description: 'Non esse elit irure cillum irure veniam ex deserunt in consequat mollit nulla non sit. Qui est in qui amet est magna nostrud non anim occaecat eu. Sunt culpa laborum proident labore sunt exercitation non sunt eiusmod pariatur irure sunt.',
+  //     ComponentAddress: 'string',
+  //     end: 'Ended, 28 Nov 2023',
+  //     status: 'Closed',
+  //     vote: [
+  //       {
+  //         label: 'Yes',
+  //         amount: 120,
+  //         selected: true
+  //       },
+  //       {
+  //         label: 'No',
+  //         amount: 48
+  //       }
+  //     ]
+  //   }
+  // ]
+
+  // const dataNFT: any = [
+  //   {
+  //     title: 'NFT #1',
+  //     src: '/upload/proposal-1.png'
+  //   },
+  //   {
+  //     title: 'NFT #2',
+  //     src: '/upload/proposal-1.png'
+  //   },
+  //   {
+  //     title: 'NFT #3',
+  //     src: '/upload/proposal-1.png'
+  //   },
+  //   {
+  //     title: 'NFT #4',
+  //     src: '/upload/proposal-1.png'
+  //   },
+  //   {
+  //     title: 'NFT #5',
+  //     src: '/upload/proposal-1.png'
+  //   },
+  //   {
+  //     title: 'NFT #6',
+  //     src: '/upload/proposal-1.png'
+  //   }
+  // ]
+
+  useEffect(() => {
+    const fetchEntityMetadata = async () => {
+      let dataV: any = []
+      if(account?.address) {
+        const responseVote =await (await fetch(
+          `https://localhost:4001/votes/get-votes-by/${nft_id.slice(1, -1)}`,
+          {
+            method: 'GET',
+            headers: { 
+              'content-type': 'application/json',
+            },
+          }
+        )).json();
+        console.log(responseVote)
+        for(let x = 0; x < responseVote.length; x++) {
+          dataV.push({
+            id: responseVote[x].id,
+            user_address: responseVote[x].address.address,
+            avatar: '/user/user-1.png',
+            title: responseVote[x].title,
+            description: responseVote[x].description,
+            end: `Ends on 123123`,
+            status: responseVote[x].isPending ? 'pending' : 'active',
+            vote: Object.entries(responseVote[x].voteTokenAmount).map(([label, amount]) => ({ label, amount }))
+          })
         }
-      ]
-    },
-    {
-      id: '2',
-      user_address: 'rdx1shb1412422216dbb',
-      title: 'Arcane Labyrinth',
-      avatar: '/user/user-1.png',
-      description: 'Minim tempor anim ipsum aute. Non et labore do cupidatat. Dolore sunt non id Lorem voluptate ad incididunt aute. Non dolore elit est do magna pariatur adipisicing ea exercitation Lorem ullamco.',
-      ComponentAddress: 'string',
-      end: 'Ended, 28 Nov 2023',
-      status: 'Review'
-    },
-    {
-      id: '3',
-      user_address: 'rdx1shb1412422216dbc',
-      title: 'Arcane Labyrinth',
-      avatar: '/user/user-1.png',
-      description: 'Reprehenderit exercitation excepteur quis irure eiusmod nisi aute consectetur excepteur ea. Officia veniam reprehenderit laboris ex id consequat commodo cillum elit dolor proident amet dolor est. Esse veniam labore incididunt amet.',
-      ComponentAddress: 'string',
-      end: 'Ended, 28 Nov 2023',
-      status: 'Rejected'
-    },
-    {
-      id: '4',
-      user_address: 'rdx1shb1412422216dbb',
-      title: 'Arcane Labyrinth',
-      avatar: '/user/user-1.png',
-      description: 'Non esse elit irure cillum irure veniam ex deserunt in consequat mollit nulla non sit. Qui est in qui amet est magna nostrud non anim occaecat eu. Sunt culpa laborum proident labore sunt exercitation non sunt eiusmod pariatur irure sunt.',
-      ComponentAddress: 'string',
-      end: 'Ended, 28 Nov 2023',
-      status: 'Closed',
-      vote: [
-        {
-          label: 'Yes',
-          amount: 120,
-          selected: true
-        },
-        {
-          label: 'No',
-          amount: 48
+        setDataProposal(dataV)
+        
+
+        const response = await (await fetch(`https://localhost:4001/votes/get-voter-data/${nft_id.slice(1, -1)}`)).json();
+        let dataH : any = []
+        for(let x = 0; x < response.length; x++) {
+          console.log(response[x])
+          dataH.push({
+            user_address: response[x].voter,
+            title: 'Save v3 MVP deploy',
+            amount: response[x].amount,
+            label: 'ARC'
+          })
         }
-      ]
-    }
-  ]
+        setDataHistoryVote(dataH)
+        
+        const metadata : VaultResponse = await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(account?.address);
+        let ft_data = metadata.fungible_resources.items;
+        let nft_data = metadata.non_fungible_resources.items;
+        let dataT: any = []
+        let dataN: any = []
+        setTotalNFT(metadata.non_fungible_resources.total_count)        
+        for(let x = 0; x < ft_data.length; x++) {
+          let ft_metadata = await rdt.gatewayApi.state.getEntityMetadata(ft_data[x].resource_address)
+          let label = 'none';
+          let url = 'none';
+          for(let i = 0; i < ft_metadata.items.length; i++) {
+            if(ft_metadata.items[i].key === 'symbol') {
+              label = ft_metadata.items[i].value.typed.value;
+            }
+            if(ft_metadata.items[i].key === 'icon_url') {
+              url = ft_metadata.items[i].value.typed.value;
+            }
+          }
+          dataT.push({
+            label: label,
+            url: url,
+            amount: ft_data[x].vaults.items[0].amount,
+            value: 120100
+          });
+        }
 
-  const dataNFT: any = [
-    {
-      title: 'NFT #1',
-      src: '/upload/proposal-1.png'
-    },
-    {
-      title: 'NFT #2',
-      src: '/upload/proposal-1.png'
-    },
-    {
-      title: 'NFT #3',
-      src: '/upload/proposal-1.png'
-    },
-    {
-      title: 'NFT #4',
-      src: '/upload/proposal-1.png'
-    },
-    {
-      title: 'NFT #5',
-      src: '/upload/proposal-1.png'
-    },
-    {
-      title: 'NFT #6',
-      src: '/upload/proposal-1.png'
-    }
-  ]
+        for(let x = 0; x < nft_data.length; x++) {
+          let nft_metadata = await rdt.gatewayApi.state.getEntityMetadata(nft_data[x].resource_address)
+          let title = 'none';
+          let src = 'none';
+          for(let i = 0; i < nft_metadata.items.length; i++) {
+            if(nft_metadata.items[i].key === 'name') {
+              title = nft_metadata.items[i].value.typed.value;
+            }
+            if(nft_metadata.items[i].key === 'icon_url') {
+              src = nft_metadata.items[i].value.typed.value;
+            }
+          }
+          dataN.push({
+            title: title,
+            src: src
+          });
+        }
 
-  const dataToken: any = [
-    {
-      label: 'XRD',
-      amount: 1200000,
-      value: 120100
-    },
-    {
-      label: 'ARC',
-      amount: 830000,
-      value: 83000
-    },
-    {
-      label: 'XRD',
-      amount: 2500,
-      value: 250
-    },
-    {
-      label: 'XRD',
-      amount: 1000,
-      value: 100
-    },
-    {
-      label: 'ARC',
-      amount: 500,
-      value: 50
-    }
-  ]
+        setDataToken(dataT)
+        setDataNFT(dataN);
+      }
+    };
+    fetchEntityMetadata()
+  }, [account?.address]);
 
-  const dataHistoryVote: any = [
-    {
-      user_address: 'yzp2lmc2445678901abc',
-      title: 'Save v3 MVP deploy',
-      amount: 8300,
-      label: 'vARC'
-    },
-    {
-      user_address: 'abc4xyz3789012345lmn',
-      title: 'Bug Bounties',
-      amount: 4200,
-      label: 'vARC'
-    },
-    {
-      user_address: 'qwe3njk3154321876xyz',
-      title: 'Gauntlet Recommended',
-      amount: 1700,
-      label: 'vARC'
-    },
-    {
-      user_address: '1235ghi4321098765qwe',
-      title: 'Chaos Lab',
-      amount: 300,
-      label: 'vARC'
-    }
-  ]
+
+  // let dataToken: any = [
+    // {
+    //   label: 'XRD',
+    //   url: "https://i.ibb.co/2vtP4Kr/arcane.jpg",
+    //   amount: 1200000,
+    //   value: 120100
+    // },
+    // {
+    //   label: 'ARC',
+    //   url: "https://i.ibb.co/2vtP4Kr/arcane.jpg",
+    //   amount: 830000,
+    //   value: 83000
+    // },
+    // {
+    //   label: 'XRD',
+    //   url: "https://i.ibb.co/2vtP4Kr/arcane.jpg",
+    //   amount: 2500,
+    //   value: 250
+    // },
+    // {
+    //   label: 'XRD',
+    //   url: "https://i.ibb.co/2vtP4Kr/arcane.jpg",
+    //   amount: 1000,
+    //   value: 100
+    // },
+    // {
+    //   label: 'ARC',
+    //   url: "https://i.ibb.co/2vtP4Kr/arcane.jpg",
+    //   amount: 500,
+    //   value: 50
+    // }
+  // ]
+  
+  // const dataHistoryVote: any = [
+  // {
+  //     user_address: 'yzp2lmc2445678901abc',
+  //     title: 'Save v3 MVP deploy',
+  //     amount: 8300,
+  //     label: 'vARC'
+  //   },
+  //   {
+  //     user_address: 'abc4xyz3789012345lmn',
+  //     title: 'Bug Bounties',
+  //     amount: 4200,
+  //     label: 'vARC'
+  //   },
+  //   {
+  //     user_address: 'qwe3njk3154321876xyz',
+  //     title: 'Gauntlet Recommended',
+  //     amount: 1700,
+  //     label: 'vARC'
+  //   },
+  //   {
+  //     user_address: '1235ghi4321098765qwe',
+  //     title: 'Chaos Lab',
+  //     amount: 300,
+  //     label: 'vARC'
+  //   }
+  // ]
 
   return (
     <>
@@ -367,7 +508,7 @@ export default function DashboardMember({ rdt }: any) {
                   </div>
                 </div>
                 <div className="mt-6">
-                  <div className="font-semibold text-2xl md:text-4xl mb-4">{formatNumber(36)}</div>
+                  <div className="font-semibold text-2xl md:text-4xl mb-4">{formatNumber(totalNFT)}</div>
                   <Image
                     src="/icon/arrow-down.svg"
                     alt="icon"
@@ -397,13 +538,14 @@ export default function DashboardMember({ rdt }: any) {
                               <td>
                                 <div className="flex justify-between gap-4">
                                   <div className="flex gap-2" title={item.title}>
-                                    <Image
-                                      src={item.label === 'XRD' ? '/icon/logo-radix.svg' : '/icon/logo-arc.svg'}
+                                    {/* <Image
+                                      src={item.url ? item.url : '/icon/logo-arc.svg'}
                                       alt="icon"
                                       className="w-8 h-8 min-w-[2rem] rounded-md object-cover inline-block -my-1"
                                       width={24}
                                       height={24}
-                                    />
+                                    /> */}
+                                    <img width={24} height={24} className="w-8 h-8 min-w-[2rem] rounded-md object-cover inline-block -my-1" src={item.url ? item.url : '/upload/proposal-1.png'} alt="description" />
                                     {item.label && 
                                       <div className="font-bold line-clamp-1">{item.label}</div>
                                     }
@@ -495,13 +637,14 @@ export default function DashboardMember({ rdt }: any) {
                       <div className="keen-slider" ref={sliderRef}>
                         {dataNFT?.map((item: any, index: number) => (
                           <div key={index} className="keen-slider__slide bg-primary-200 p-2 rounded-lg relative" title={item.title}>
-                            <Image
-                              src={typeof item.src === 'string' ? item.src : URL.createObjectURL(item.src)}
+                            {/* <Image
+                              src={item.src ? item.src : '/upload/proposal-1.png'}
                               alt="photo"
                               className="w-full h-auto rounded-md object-cover aspect-[4/5]"
                               width={300}
                               height={300}
-                            />
+                            /> */}
+                            <img width={300} height={300} className="w-full h-auto rounded-md object-cover aspect-[4/5]" src={item.src ? item.src : '/upload/proposal-1.png'} alt="description" />
                             {item.title &&
                               <div className="text-white bg-white/30 backdrop-blur-sm px-4 py-3 absolute bottom-2 left-2 right-2 rounded-b-md">
                                 <div className="font-maven-pro font-medium line-clamp-1">{item.title}</div>

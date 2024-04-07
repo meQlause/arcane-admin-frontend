@@ -11,8 +11,9 @@ import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/pop
 import { Alert } from "@/app/components/alert";
 import { ProposalDetail } from "@/app/components/proposal";
 import { formatDate } from "@/app/functions/datetime";
-import { createVote } from "@/app/rtm_generator";
+import { RTMGenerator } from "@/app/rtm_generator";
 import { useWallet } from "@/app/auth/wallet";
+
 
 
 export default function ProposalCreateMember({ rdt }: any) {
@@ -169,70 +170,70 @@ export default function ProposalCreateMember({ rdt }: any) {
     e.preventDefault()
     setLoading(true)
     const votes = votingOptions.map(vote => vote.label);
-    const createVoting = createVote(account?.address, nft_id, votes).trim()
+    const manifest = RTMGenerator.createVote(account?.address, nft_id, votes, 3)
     const result = await rdt.walletApi.sendTransaction({
-      transactionManifest: createVoting,
-      message: 'create voting'
+      transactionManifest: manifest,
+      message: 'Create New Proposal'
     })
     rdt.buttonApi.status$.subscribe((data:any) => {
       console.log(data);
     })
-    if (result.isErr()) {
-      throw new Error("Error creating voting")
-    }
-    let startDate = new Date();
-    let endDate = new Date(startDate.getTime() + Number(votingDuration) * 1000); 
-    const photos : string[] = [];
-    for (let index = 0; index < blobImage.length; index++) {
-      const value = blobImage[index];
-      const pict = new FormData();
-      pict.append("photo", value, index + "image" + "." + value.type.split('/')[1]);
-      const res1 = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/upload-pict`,
-        {
-          method: 'POST',
-          body: pict,
-          headers: { 
-            'Authorization': `Bearer ${access_token}`
-          },
-        }
-      );
+    // if (result.isErr()) {
+    //   throw new Error("Error creating voting")
+    // }
+    // let startDate = new Date();
+    // let endDate = new Date(startDate.getTime() + Number(votingDuration) * 1000); 
+    // const photos : string[] = [];
+    // for (let index = 0; index < blobImage.length; index++) {
+    //   const value = blobImage[index];
+    //   const pict = new FormData();
+    //   pict.append("photo", value, index + "image" + "." + value.type.split('/')[1]);
+    //   const res1 = await fetch(
+    //     `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/upload-pict`,
+    //     {
+    //       method: 'POST',
+    //       body: pict,
+    //       headers: { 
+    //         'Authorization': `Bearer ${access_token}`
+    //       },
+    //     }
+    //   );
       
-      if (res1.ok) {
-        const text = await res1.text();
-        console.log(text);
-        photos.push(text);
-      }
-    }
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/create-vote`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            'address' : account?.address, 
-            'title': title, 
-            'description': description, 
-            'txId': result.value.transactionIntentHash, 
-            'votes': votes,
-            'photos': photos,
-            'startDate': startDate.toISOString(),
-            'endDate': endDate.toISOString(),
-          }),
-          headers: { 
-            'content-type': 'application/json',
-            'Authorization': `Bearer ${access_token}`
-          },
-        }
-    )
+    //   if (res1.ok) {
+    //     const text = await res1.text();
+    //     console.log(text);
+    //     photos.push(text);
+    //   }
+    // }
+    // const res = await fetch(
+    //   `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/create-vote`,
+    //     {
+    //       method: 'POST',
+    //       body: JSON.stringify({
+    //         'address' : account?.address, 
+    //         'title': title, 
+    //         'description': description, 
+    //         'txId': result.value.transactionIntentHash, 
+    //         'votes': votes,
+    //         'photos': photos,
+    //         'startDate': startDate.toISOString(),
+    //         'endDate': endDate.toISOString(),
+    //       }),
+    //       headers: { 
+    //         'content-type': 'application/json',
+    //         'Authorization': `Bearer ${access_token}`
+    //       },
+    //     }
+    // )
 
-    if (res.ok) {
+    if (!result.isErr()) {
       /* logic here when data is recorded on database */
       sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
       sessionStorage.setItem('arcane-alert-message','Proposal created successfully')
       router.push('/proposal')
     }
 
-    if (!res.ok) {
+    if (result.isErr()) {
       /* logic here when data is failed storing on database */
       sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
       sessionStorage.setItem('arcane-alert-message','Proposal failed to be create')

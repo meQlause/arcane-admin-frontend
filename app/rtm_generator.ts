@@ -1,19 +1,32 @@
-const CORE_BADGE_RESOURCE_ADDRESS =
-  "resource_tdx_2_1ng4xhqj2vjczp8xzf5v5f5d76xc4dkg54src0uhwzkd8wp3gzkmwzu";
-const ADMIN_BADGE_RESOURCE_ADDRESS =
-  "resource_tdx_2_1ngmp8e3zasngr9u5c9kqp543vsyfuv3skjm6q4f8tsx8ylv44g0ptj";
-const MEMBER_BADGE_RESOURCE_ADDRESS =
-  "resource_tdx_2_1nfxr3gc7zn3dut5dp3vv9z3mrhd6pntl5ty6sqnm8a8vv5nxszm49t";
-const COMPONENT_ADDRESS =
-  "package_tdx_2_1p5qr3ujwdvpzg92ufk8fhg4tpclzu0vp7j77pu0ew70n8288j7255s";
-const ARC_RESOURCE_ADDRESS =
-  "resource_tdx_2_1tk2zhlv50l4nl5flx2qc2y0zavp65xwt8khufun3kmq7xh90896gvc";
+export class RTMGenerator {
+  private arcaneMain: string;
+  private arcaneVoteStyle: string;
+  private arcaneMainInstance: string;
+  private arcaneBadge: string;
+  private arcaneCoreBadge: string;
+  private ARC: string;
 
-export function signUpMember(address: string): string {
-  return `
+  constructor() {
+    this.arcaneMain =
+      "package_tdx_2_1p5hzkrck66pqwjjuyks5c05thfe273qrhks0fh6ea3jymhhtcsul9m";
+    this.arcaneVoteStyle =
+      "package_tdx_2_1p4c05m2t2aqzyv4zlq2th797hq8wql3527nye72xzzgfvwzs3zfx99";
+    this.arcaneMainInstance =
+      "component_tdx_2_1cr8g28hpxhxwx5q24aq7ugtpd0rtg5n8hep79j99w56469prsgdqh3";
+    this.arcaneBadge =
+      "resource_tdx_2_1ng4ahrcmujzvzmz40h527g0thyzm8wglq8uku2yn8lfcaptwfdzm9s";
+    this.arcaneCoreBadge =
+      "resource_tdx_2_1nfccyj7azztguyvw9jffhd2c394m6w0uhzpyz225jvyq8d2jt0up2n";
+    this.ARC =
+      "resource_tdx_2_1nfccyj7azztguyvw9jffhd2c394m6w0uhzpyz225jvyq8d2jt0up2n";
+  }
+
+  static signUp(address: string): string {
+    return `
     CALL_METHOD
-        Address("${COMPONENT_ADDRESS}")
+        Address("${RTMGenerator.prototype.arcaneMain}")
         "sign_up"
+        Address("${address}")
     ;
     CALL_METHOD
         Address("${address}")
@@ -22,179 +35,123 @@ export function signUpMember(address: string): string {
         Enum<0u8>()
     ;
     `;
-}
+  }
 
-export function signUpAdmin(addressCore: string, addressAdmin: string): string {
-  return `
-    CALL_METHOD
-        Address("${addressCore}")
-        "create_proof_of_non_fungibles"
-        Address("${CORE_BADGE_RESOURCE_ADDRESS}")
-        Array<NonFungibleLocalId>(
-            NonFungibleLocalId("#1#")
-        )
-    ;
-    CALL_METHOD
-        Address("${COMPONENT_ADDRESS}")
-        "make_admin"
-    ;
-
-    CALL_METHOD
-        Address("${addressAdmin}")
-        "try_deposit_batch_or_refund"
-        Expression("ENTIRE_WORKTOP")
-        Enum<0u8>()
-    ;
-    `;
-}
-
-export function recallAdminBadge(
-  addressCore: string,
-  vaultAddress: string,
-  NFT_ID: string
-) {
-  return `
-    CALL_METHOD
-        Address("${addressCore}")
-        "create_proof_of_non_fungibles"
-        Address("${CORE_BADGE_RESOURCE_ADDRESS}")
-        Array<NonFungibleLocalId>(
-            NonFungibleLocalId("#1#")
-        )
-    ;
-
-    RECALL_NON_FUNGIBLES_FROM_VAULT 
-        Address("${vaultAddress}") 
-        Array<NonFungibleLocalId>(
-            NonFungibleLocalId("${NFT_ID}")
-        )
-    ;
-
-    TAKE_ALL_FROM_WORKTOP
-        Address("${ADMIN_BADGE_RESOURCE_ADDRESS}")
-        Bucket("admin_badge")
-    ;
-    
-    BURN_RESOURCE
-        Bucket("admin_badge");
-    `;
-}
-
-export function createVote(
-  address: string,
-  nftId: string,
-  votes: string[]
-): string {
-  return `
-  CALL_METHOD
-    Address("${address}")
-    "create_proof_of_non_fungibles"
-    Address("${MEMBER_BADGE_RESOURCE_ADDRESS}")
-    Array<NonFungibleLocalId>(
-        NonFungibleLocalId("${nftId}")
-    )
-  ;
-
-  POP_FROM_AUTH_ZONE
-      Proof("nft_proof")
-  ;
-
-  CALL_METHOD
-      Address("${COMPONENT_ADDRESS}")
-      "create_vote"
-      Proof("nft_proof")
-      1u64
-      Array<String>(${votes.map((item) => `"${item}"`).join(", ")})
-  ;
-  `;
-}
-
-export function addVote(
-  address: string,
-  amount: string,
-  nft_id: string,
-  componentVoteAddress: string,
-  key: string
-): string {
-  return `
+  static createVote(
+    address: string,
+    nftId: string,
+    votes: string[],
+    duration: number
+  ): string {
+    return `
     CALL_METHOD
       Address("${address}")
-      "withdraw"
-      Address("${ARC_RESOURCE_ADDRESS}")
-      Decimal("${amount}") 
+      "create_proof_of_non_fungibles"
+      Address("${RTMGenerator.prototype.arcaneBadge}")
+      Array<NonFungibleLocalId>(
+          NonFungibleLocalId("${nftId}")
+      )
     ;
-
-    TAKE_FROM_WORKTOP
-      Address("${ARC_RESOURCE_ADDRESS}")
-      Decimal("${amount}")
-      Bucket("my_bucket")
-    ;
-
-    CALL_METHOD
-        Address("${address}")
-        "create_proof_of_non_fungibles"
-        Address("${MEMBER_BADGE_RESOURCE_ADDRESS}")
-        Array<NonFungibleLocalId>(
-            NonFungibleLocalId("${nft_id}")
-        )
-    ;
-        
+  
     POP_FROM_AUTH_ZONE
         Proof("nft_proof")
     ;
-        
+  
     CALL_METHOD
-        Address("${componentVoteAddress}")
-        "vote"
+        Address("${RTMGenerator.prototype.arcaneMain}")
+        "create_vote"
         Proof("nft_proof")
-        "${key}"
+        Address("${RTMGenerator.prototype.arcaneVoteStyle}")
+        ${duration}u64
+        Array<String>(${votes.map((item) => `"${item}"`).join(", ")})
+    ;
+    `;
+  }
+  static vote(
+    address: string,
+    amount: string,
+    nft_id: string,
+    componentVoteAddress: string,
+    key: string
+  ): string {
+    return `
+      CALL_METHOD
+        Address("${address}")
+        "withdraw"
+        Address("${RTMGenerator.prototype.ARC}")
+        Decimal("${amount}") 
+      ;
+  
+      TAKE_FROM_WORKTOP
+        Address("${RTMGenerator.prototype.ARC}")
+        Decimal("${amount}")
         Bucket("my_bucket")
+      ;
+  
+      CALL_METHOD
+          Address("${address}")
+          "create_proof_of_non_fungibles"
+          Address("${RTMGenerator.prototype.arcaneBadge}")
+          Array<NonFungibleLocalId>(
+              NonFungibleLocalId("${nft_id}")
+          )
+      ;
+          
+      POP_FROM_AUTH_ZONE
+          Proof("nft_proof")
+      ;
+          
+      CALL_METHOD
+          Address("${componentVoteAddress}")
+          "vote"
+          Proof("nft_proof")
+          "${key}"
+          Bucket("my_bucket")
+      ;`;
+  }
+  static withdraw(
+    address: string,
+    nft_id: string,
+    componentAddressVote: string,
+    key: string
+  ): string {
+    return `
+    CALL_METHOD
+      Address("${address}")
+      "create_proof_of_non_fungibles"
+      Address("${RTMGenerator.prototype.arcaneBadge}")
+      Array<NonFungibleLocalId>(
+          NonFungibleLocalId("${nft_id}")
+      )
+    ;
+    POP_FROM_AUTH_ZONE
+        Proof("proof1")
+    ;
+    CALL_METHOD
+        Address("${componentAddressVote}")
+        "withdraw"
+        Proof("proof1")
+        "${key}"
+    ;
+    CALL_METHOD
+        Address("${address}")
+        "try_deposit_batch_or_refund"
+        Expression("ENTIRE_WORKTOP")
+        Enum<0u8>()
+    ;
+    `;
+  }
+  static mint_arc(address: string): string {
+    return `
+    CALL_METHOD
+      Address("component_tdx_2_1cqnnsjstq8cv2t5n5y9r8xupfhpsnketxjmkg2numk4wzu8gur3wma")
+      "mint_token"
+    ;
+    CALL_METHOD
+        Address("${address}")
+        "try_deposit_batch_or_refund"
+        Expression("ENTIRE_WORKTOP")
+        Enum<0u8>()
     ;`;
-}
-
-export function withdraw(
-  address: string,
-  nft_id: string,
-  componentAddressVote: string,
-  key: string
-): string {
-  return `
-  CALL_METHOD
-    Address("${address}")
-    "create_proof_of_non_fungibles"
-    Address("${MEMBER_BADGE_RESOURCE_ADDRESS}")
-    Array<NonFungibleLocalId>(
-        NonFungibleLocalId("${nft_id}")
-    )
-  ;
-  POP_FROM_AUTH_ZONE
-      Proof("proof1")
-  ;
-  CALL_METHOD
-      Address("${componentAddressVote}")
-      "withdraw"
-      Proof("proof1")
-      "${key}"
-  ;
-  CALL_METHOD
-      Address("${address}")
-      "try_deposit_batch_or_refund"
-      Expression("ENTIRE_WORKTOP")
-      Enum<0u8>()
-  ;
-  `;
-}
-
-export function mint_arc(address: string): string {
-  return `
-  CALL_METHOD
-    Address("${COMPONENT_ADDRESS}")
-    "mint_token"
-  ;
-  CALL_METHOD
-      Address("${address}")
-      "try_deposit_batch_or_refund"
-      Expression("ENTIRE_WORKTOP")
-      Enum<0u8>()
-  ;`;
+  }
 }

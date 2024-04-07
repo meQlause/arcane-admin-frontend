@@ -259,7 +259,7 @@ export default function DashboardMember({ rdt }: any) {
       let dataV: any = []
       if(account?.address) {
         const responseVote =await (await fetch(
-          `https://localhost:4001/votes/get-votes-by/${nft_id.slice(1, -1)}`,
+          `https://arcanedev.site:4001/votes/get-votes-by/${nft_id.slice(1, -1)}`,
           {
             method: 'GET',
             headers: { 

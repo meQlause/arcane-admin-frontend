@@ -247,7 +247,8 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
       let ends = new Date(end)
       let now = new Date()
       if ( now < ends ) {
-        setIsClosed(true)
+        // setIsClosed(true)
+        setIsClosed(false)
       }
     }
   }, [end])
@@ -255,8 +256,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
   const handleWithdraw = async () => {
     setLoading(true)
 
-    let selectedData : string = voter?.filter(voter => voter.user_address === account?.address)[0].selected!;
-    const withdrawFromVote = RTMGenerator.withdraw(account?.address, nft_id, ComponentAddress!, selectedData).trim();
+    const withdrawFromVote = RTMGenerator.withdraw(account?.address, nft_id, ComponentAddress!).trim();
     const result = await rdt.walletApi.sendTransaction({
       transactionManifest: withdrawFromVote,
       message: 'withdraw'
@@ -557,15 +557,15 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
                   <form spellCheck="false" onSubmit={handleVoteSubmit}>
                     {vote?.map((item: any, index: number) => (
                       <Fieldset key={index} className="!mb-3 !last:mb-0">
-                        <Radio id={`proposal-voting-${index}`} name={"proposal-voting"} value={item.label} disabled={!isClosed} onChange={(e) => setVoting(e.target.value)}>
+                        <Radio id={`proposal-voting-${index}`} name={"proposal-voting"} value={item.label} disabled={false} onChange={(e) => setVoting(e.target.value)}>
                           {item.label}
                         </Radio>
                       </Fieldset>
                     ))}
-                    {isClosed &&
+                    {true &&
                       <>
                         <Input type={"number"} className="!mb-3 !last:mb-0" id={"proposal-token"} name={"proposal-token"} variant={"secondary"} showLabel={true} required={true} label={"Token"} placeholder={"Amount of token you will commit"} defaultValue={"0"} onChange={(e) => setTokenAmount(e.target.value)} />
-                        <Button type="button" variant="primary" loading="none" disabled={!filled} onClick={handleOpenPopupVote}>
+                        <Button type="button" variant="primary" loading="none" disabled={false} onClick={handleOpenPopupVote}>
                           Vote
                         </Button>
                       </>
@@ -588,12 +588,12 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
                       <>
                         {vote?.map((item: any, index: number) => (
                           <Fieldset key={index} className="!mb-3 !last:mb-0">
-                            <Radio id={`proposal-voting-${index}`} name={"proposal-voting"} value={item.label} onChange={(e) => setVoting(e.target.value)}>
+                            <Radio id={`proposal-voting-${index}`} disabled={false} name={"proposal-voting"} value={item.label} onChange={(e) => setVoting(e.target.value)}>
                               {item.label}
                             </Radio>
                           </Fieldset>
                         ))}
-                        <Button type="button" variant="primary" loading="none" disabled={!filled}>
+                        <Button type="button" variant="primary" loading="none" disabled={false}>
                           Vote
                         </Button>
                       </>
@@ -621,10 +621,11 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
 
           <Card className="mb-8">
             <div className="flex items-center gap-4">
-              <Button type="button" variant="primary" loading={loading} disabled={isClosed} className="shadow-main" onClick={handleWithdraw}>
+              {/* <Button type="button" variant="primary" loading={loading} disabled={isClosed} className="shadow-main" onClick={handleWithdraw}> */}
+              <Button type="button" variant="primary" loading={loading} disabled={false} className="shadow-main" onClick={handleWithdraw}>
                 Withdraw
               </Button>
-              {isClosed &&
+              {true &&
                 <Tooltip
                   content="You can withdraw your token after proposal closed!"
                   className="[&_.tooltip]:-translate-x-44 [&_.tooltip]:max-w-[27ch]"

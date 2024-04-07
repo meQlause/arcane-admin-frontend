@@ -9,7 +9,7 @@ const arcaneBadge =
 const arcaneCoreBadge =
   "resource_tdx_2_1nfccyj7azztguyvw9jffhd2c394m6w0uhzpyz225jvyq8d2jt0up2n";
 const ARC =
-  "resource_tdx_2_1nfccyj7azztguyvw9jffhd2c394m6w0uhzpyz225jvyq8d2jt0up2n";
+  "resource_tdx_2_1tk2zhlv50l4nl5flx2qc2y0zavp65xwt8khufun3kmq7xh90896gvc";
 
 export class RTMGenerator {
   constructor() {}
@@ -79,7 +79,7 @@ export class RTMGenerator {
       TAKE_FROM_WORKTOP
         Address("${ARC}")
         Decimal("${amount}")
-        Bucket("my_bucket")
+        Bucket("arc_bucket")
       ;
   
       CALL_METHOD
@@ -96,18 +96,18 @@ export class RTMGenerator {
       ;
           
       CALL_METHOD
-          Address("${componentVoteAddress}")
-          "vote"
-          Proof("nft_proof")
-          "${key}"
-          Bucket("my_bucket")
-      ;`;
+        Address("${arcaneMain}")
+        "vote"
+        Proof("nft_proof")
+        Address("${componentVoteAddress}")
+        "${key}"
+        Bucket("arc_bucket")
+;`;
   }
   static withdraw(
     address: string,
     nft_id: string,
-    componentAddressVote: string,
-    key: string
+    componentAddressVote: string
   ): string {
     return `
     CALL_METHOD
@@ -119,13 +119,14 @@ export class RTMGenerator {
       )
     ;
     POP_FROM_AUTH_ZONE
-        Proof("proof1")
+        Proof("nft_proof")
     ;
+        
     CALL_METHOD
-        Address("${componentAddressVote}")
+        Address("${arcaneMain}")
         "withdraw"
-        Proof("proof1")
-        "${key}"
+        Proof("nft_proof")
+        Address("${componentAddressVote}")
     ;
     CALL_METHOD
         Address("${address}")

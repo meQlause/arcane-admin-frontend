@@ -60,6 +60,7 @@ export default function DashboardMember({ rdt }: any) {
   const { account, nft_id } = useAccount({ rdt })
   const [currentOptionsProposal, setCurrentOptionsProposal] = useState('All')
   const [totalNFT, setTotalNFT] = useState<number>(0)
+  const [totalProposal, setTotalProposal] = useState<number>(0)
   const [dataToken, setDataToken] = useState<any>([]);
   const [dataNFT, setDataNFT] = useState<any>([]);
   const [dataHistoryVote, setDataHistoryVote] = useState<any>([]);
@@ -267,7 +268,8 @@ export default function DashboardMember({ rdt }: any) {
             },
           }
         )).json();
-        console.log(responseVote)
+
+        setTotalProposal(responseVote.length)
         for(let x = 0; x < responseVote.length; x++) {
           dataV.push({
             id: responseVote[x].id,
@@ -300,6 +302,7 @@ export default function DashboardMember({ rdt }: any) {
         let nft_data = metadata.non_fungible_resources.items;
         let dataT: any = []
         let dataN: any = []
+
         setTotalNFT(metadata.non_fungible_resources.total_count)        
         for(let x = 0; x < ft_data.length; x++) {
           let ft_metadata = await rdt.gatewayApi.state.getEntityMetadata(ft_data[x].resource_address)
@@ -476,7 +479,7 @@ export default function DashboardMember({ rdt }: any) {
                   </div>
                 </div>
                 <div className="mt-6">
-                  <div className="font-semibold text-2xl md:text-4xl mb-4">{formatNumber(12)}</div>
+                  <div className="font-semibold text-2xl md:text-4xl mb-4">{totalProposal ? totalProposal : 0}</div>
                   <Image
                     src="/icon/arrow-up.svg"
                     alt="icon"
@@ -507,7 +510,7 @@ export default function DashboardMember({ rdt }: any) {
                   </div>
                 </div>
                 <div className="mt-6">
-                  <div className="font-semibold text-2xl md:text-4xl mb-4">{formatNumber(totalNFT)}</div>
+                  <div className="font-semibold text-2xl md:text-4xl mb-4">{totalNFT ? totalNFT : 0}</div>
                   <Image
                     src="/icon/arrow-down.svg"
                     alt="icon"

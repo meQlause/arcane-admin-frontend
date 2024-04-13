@@ -101,8 +101,9 @@ export default function ProposalCreateMember({ rdt }: any) {
   const options: any = { month: 'short', day: 'numeric', year: 'numeric' }
   const currentDate = new Date()
   const today = currentDate.toLocaleDateString('en-US', options)
-  const getEndDate = (second: number) => {
-    const endDate = new Date(currentDate.getTime() + ((1*60*40) * second))
+  const getEndDate = (quarter: number) => {
+    const distance = 1; // change 92 when mainnet
+    const endDate = new Date(currentDate.getTime() + ((1*60*40*distance) * quarter))
     return endDate.toLocaleDateString('en-US', options)
   }
 
@@ -169,16 +170,32 @@ export default function ProposalCreateMember({ rdt }: any) {
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
-
+    const value = blobImage[0];
+    let res1: any = "";
+    if (value) {
+      const pict = new FormData();
+      pict.append("photo", value, "0image" + "." + value.type.split('/')[1]);
+      res1 = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/upload-pict`,
+        {
+          method: 'POST',
+          body: pict,
+          headers: { 
+            'Authorization': `Bearer ${access_token}`
+          },
+        }
+      ).then((r) => r.text());
+    }
     let meta: any = "";
     const options = {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'X-Api-Key': 'sk_live_00998243-feff-49f8-a092-8cb33d87e5c9'},
-      body: `{"name":"arcane","content": {"title": "${title}", "description": "${description}"} , "metadata":{"title": "${title}", "description": "${description}"}}`
+      body: `{"name":"arcane","content": {"title": "${title}", "description": "${description}", "picture": "${res1.slice(39,)}", "endEpoch": "${votingDuration}"}, "metadata":{"title": "${title}", "description": "${description}", "picture": "${res1.slice(39,)}", "endEpoch": "${votingDuration}"}}`
     };
 
     try {
       const response = await fetch('https://api.starton.com/v3/ipfs/json', options);
+      console.log(response.text)
       meta = await response.json();
     } catch (error) {
       console.error(error);

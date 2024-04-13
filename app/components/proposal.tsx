@@ -18,7 +18,6 @@ import { useKeenSlider } from "keen-slider/react";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
 import { Tooltip } from "@/app/components/tooltip";
 import { RTMGenerator } from "@/app/rtm_generator";
-import fs from 'fs/promises';
 import https from 'https';
 import axios from 'axios';
 
@@ -152,7 +151,6 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
 
    // custom load for image to fix https issue
   const customImageLoader = async (src:string ) => {
-    return src;
     try {
       const instance = axios.create({
         httpsAgent: new https.Agent({ 
@@ -174,14 +172,13 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
   };
 
   useEffect(() => {
-    setImagesData([photos])
-  //   photos.forEach((photo : any) => {
-  //     customImageLoader(photo)
-  //       .then((dataUrl)=> {
-  //         if (dataUrl) {
-  //           setImagesData(prevData => [...prevData, dataUrl])};
-  //         }
-  // )});
+    photos.forEach((photo : any) => {
+      customImageLoader(`https://localhost:4001/votes/pict/${photo}`)
+        .then((dataUrl)=> {
+          if (dataUrl) {
+            setImagesData(prevData => [...prevData, dataUrl])};
+          }
+  )});
   }, [photos]);
 
   const [showPopupVote, setShowPopupVote] = useState(false)

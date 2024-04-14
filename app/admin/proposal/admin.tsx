@@ -11,6 +11,7 @@ import { Tab, Tabs } from "@/app/components/tab";
 import { ProposalList, ProposalProps } from "@/app/components/proposal";
 import { Button } from "@/app/components/button";
 import { Alert } from "@/app/components/alert";
+import { formatDate } from "@/app/functions/datetime";
 
 export default function ProposalAdmin({ rdt }: any) {
   const { account } = useAccount({ rdt })

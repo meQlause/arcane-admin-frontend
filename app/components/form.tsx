@@ -91,6 +91,7 @@ type InputFileProps = {
 }
 
 export function InputFile({label, description, id, name, value, disabled, required, className, showLabel, multiple, accept, maxSize, maxAmount, setStatus, setShowPopup, setPopupMessage, handleBlobImages, handleRemoveImage}: Readonly<InputFileProps>) {
+  const [labelActive, setLabelActive] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
   const [fileStatus, setFileStatus] = useState(false)
   const [fileData, setFileData] = useState<{ fileNames: string[], blobImages: Blob[] }>({ fileNames: [], blobImages: [] })
@@ -153,6 +154,8 @@ export function InputFile({label, description, id, name, value, disabled, requir
   }
 
   const clearFileUpload = (indexToRemove: number) => {
+    setLabelActive(false)
+
     setFileData((prevFileData) => ({
       fileNames: prevFileData.fileNames.filter((_, index) => index !== indexToRemove),
       blobImages: prevFileData.blobImages.filter((_, index) => index !== indexToRemove),
@@ -162,13 +165,17 @@ export function InputFile({label, description, id, name, value, disabled, requir
     setStatus(fileData.fileNames.length > 1)
 
     handleRemoveImage(indexToRemove)
+
+    setTimeout(() => {
+      setLabelActive(true)
+    },1000)
   }
 
   return (
     <>
       <span className={`text-sm text-gray-500 ${!showLabel ? 'sr-only' : ''}`}>{label}</span>
       <label htmlFor={id} className={`group cursor-pointer ${!showLabel ? '' : 'mt-2'} ${className ?? ''}`} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
-        <input type="file" id={id} name={name} defaultValue={value} disabled={disabled} required={required} onChange={(e: ChangeEvent<HTMLInputElement>) => handleFileUpload(e.target.files!)} multiple={multiple} accept={accept} className="sr-only" />
+        <input type="file" id={id} name={name} defaultValue={value} disabled={disabled || !labelActive} required={required} onChange={(e: ChangeEvent<HTMLInputElement>) => handleFileUpload(e.target.files!)} multiple={multiple} accept={accept} className="sr-only" />
         <div className={`border-2 border-dashed border-gray-200 group-hover:border-primary-500 p-6 rounded-xl text-center ${isDragging ? 'bg-primary-50 border-primary-500' : ''}`}>
           <div className={`inline-block p-1 rounded-lg ${fileStatus ? 'bg-success-100' : 'bg-primary-100'}`}>
             <Image 
@@ -426,11 +433,11 @@ type RadioProps = {
 
 export function Radio({children, id, name, defaultValue, value, disabled, required, checked, className, onChange}: Readonly<RadioProps>) {
   return (
-    <fieldset>
+    <>
       <input type="radio" id={id} name={name} defaultValue={defaultValue} value={value} disabled={disabled} required={required} onChange={onChange} className="sr-only peer" checked={checked} />
       <label htmlFor={id} className={`relative block px-4 py-3 rounded-lg cursor-pointer border border-gray-200 lg:hover:bg-gray-100 ring-primary-400 peer-checked:ring-1 peer-checked:text-primary-800 peer-checked:bg-primary-100 peer-checked:border-primary-400 focus:border-primary-400 focus:ring-primary-400 focus:outline-none focus-visible:outline-none ${disabled ? 'cursor-default bg-gray-100' : ''} ${className ?? ''}`}>
         {children}
       </label>
-    </fieldset>
+    </>
   )
 }

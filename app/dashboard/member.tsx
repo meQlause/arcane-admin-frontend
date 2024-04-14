@@ -14,6 +14,7 @@ import { truncateMiddle } from "@/app/functions/truncate";
 import { formatNumber } from "@/app/functions/notation";
 import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
+
 type VaultResponse = {
   address: string,
   ancestor_identities: undefined,
@@ -27,30 +28,27 @@ type VaultResponse = {
         resource_address: string,
         vaults: {
           total_count: number,
-          items: 
-            {
-              vault_address: string,
-              amount: number,
-              last_updated_at_state_version: number
-          }[]        
+          items: {
+            vault_address: string,
+            amount: number,
+            last_updated_at_state_version: number
+          }[]
         }
     }[]
   },
   non_fungible_resources: {
     total_count: number,
-    items: 
-      {
+    items: {
       aggregation_level: string,
       resource_address: string,
       vaults: {
         total_count: number,
-        items: 
-          {
-            total_count: number,
-            items: string[],
-            vault_address: string,
-            last_updated_at_state_version: number
-          }[]
+        items: {
+          total_count: number,
+          items: string[],
+          vault_address: string,
+          last_updated_at_state_version: number
+        }[]
       }
     }[]
   }
@@ -258,8 +256,8 @@ export default function DashboardMember({ rdt }: any) {
   useEffect(() => {
     const fetchEntityMetadata = async () => {
       let dataV: any = []
-      if(account?.address) {
-        const responseVote =await (await fetch(
+      if (account?.address) {
+        const responseVote = await (await fetch(
           `https://localhost:4001/votes/get-votes-by/${nft_id.slice(1, -1)}`,
           {
             method: 'GET',
@@ -283,7 +281,6 @@ export default function DashboardMember({ rdt }: any) {
           })
         }
         setDataProposal(dataV)
-        
 
         const response = await (await fetch(`https://localhost:4001/votes/get-voter-data/${nft_id.slice(1, -1)}`)).json();
         let dataH : any = []
@@ -303,16 +300,16 @@ export default function DashboardMember({ rdt }: any) {
         let dataT: any = []
         let dataN: any = []
 
-        setTotalNFT(metadata.non_fungible_resources.total_count)        
+        setTotalNFT(metadata.non_fungible_resources.total_count)
         for(let x = 0; x < ft_data.length; x++) {
           let ft_metadata = await rdt.gatewayApi.state.getEntityMetadata(ft_data[x].resource_address)
           let label = 'none';
           let url = 'none';
           for(let i = 0; i < ft_metadata.items.length; i++) {
-            if(ft_metadata.items[i].key === 'symbol') {
+            if (ft_metadata.items[i].key === 'symbol') {
               label = ft_metadata.items[i].value.typed.value;
             }
-            if(ft_metadata.items[i].key === 'icon_url') {
+            if (ft_metadata.items[i].key === 'icon_url') {
               url = ft_metadata.items[i].value.typed.value;
             }
           }
@@ -529,80 +526,96 @@ export default function DashboardMember({ rdt }: any) {
                 <Card>
                   <div className="flex items-center justify-between gap-4 mb-2">
                     <h2 className="text-lg font-maven-pro font-semibold">My Token</h2>
-                    <Button type="button" variant="light" className="!px-3 !w-fit min-w-[100px] pointer-events-none">{formatNumber(dataToken.length)} item{dataToken.length > 1 && 's'}</Button>
+                    {dataToken.length > 0 &&
+                      <Button type="button" variant="light" className="!px-3 !w-fit min-w-[100px] pointer-events-none">{formatNumber(dataToken.length)} item{dataToken.length > 1 && 's'}</Button>
+                    }
                   </div>
-                  <div className="max-h-[500px] max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-white -mb-4 -mx-6 px-6">
-                    <table className="w-full">
-                      <tbody>
-                      {dataToken.map((item: any, index: number) => {
-                          return (
-                            <tr key={index} className="[&_td]:py-6 [&:not(:last-child)_td]:border-b [&_td]:border-gray-300">
-                              <td>
-                                <div className="flex justify-between gap-4">
-                                  <div className="flex gap-2" title={item.title}>
-                                    {/* <Image
-                                      src={item.url ? item.url : '/icon/logo-arc.svg'}
-                                      alt="icon"
-                                      className="w-8 h-8 min-w-[2rem] rounded-md object-cover inline-block -my-1"
-                                      width={24}
-                                      height={24}
-                                    /> */}
-                                    <img width={24} height={24} className="w-8 h-8 min-w-[2rem] rounded-md object-cover inline-block -my-1" src={item.url ? item.url : '/upload/proposal-1.png'} alt="description" />
-                                    {item.label && 
-                                      <div className="font-bold line-clamp-1">{item.label}</div>
-                                    }
+                  {dataToken.length > 0 ?
+                    <div className="max-h-[500px] max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-white -mb-4 -mx-6 px-6">
+                      <table className="w-full">
+                        <tbody>
+                        {dataToken.map((item: any, index: number) => {
+                            return (
+                              <tr key={index} className="[&_td]:py-6 [&:not(:last-child)_td]:border-b [&_td]:border-gray-300">
+                                <td>
+                                  <div className="flex justify-between gap-4">
+                                    <div className="flex gap-2" title={item.title}>
+                                      {/* <Image
+                                        src={item.url ? item.url : '/icon/logo-arc.svg'}
+                                        alt="icon"
+                                        className="w-8 h-8 min-w-[2rem] rounded-md object-cover inline-block -my-1"
+                                        width={24}
+                                        height={24}
+                                      /> */}
+                                      <img width={24} height={24} className="w-8 h-8 min-w-[2rem] rounded-md object-cover inline-block -my-1" src={item.url ? item.url : '/upload/proposal-1.png'} alt="description" />
+                                      {item.label && 
+                                        <div className="font-bold line-clamp-1">{item.label}</div>
+                                      }
+                                    </div>
+                                    {item.amount && <div className="text-right min-w-[70px] text-primary-600 font-medium">{formatNumber(item.amount)}</div>}
+                                    {item.value && <div className="text-right min-w-[70px] text-success-500 font-medium">${formatNumber(item.value)}</div>}
                                   </div>
-                                  {item.amount && <div className="text-right min-w-[70px] text-primary-600 font-medium">{formatNumber(item.amount)}</div>}
-                                  {item.value && <div className="text-right min-w-[70px] text-success-500 font-medium">${formatNumber(item.value)}</div>}
-                                </div>
-                              </td>
-                            </tr>
-                          )
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  :
+                    <div className="bg-gray-50 text-gray-300 px-6 py-4 rounded-lg italic mt-4">
+                      You have no one token yet
+                    </div>
+                  }
                 </Card>
                 <Card>
                   <div className="flex items-center justify-between gap-4 mb-2">
                     <h2 className="text-lg font-maven-pro font-semibold">History Vote</h2>
-                    <Button type="button" variant="light" className="!px-3 !w-fit min-w-[100px] pointer-events-none">{formatNumber(dataHistoryVote.length)} vote{dataHistoryVote.length > 1 && 's'}</Button>
+                    {dataHistoryVote.length > 0 &&
+                      <Button type="button" variant="light" className="!px-3 !w-fit min-w-[100px] pointer-events-none">{formatNumber(dataHistoryVote.length)} vote{dataHistoryVote.length > 1 && 's'}</Button>
+                    }
                   </div>
-                  <div className="max-h-[500px] max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-white -mb-4 -mx-6 px-6">
-                    <table className="w-full">
-                      <tbody>
-                        {dataHistoryVote.map((item: any, index: number) => {
-                          return (
-                            <tr key={index} className="[&_td]:py-6 [&:not(:last-child)_td]:border-b [&_td]:border-gray-300">
-                              <td>
-                                <div className="flex justify-between gap-4">
-                                  <div className="flex gap-2" title={item.title}>
-                                    <Image
-                                      src="/icon/cryptocurrency-02.svg"
-                                      alt="icon"
-                                      className="w-6 h-6 min-w-[1.5rem] rounded-md object-cover inline-block filter-primary-500"
-                                      width={24}
-                                      height={24}
-                                    />
-                                    {item.title && 
-                                      <div>
-                                        <div className="font-bold line-clamp-1">{item.title}</div>
-                                        {item.user_address && <span className="line-clamp-1 break-all text-sm text-gray-400">from {truncateMiddle(item.user_address,13)}</span>}
-                                      </div>
-                                    }
+                  {dataHistoryVote.length > 0 ?
+                    <div className="max-h-[500px] max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-white -mb-4 -mx-6 px-6">
+                      <table className="w-full">
+                        <tbody>
+                          {dataHistoryVote.map((item: any, index: number) => {
+                            return (
+                              <tr key={index} className="[&_td]:py-6 [&:not(:last-child)_td]:border-b [&_td]:border-gray-300">
+                                <td>
+                                  <div className="flex justify-between gap-4">
+                                    <div className="flex gap-2" title={item.title}>
+                                      <Image
+                                        src="/icon/cryptocurrency-02.svg"
+                                        alt="icon"
+                                        className="w-6 h-6 min-w-[1.5rem] rounded-md object-cover inline-block filter-primary-500"
+                                        width={24}
+                                        height={24}
+                                      />
+                                      {item.title && 
+                                        <div>
+                                          <div className="font-bold line-clamp-1">{item.title}</div>
+                                          {item.user_address && <span className="line-clamp-1 break-all text-sm text-gray-400">from {truncateMiddle(item.user_address,13)}</span>}
+                                        </div>
+                                      }
+                                    </div>
+                                    <div className="text-right">
+                                      {item.amount && <span className="text-primary-600 font-medium mr-1">{formatNumber(item.amount)}</span>}
+                                      {item.label && <span className="text-gray-400">{item.label}</span>}
+                                    </div>
                                   </div>
-                                  <div className="text-right">
-                                    {item.amount && <span className="text-primary-600 font-medium mr-1">{formatNumber(item.amount)}</span>}
-                                    {item.label && <span className="text-gray-400">{item.label}</span>}
-                                  </div>
-                                </div>
-                              </td>
-                            </tr>
-                          )
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  :
+                    <div className="bg-gray-50 text-gray-300 px-6 py-4 rounded-lg italic mt-4">
+                      You didn't vote on any proposal
+                    </div>
+                  }
                 </Card>
               </div>
               <div className="2xl:col-span-4 2xl:order-1 grid gap-6 h-fit">
@@ -635,7 +648,7 @@ export default function DashboardMember({ rdt }: any) {
                     )}
                   </div>
                   <div className="overflow-hidden max-w-[calc(100vw-119px)] lg:max-w-[calc(100vw-461px)] 2xl:max-w-[687px] mt-4">
-                    {dataNFT?.length > 0 &&
+                    {dataNFT?.length > 0 ?
                       <div className="keen-slider" ref={sliderRef}>
                         {dataNFT?.map((item: any, index: number) => (
                           <div key={index} className="keen-slider__slide bg-primary-200 p-2 rounded-lg relative" title={item.title}>
@@ -654,6 +667,10 @@ export default function DashboardMember({ rdt }: any) {
                             }
                           </div>
                         ))}
+                      </div>
+                    :
+                      <div className="bg-gray-50 text-gray-300 px-6 py-4 rounded-lg italic">
+                        You didn't have any NFT
                       </div>
                     }
                   </div>
@@ -681,11 +698,19 @@ export default function DashboardMember({ rdt }: any) {
                     </form>
                   </div>
                   <div className="grid gap-6 mb-2 lg:mb-1">
-                    {dataProposal.map((item: any) => (
-                      <Link key={item.id} href={'proposal/' + item.id}>
-                        <ProposalList {...item} />
-                      </Link>
-                    ))}
+                    {dataProposal.length > 0 ?
+                      <>
+                        {dataProposal.map((item: any) => (
+                          <Link key={item.id} href={'proposal/' + item.id}>
+                            <ProposalList {...item} />
+                          </Link>
+                        ))}
+                      </>
+                    :
+                      <div className="bg-gray-50 text-gray-300 px-6 py-4 rounded-lg italic">
+                        You've never made a proposal
+                      </div>
+                    }
                   </div>
                 </Card>
               </div>

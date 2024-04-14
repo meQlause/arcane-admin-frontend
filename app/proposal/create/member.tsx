@@ -352,7 +352,7 @@ export default function ProposalCreateMember({ rdt }: any) {
                 <Textarea id={"proposal-description"} name={"proposal-description"} variant={"secondary"} showLabel={true} required={true} label={"Description"} placeholder={"Enter description here"} rows={7} value={description} onChange={(e) => setDescription(e.target.value)} />
               </Fieldset>
               <Fieldset>
-                <InputFile id={"proposal-photo"} name={"proposal-photo"} required={false} multiple={true} label={"Upload Photo"} description={"Maximum of 10 items of 2MB each, file format .png/.jpg/.jpeg"} accept={".png,.jpg,.jpeg"} maxSize={2} maxAmount={10} setStatus={setPhoto} setShowPopup={setShowPopupPhoto} setPopupMessage={setPhotoMessage} handleBlobImages={setBlobImage} handleRemoveImage={handleRemoveImage} />
+                <InputFile id={"proposal-photo"} name={"proposal-photo"} required={false} multiple={true} label={"Upload Photo"} description={"Maximum size 2MB, file format .png/.jpg/.jpeg"} accept={".png,.jpg,.jpeg"} maxSize={2} maxAmount={1} setStatus={setPhoto} setShowPopup={setShowPopupPhoto} setPopupMessage={setPhotoMessage} handleBlobImages={setBlobImage} handleRemoveImage={handleRemoveImage} />
                 <Popup show={showPopupPhoto} backdropClose={true} handleClose={handleClosePopupPhoto}>
                   <PopupHeader variant={"error"} icon={"/icon/alert-circle.svg"}>
                     Upload photo failed
@@ -427,23 +427,25 @@ export default function ProposalCreateMember({ rdt }: any) {
                 <span className="text-sm text-gray-500">Voting Duration</span>
                 <div className="grid sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 gap-4 mt-2">
                   {defaultDuration.map((duration) => 
-                    <Radio key={`proposal-voting-duration-${duration}`} id={`proposal-voting-duration-${duration}`} name={"proposal-voting-duration"} value={duration.toString()} onChange={(e) => setVotingDuration(e.target.value)} required={true}>
-                      <p className="font-maven-pro text-lg -mb-1">
-                        {/* {duration < 60 ? `${duration} Second${duration > 1 ? 's' : ''}` :
+                    <fieldset key={`proposal-voting-duration-${duration}`}>
+                      <Radio id={`proposal-voting-duration-${duration}`} name={"proposal-voting-duration"} value={duration.toString()} onChange={(e) => setVotingDuration(e.target.value)} required={true}>
+                        <p className="font-maven-pro text-lg -mb-1">
+                          {/* {duration < 60 ? `${duration} Second${duration > 1 ? 's' : ''}` :
+                            duration < 3600 ? `${Math.floor(duration / 60)} Minute${Math.floor(duration / 60) > 1 ? 's' : ''}` :
+                            duration < 86400 ? `${Math.floor(duration / 3600)} Hour${Math.floor(duration / 3600) > 1 ? 's' : ''}` :
+                            duration < 172800 ? `${Math.round(duration / 24 / 3600)} Day${Math.round(duration / 24 / 3600) > 1 ? 's' : ''}` :
+                            `${Math.floor(duration / 24 / 3600)} Day${Math.floor(duration / 24 / 3600) > 1 ? 's' : ''}`
+                          } */}
+                          {duration < 60 ? `Quarter ${duration}` :
                           duration < 3600 ? `${Math.floor(duration / 60)} Minute${Math.floor(duration / 60) > 1 ? 's' : ''}` :
                           duration < 86400 ? `${Math.floor(duration / 3600)} Hour${Math.floor(duration / 3600) > 1 ? 's' : ''}` :
                           duration < 172800 ? `${Math.round(duration / 24 / 3600)} Day${Math.round(duration / 24 / 3600) > 1 ? 's' : ''}` :
                           `${Math.floor(duration / 24 / 3600)} Day${Math.floor(duration / 24 / 3600) > 1 ? 's' : ''}`
-                        } */}
-                        {duration < 60 ? `Quarter ${duration}` :
-                        duration < 3600 ? `${Math.floor(duration / 60)} Minute${Math.floor(duration / 60) > 1 ? 's' : ''}` :
-                        duration < 86400 ? `${Math.floor(duration / 3600)} Hour${Math.floor(duration / 3600) > 1 ? 's' : ''}` :
-                        duration < 172800 ? `${Math.round(duration / 24 / 3600)} Day${Math.round(duration / 24 / 3600) > 1 ? 's' : ''}` :
-                        `${Math.floor(duration / 24 / 3600)} Day${Math.floor(duration / 24 / 3600) > 1 ? 's' : ''}`
-                      }
-                      </p>
-                      <small className="opacity-50">{`Until ${getEndDate(duration)}`}</small>
-                    </Radio>
+                        }
+                        </p>
+                        <small className="opacity-50">{`Until ${getEndDate(duration)}`}</small>
+                      </Radio>
+                    </fieldset>
                   )}
                 </div>
               </Fieldset>

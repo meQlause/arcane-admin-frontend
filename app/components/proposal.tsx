@@ -18,6 +18,7 @@ import { useKeenSlider } from "keen-slider/react";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
 import { Tooltip } from "@/app/components/tooltip";
 import { RTMGenerator } from "@/app/rtm_generator";
+import { formatDate } from "@/app/functions/datetime";
 import https from 'https';
 import axios from 'axios';
 
@@ -64,7 +65,7 @@ export const ProposalList: FC<ProposalProps> = ({ id, user_address, title, descr
         <div className="flex items-center max-md:justify-between gap-4 text-sm text-gray-600 md:ml-auto">
           {(status?.toLowerCase() === 'active' || status?.toLowerCase() === 'pending' || status?.toLowerCase() === 'closed') &&
             <>
-              <span>{end}</span>
+              <span>{end?.slice(-1).toLowerCase() === 'z' ? formatDate(end) : end}</span>
               <div className="w-px h-8 bg-gray-300 max-md:hidden"></div>
             </>
           }
@@ -149,7 +150,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
     setShowPopupSignin(false)
   }
 
-   // custom load for image to fix https issue
+  // custom load for image to fix https issue
   const customImageLoader = async (src:string ) => {
     try {
       const instance = axios.create({
@@ -244,8 +245,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
       let ends = new Date(end)
       let now = new Date()
       if ( now < ends ) {
-        // setIsClosed(true)
-        setIsClosed(false)
+        setIsClosed(true)
       }
     }
   }, [end])
@@ -259,6 +259,16 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
       message: 'withdraw'
     })
 
+    if (!result.isErr()) {
+      sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
+      sessionStorage.setItem('arcane-alert-message','You have successfully withdrawn')
+      if ( pathname.indexOf('admin') > -1 ) {
+        router.push('/admin/proposal')
+      } else {
+        router.push('/proposal')
+      }
+    }
+
     if (result.isErr()) {
       /* write logic here when the transaction signed on wallet unsucessfull */
       // throw new Error("Error add voting")
@@ -269,14 +279,6 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
       } else {
         router.push('/proposal')
       }
-    }
-
-    sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
-    sessionStorage.setItem('arcane-alert-message','You have successfully withdrawn')
-    if ( pathname.indexOf('admin') > -1 ) {
-      router.push('/admin/proposal')
-    } else {
-      router.push('/proposal')
     }
   }
 
@@ -553,13 +555,13 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
                 {isNotCreate ?
                   <form spellCheck="false" onSubmit={handleVoteSubmit}>
                     {vote?.map((item: any, index: number) => (
-                      <Fieldset key={index} className="!mb-3 !last:mb-0">
+                      <Fieldset key={index} className={`!mb-3 !last:mb-0 ${!isClosed ? 'pointer-events-none' : ''}`}>
                         <Radio id={`proposal-voting-${index}`} name={"proposal-voting"} value={item.label} disabled={false} onChange={(e) => setVoting(e.target.value)}>
                           {item.label}
                         </Radio>
                       </Fieldset>
                     ))}
-                    {true &&
+                    {isClosed &&
                       <>
                         <Input type={"number"} className="!mb-3 !last:mb-0" id={"proposal-token"} name={"proposal-token"} variant={"secondary"} showLabel={true} required={true} label={"Token"} placeholder={"Amount of token you will commit"} defaultValue={"0"} onChange={(e) => setTokenAmount(e.target.value)} />
                         <Button type="button" variant="primary" loading="none" disabled={false} onClick={handleOpenPopupVote}>
@@ -616,28 +618,29 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
             }
           </Card>
 
-          <Card className="mb-8">
-            <div className="flex items-center gap-4">
-              {/* <Button type="button" variant="primary" loading={loading} disabled={isClosed} className="shadow-main" onClick={handleWithdraw}> */}
-              <Button type="button" variant="primary" loading={loading} disabled={false} className="shadow-main" onClick={handleWithdraw}>
-                Withdraw
-              </Button>
-              {true &&
-                <Tooltip
-                  content="You can withdraw your token after proposal closed!"
-                  className="[&_.tooltip]:-translate-x-44 [&_.tooltip]:max-w-[27ch]"
-                >
-                  <Image
-                    src="/icon/alert-circle.svg"
-                    alt="user"
-                    className="w-6 h-6 min-w-[1.5rem]"
-                    width={24}
-                    height={24}
-                  />
-                </Tooltip>
-              }
-            </div>
-          </Card>
+          {isNotCreate &&
+            <Card className="mb-8">
+              <div className="flex items-center gap-4">
+                <Button type="button" variant="primary" loading={loading} disabled={isClosed} className="shadow-main" onClick={handleWithdraw}>
+                  Withdraw
+                </Button>
+                {isClosed &&
+                  <Tooltip
+                    content="You can withdraw your token after proposal closed!"
+                    className="[&_.tooltip]:-translate-x-44 [&_.tooltip]:max-w-[27ch]"
+                  >
+                    <Image
+                      src="/icon/alert-circle.svg"
+                      alt="user"
+                      className="w-6 h-6 min-w-[1.5rem]"
+                      width={24}
+                      height={24}
+                    />
+                  </Tooltip>
+                }
+              </div>
+            </Card>
+          }
 
           {(voter && voter.length > 0 && (vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) && !isMobile) &&
             <Card className="mb-8">
@@ -686,24 +689,76 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
         </div>
 
         <div className="md:col-span-5 xl:col-span-4 h-fit">
-          {photos.length > 0 &&
-            <Card className="mb-8 !bg-primary-400 !p-2 overflow-hidden">
-              <div className="rounded-md overflow-hidden max-w-[calc(100vw-4rem)] keen-slider" ref={sliderRef}>
-                {imagesData?.map((item: any, index: number) => (
-                  <div key={index} className="keen-slider__slide">
-                    <Image
-                      // src={typeof item === 'string' ? item : URL.createObjectURL(item)}
-                      src={item}
-
-                      alt="photo"
-                      className="w-full h-auto"
-                      width={300}
-                      height={300}
-                    />
-                  </div>
-                ))}
-              </div>
-            </Card>
+        {isNotCreate ?
+            <>
+              {imagesData.length > 0 &&
+                <Card className="mb-8 !bg-primary-400 !p-2 overflow-hidden">
+                  {imagesData.length > 1 ?
+                    <div className="rounded-md overflow-hidden max-w-[calc(100vw-4rem)] keen-slider" ref={sliderRef}>
+                      {imagesData?.map((item: any, index: number) => (
+                        <div key={index} className="keen-slider__slide">
+                          <Image
+                            src={item}
+                            alt="photo"
+                            className="w-full h-auto"
+                            width={300}
+                            height={300}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  :
+                    <div className="rounded-md overflow-hidden max-w-[calc(100vw-4rem)]">
+                      {imagesData?.map((item: any, index: number) => (
+                        <Image
+                          key={index}
+                          src={item}
+                          alt="photo"
+                          className="w-full h-auto"
+                          width={300}
+                          height={300}
+                        />
+                      ))}
+                    </div>
+                  }
+                </Card>
+              }
+            </>
+          :
+            <>
+              {photos.length > 0 &&
+                <Card className="mb-8 !bg-primary-400 !p-2 overflow-hidden">
+                  {photos.length > 1 ?
+                    <div className="rounded-md overflow-hidden max-w-[calc(100vw-4rem)] keen-slider" ref={sliderRef}>
+                      {photos?.map((item: any, index: number) => (
+                        <div key={index} className="keen-slider__slide">
+                          <Image
+                            src={typeof item === 'string' ? item : URL.createObjectURL(item)}
+                            alt="photo"
+                            className="w-full h-auto"
+                            width={300}
+                            height={300}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  :
+                    <div className="rounded-md overflow-hidden max-w-[calc(100vw-4rem)]">
+                      {photos?.map((item: any, index: number) => (
+                        <Image
+                          key={index}
+                          src={typeof item === 'string' ? item : URL.createObjectURL(item)}
+                          alt="photo"
+                          className="w-full h-auto"
+                          width={300}
+                          height={300}
+                        />
+                      ))}
+                    </div>
+                  }
+                </Card>
+              }
+            </>
           }
 
           <Card className="mb-8">
@@ -718,13 +773,13 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
               {start &&
                 <li className="mb-5 last:mb-0">
                   <div className="float-left mr-4">Start date</div>
-                  <div className="font-semibold text-right">{start}</div>
+                  <div className="font-semibold text-right">{start?.slice(-1).toLowerCase() === 'z' ? formatDate(start) : start}</div>
                 </li>
               }
               {end &&
                 <li className="mb-5 last:mb-0">
                   <div className="float-left mr-4">End date</div>
-                  <div className="font-semibold text-right">{end}</div>
+                  <div className="font-semibold text-right">{end?.slice(-1).toLowerCase() === 'z' ? formatDate(end) : end}</div>
                 </li>
               }
             </ul>
@@ -737,7 +792,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
                   {status?.toLocaleLowerCase() !== 'done' ? 'Current' : 'Vote' } Result
                 </h2>
                 {status?.toLocaleLowerCase() === 'done' &&
-                  <p className="text-gray-400 text-sm mt-3">Vote result which was carried out, from {start} to {end} {(vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) && `with the participation of ${totalVotes} user${totalVotes > 1 && 's'}`}</p>
+                  <p className="text-gray-400 text-sm mt-3">Vote result which was carried out, from {start?.slice(-1).toLowerCase() === 'z' ? formatDate(start) : start} to {end?.slice(-1).toLowerCase() === 'z' ? formatDate(end) : end} {(vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) && `with the participation of ${totalVotes} user${totalVotes > 1 && 's'}`}</p>
                 }
               </div>
               {(vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) &&

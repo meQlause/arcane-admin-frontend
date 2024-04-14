@@ -37,6 +37,23 @@ export const Main: FC<MainProps> = ({ children, className }) => {
       message: 'mint arc token'
     })
 
+    rdt.buttonApi.status$.subscribe((data:any) => {
+      if ( data === 'error' ) {
+        setLoading(false)
+        setFailedMintToken(true)
+        setTimeout(() => {
+          setFailedMintToken(false)
+        },3000)
+      }
+      if ( data === 'success' ) {
+        setSuccessMintToken(true)
+        setTimeout(() => {
+          setLoading(false)
+          setSuccessMintToken(false)
+        },3000)
+      }
+    })
+
     if (result.isErr()) {
       /* write logic here when the transaction signed on wallet unsucessfull */
       // throw new Error("Error add voting")
@@ -46,13 +63,6 @@ export const Main: FC<MainProps> = ({ children, className }) => {
         setFailedMintToken(false)
       },3000)
     }
-
-    /* logic here when succeed */
-    setSuccessMintToken(true)
-    setTimeout(() => {
-      setLoading(false)
-      setSuccessMintToken(false)
-    },3000)
   }
 
   return (

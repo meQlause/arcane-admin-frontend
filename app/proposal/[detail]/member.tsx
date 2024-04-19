@@ -140,11 +140,7 @@ export default function ProposalDetailMember({ rdt, id }: any) {
         },
       }
     ).then((res) => res.json());
-  }
-
-  useEffect(() => {
-    // response data
-    // {
+    // return {
     //   "id": "1",
     //   "startDate": "2024-02-17T14:35:50.509Z",
     //   "endDate": "2024-02-17T14:35:50.509Z",
@@ -172,7 +168,53 @@ export default function ProposalDetailMember({ rdt, id }: any) {
     //   },
     //   "voters": []
     // }
+  }
 
+  const getVoterDetail = async (nft_id: any) => {
+    return await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/voter/${id}/${nft_id}`,
+      {
+        method: 'GET',
+        headers: { 
+          'content-type': 'application/json',
+          'Authorization': `Bearer ${access_token}`
+        },
+      }
+    ).then((res) => res.json());
+    // return {
+    //   "id": "1",
+    //   "AddressId": "15",
+    //   "title": "qlause",
+    //   "votedAt": "2024-04-17T13:43:15.352Z",
+    //   "voter": "account_tdx_2_12x4e62hgnpvrtuazf2248uk2rmcknshf2yp6e298klnhaxfrddpzgm",
+    //   "selected": "For",
+    //   "amount": "100",
+    //   "isWithdrawed": true,
+    //   "vote": {
+    //     "id": 66,
+    //     "startEpoch": "53728",
+    //     "endEpoch": "53729",
+    //     "title": "qlause",
+    //     "metadata": "req_686cc7222edc49db8548e5d4aaee87d3",
+    //     "description": "ljn;ljn;jn;",
+    //     "componentAddress": "component_tdx_2_1cr6q8mjgu2apcxpnnzzp4pcswm9yfrm2tnndxc6vc3st2s7eehlwv8",
+    //     "picture": "",
+    //     "voteTokenAmount": {
+    //       "For": 100,
+    //       "Againts": 0,
+    //       "Abstain": 0
+    //     },
+    //     "voteAddressCount": {
+    //       "For": 1,
+    //       "Againts": 0,
+    //       "Abstain": 0
+    //     },
+    //     "isPending": true
+    //   }
+    // }
+  }
+
+  useEffect(() => {
     const fetchData = async () => {
       const data = await getVoteDetail();
 
@@ -191,7 +233,19 @@ export default function ProposalDetailMember({ rdt, id }: any) {
           label: 'ARC'
         }));
 
-        setDataProposal({
+        let proposalData: any = {};
+
+        if (data?.address?.nft_id) {
+          const dataVoter = await getVoterDetail(data?.address?.nft_id);
+          proposalData = {
+            ...proposalData,
+            user_voted: dataVoter?.selected,
+            user_withdraw: dataVoter?.isWithdrawed,
+          };
+        } 
+
+        proposalData = {
+          ...proposalData,
           id: data?.id,
           user_address: data?.address.address,
           user_role: data?.address.role,
@@ -204,8 +258,9 @@ export default function ProposalDetailMember({ rdt, id }: any) {
           vote: vote_list,
           voter: voter,
           ComponentAddress: data?.componentAddress,
-        });
+        };
 
+        setDataProposal(proposalData);
         setDataVoteDetail(true);
       } else {
         setDataVoteDetail(false);

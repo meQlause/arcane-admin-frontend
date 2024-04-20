@@ -282,7 +282,7 @@ export default function DashboardMember({ rdt }: any) {
         }
         setDataProposal(dataV)
 
-        const response = await (await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}votes/get-voter-data/${nft_id.slice(1, -1)}`)).json();
+        const response = await (await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/get-voter-data/${nft_id.slice(1, -1)}`)).json();
         let dataH : any = []
         console.log(response)
         for(let x = 0; x < response.length; x++) {

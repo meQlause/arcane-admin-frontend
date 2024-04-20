@@ -72,7 +72,7 @@ export default function ProposalAdmin({ rdt }: any) {
       title: 'Arcane Labyrinth',
       ComponentAddress: '',
       description: 'Laborum officia incididunt consequat veniam tempor ea officia minim id excepteur pariatur nisi dolor. Deserunt occaecat ullamco est consequat. Culpa consequat veniam ullamco veniam aute culpa laborum nostrud dolor mollit non elit veniam commodo.',
-      end: 'Ended, 28 Nov 2023',
+      end: 0,
       status: 'Pending'
     },
     {
@@ -82,7 +82,7 @@ export default function ProposalAdmin({ rdt }: any) {
       title: '[ARFC] Add fUSDC to Ethereum v3',
       ComponentAddress: '',
       description: 'Qui aliquip reprehenderit veniam sit eu nostrud ad ipsum laboris exercitation.Tempor nulla irure aute minim ea occaecat do magna velit voluptate occaecat minim duis.Elit ex minim exercitation labore et.',
-      end: 'Ends in 2 Weeks - 24 Nov 2023',
+      end: 0,
       status: 'Active',
       vote: [
         {
@@ -103,7 +103,7 @@ export default function ProposalAdmin({ rdt }: any) {
       title: 'Arcane Labyrinth',
       ComponentAddress: '',
       description: 'Laboris labore culpa duis in esse in reprehenderit excepteur sit ut labore dolore.Aliquip do duis occaecat voluptate.Ad qui ullamco sunt sunt pariatur est ullamco.Id incididunt et ipsum elit non veniam et laborum elit anim.',
-      end: 'Ended, 28 Nov 2023',
+      end: 0,
       status: 'Pending'
     }
   ]
@@ -116,7 +116,7 @@ export default function ProposalAdmin({ rdt }: any) {
       title: 'fUSDC to Ethereum v3',
       ComponentAddress: '',
       description: 'Laborum officia incididunt consequat veniam tempor ea officia minim id excepteur pariatur nisi dolor. Deserunt occaecat ullamco est consequat. Culpa consequat veniam ullamco veniam aute culpa laborum nostrud dolor mollit non elit veniam commodo.',
-      end: 'Ended, 28 Nov 2023',
+      end: 0,
       status: 'Closed',
       vote: [
         {
@@ -137,7 +137,7 @@ export default function ProposalAdmin({ rdt }: any) {
       title: '[ARFC] Add fUSDC to Ethereum v3',
       ComponentAddress: '',
       description: 'Qui aliquip reprehenderit veniam sit eu nostrud ad ipsum laboris exercitation.Tempor nulla irure aute minim ea occaecat do magna velit voluptate occaecat minim duis.Elit ex minim exercitation labore et.',
-      end: 'Ended, 28 Nov 2023',
+      end: 0,
       status: 'Rejected'
     },
     {
@@ -147,7 +147,7 @@ export default function ProposalAdmin({ rdt }: any) {
       title: 'Arcane Labyrinth',
       ComponentAddress: '',
       description: 'Laboris labore culpa duis in esse in reprehenderit excepteur sit ut labore dolore.Aliquip do duis occaecat voluptate.Ad qui ullamco sunt sunt pariatur est ullamco.Id incididunt et ipsum elit non veniam et laborum elit anim.',
-      end: 'Ended, 28 Nov 2023',
+      end: 0,
       status: 'Rejected'
     }
   ]

@@ -34,10 +34,9 @@ export const Pagination: FC<PaginationProps> = ({ id, total, current, className,
     sessionStorage.setItem(`arcane-${id}-pagin`,`${current+1}`)
   }
 
-  const [prevDisabled, setPrevDisabled] = useState(false)
-  const [nextDisabled, setNextDisabled] = useState(false)
+  const [prevDisabled, setPrevDisabled] = useState(true)
+  const [nextDisabled, setNextDisabled] = useState(true)
   useEffect(() => {
-    console.log(current)
     if (current > 1) {
       setPrevDisabled(false);
     }

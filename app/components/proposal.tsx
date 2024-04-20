@@ -180,7 +180,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
     
     if (photos[0]) {
       photos.forEach((photo : any) => {
-        customImageLoader(`https://localhost:4001/votes/pict/${photo}`)
+        customImageLoader(`${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/pict/${photo}`)
         .then((dataUrl)=> {
           if (dataUrl) {
             setImagesData(prevData => [...prevData, dataUrl])};

@@ -365,7 +365,7 @@ export default function DiscussionAdmin({ rdt }: any) {
 
                       <div className="border border-gray-100 bg-gray-100 rounded-xl py-4 px-5 h-full relative max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-chat max-h-[calc(100vh-332px)] max-md:min-h-[70vh]" ref={chatContainerRef}>
                         <div className="relative z-[1] [&_.user-me]:ml-auto [&_.user-me_.user-avatar]:order-2 [&_.user-me_.user-detail]:text-right [&_.user-me_.user-chat]:rounded-tr-none [&_.user-me_.user-chat]:bg-primary-600 [&_.user-me_.user-chat]:text-white [&_.user-discussion:not(.user-me)]:mr-auto [&_.user-discussion:not(.user-me)_.user-chat]:rounded-tl-none">
-                          {dataChatClassification.map((date: any, dateIndex: number) => (
+{/*                           {dataChatClassification.map((date: any, dateIndex: number) => (
                             <section key={dateIndex}>
                               <div className={`text-xs rounded-full border transition w-fit px-6 py-1 mt-2 mb-6 mx-auto ${isChatScrolling ? 'sticky top-0 shadow-lg border-primary-500 bg-primary-600 text-white' : 'border-transparent'}`} ref={(el) => (chatDateRefs.current[dateIndex] = el)}>{formatDate(date)}</div>
                               {dataChatSelected
@@ -409,7 +409,7 @@ export default function DiscussionAdmin({ rdt }: any) {
                                   </div>
                                 ))}
                             </section>
-                          ))}
+                          ))} */}
                         </div>
                         <div className="w-full h-full absolute top-0 left-0 opacity-70 bg-[length:300px]" style={{backgroundImage: 'url(/chat/shape.png)'}}></div>
                       </div>

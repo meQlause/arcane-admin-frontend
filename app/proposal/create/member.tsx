@@ -199,7 +199,7 @@ export default function ProposalCreateMember({ rdt }: any) {
     const options = {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'X-Api-Key': 'sk_live_00998243-feff-49f8-a092-8cb33d87e5c9'},
-      body: `{"name":"arcane","content": {"title": "${title}", "description": "${description}", "picture": "${res1.slice(39,)}", "endEpoch": "${votingDuration}"}, "metadata":{"title": "${title}", "picture": "${res1.slice(39,)}", "endEpoch": "${votingDuration}"}}`
+      body: `{"name":"arcane","content": {"title": "${title}", "description": "${description.trim()}", "picture": "${res1.slice(39,)}", "endEpoch": "${votingDuration}"}, "metadata":{"title": "${title}", "picture": "${res1.slice(39,)}", "endEpoch": "${votingDuration}"}}`
     };
 
     try {

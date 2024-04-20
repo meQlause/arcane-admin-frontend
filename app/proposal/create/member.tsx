@@ -185,12 +185,13 @@ export default function ProposalCreateMember({ rdt }: any) {
             'Authorization': `Bearer ${access_token}`
           },
         }
-      ).then((r) => {
+      ).then(async (r) => {
         if (r.status !== 200) {
-          rdt.disconnect()
+          rdt.disconnect();
           localStorage.removeItem('arcane');
+          return '';
         }
-        r.text()
+        return await r.text()
       });
     }
     let meta: any = "";
@@ -202,7 +203,6 @@ export default function ProposalCreateMember({ rdt }: any) {
 
     try {
       const response = await fetch('https://api.starton.com/v3/ipfs/json', options);
-      console.log(response.text)
       meta = await response.json();
     } catch (error) {
       console.error(error);

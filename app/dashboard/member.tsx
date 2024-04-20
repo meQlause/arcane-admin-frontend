@@ -256,9 +256,6 @@ export default function DashboardMember({ rdt }: any) {
   useEffect(() => {
     const fetchEntityMetadata = async () => {
       let dataV: any = []
-      if (account?.address) {
-        const responseVote = await (await fetch(
-          `https://localhost:4001/votes/get-votes-by/${nft_id.slice(1, -1)}`,
       if(account?.address) {
         const responseVote =await (await fetch(
           `https://arcanedev.site:4001/votes/get-votes-by/${nft_id.slice(1, -1)}`,

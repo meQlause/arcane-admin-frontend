@@ -256,7 +256,7 @@ export default function ProposalDetailMember({ rdt, id }: any) {
           avatar: '/user/user-1.png',
           title: data?.title,
           photos: [data?.picture],
-          description: data?.title,
+          description: data?.description,
           end: data?.endEpoch,
           start: data?.startEpoch,
           status: data?.isPending ? 'pending' : 'active',

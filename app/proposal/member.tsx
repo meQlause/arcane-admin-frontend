@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { RoleType } from "@/app/types";
+// import { RoleType } from "@/app/types";
 import { useAccount } from "@/app/auth/account";
 import { MainTitle } from "@/app/components/main";
 import { Card } from "@/app/components/card";
@@ -11,12 +11,15 @@ import { Fieldset, Select } from "@/app/components/form";
 import { ProposalList, ProposalProps } from "@/app/components/proposal";
 import { Button } from "@/app/components/button";
 import { Alert } from "@/app/components/alert";
+import { formatDate } from "@/app/functions/datetime";
+import { Pagination } from "@/app/components/pagination";
 
 export default function ProposalMember({ rdt }: any) {
   const { account } = useAccount({ rdt })
 
   const [currentOptionsActive, setCurrentOptionsActive] = useState('All')
   const [voteList, setVotesList] = useState<ProposalProps[]>([])
+  const [totalVotes, setTotalVotes] = useState<number>(0)
   const optionsActive: any = [
     {
       value: 'All',
@@ -45,9 +48,34 @@ export default function ProposalMember({ rdt }: any) {
     setSearchKeyword(e.target.value)
   }
 
-  const getVotes = async () => {
+  const [dataVotes, setDataVotes] = useState<boolean>()
+
+  const getTotalVotes = async () => {
     return await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/get-votes`,
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter/pending`,
+      {
+        method: 'GET',
+        headers: { 
+          'content-type': 'application/json',
+        },
+      }
+    ).then(async (res) => Number(await res.text()));
+  }
+
+  const getVotes = async (page: number) => {
+    const total = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter/pending`,
+      {
+        method: 'GET',
+        headers: { 
+          'content-type': 'application/json',
+        },
+      }
+    ).then(async (res) => Number(await res.text()));
+    setTotalVotes(total);
+
+    return await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/get-votes?page=${page}`,
       {
         method: 'GET',
         headers: { 
@@ -55,57 +83,91 @@ export default function ProposalMember({ rdt }: any) {
         },
       }
     ).then((res) => res.json());
+
+    // return [
+    //   {
+    //     "id": "5",
+    //     "startDate": "2024-02-17T12:02:34.796Z",
+    //     "endDate": "2024-02-17T12:02:34.796Z",
+    //     "title": "test",
+    //     "description": "test",
+    //     "componentAddress": "component_tdx_2_1cznduwd6y9lr2a0dcm0yhdnclc9zc2esnz0ehvj7uwzdv873zvnc26",
+    //     "voteTokenAmount": {
+    //       "For": 0,
+    //       "Againts": 0,
+    //       "Abstain": 0
+    //     },
+    //     "voteAddressCount": {
+    //       "For": 0,
+    //       "Againts": 0,
+    //       "Abstain": 0
+    //     },
+    //     "isPending": true,
+    //     "address": {
+    //       "id": 4,
+    //       "address": "account_tdx_2_12yq620haqzlptj7tumgnyl8a9lwpg0z3cwtfyha754rtw2lggn033c",
+    //       "role": "member",
+    //       "vault_admin_address": null,
+    //       "nft_id": null,
+    //       "signUpAt": "2024-02-17T11:28:55.931Z"
+    //     }
+    //   }
+    // ]
   }
 
   useEffect(() => {
-    // response data
-    //   [
-    //     {
-    //         "id": "5",
-    //         "startDate": "2024-02-17T12:02:34.796Z",
-    //         "endDate": "2024-02-17T12:02:34.796Z",
-    //         "title": "test",
-    //         "description": "test",
-    //         "componentAddress": "component_tdx_2_1cznduwd6y9lr2a0dcm0yhdnclc9zc2esnz0ehvj7uwzdv873zvnc26",
-    //         "voteTokenAmount": {
-    //             "For": 0,
-    //             "Againts": 0,
-    //             "Abstain": 0
-    //         },
-    //         "voteAddressCount": {
-    //             "For": 0,
-    //             "Againts": 0,
-    //             "Abstain": 0
-    //         },
-    //         "isPending": true,
-    //         "address": {
-    //             "id": 4,
-    //             "address": "account_tdx_2_12yq620haqzlptj7tumgnyl8a9lwpg0z3cwtfyha754rtw2lggn033c",
-    //             "role": "member",
-    //             "vault_admin_address": null,
-    //             "nft_id": null,
-    //             "signUpAt": "2024-02-17T11:28:55.931Z"
-    //         }
-    //     }
-    // ]
     const fetchData = async () => {
-      const data = await getVotes();
-      let dataProposal = data.map((item:any) => {
+      const currentPage: number = sessionStorage.getItem('arcane-proposal-pagin') ? Number(sessionStorage.getItem('arcane-proposal-pagin')) : 1
+      const data = await getVotes(currentPage);
+      const total = await getTotalVotes();
+      setTotalVotes(total);
+      if (data && total > 0) {
+        let dataProposal = data.map((item:any) => {
+          return {
+            id: item.id,
+            user_address: item.address.address,
+            avatar: '/user/user-1.png',
+            title: item.title,
+            description: item.description,
+            end: item.endEpoch,
+            status: item.isPending ? 'pending' : 'active',
+            vote: Object.entries(item.voteTokenAmount).map(([label, amount]) => ({ label, amount }))
+          };
+        })
+        setVotesList(dataProposal);
+        setDataVotes(true);
+      } else {
+        setVotesList([]);
+        setDataVotes(false);
+      }
+    }
+    fetchData();
+  }, [])
+
+  const handlePageChange = async (page: number) => {
+    const data = await getVotes(page);
+    const total = await getTotalVotes();
+    setTotalVotes(total);
+    if (data && total > 0) {
+      let dataProposal: any = data.map((item:any) => {
         return {
           id: item.id,
           user_address: item.address.address,
           avatar: '/user/user-1.png',
           title: item.title,
           description: item.description,
-          end: `Ends on ${new Date(item.endDate).toLocaleDateString()}`,
+          end: item.endEpoch,
           status: item.isPending ? 'pending' : 'active',
           vote: Object.entries(item.voteTokenAmount).map(([label, amount]) => ({ label, amount }))
         };
       })
       setVotesList(dataProposal);
+      setDataVotes(true);
+    } else {
+      setVotesList([]);
+      setDataVotes(false);
     }
-    fetchData();
-  }, [])
+  }
 
   // const dataProposal: ProposalProps[] = [
   //   {
@@ -201,11 +263,22 @@ export default function ProposalMember({ rdt }: any) {
           </div>
         </div>
         <div className="grid gap-6 mb-2 lg:mb-1">
-          {voteList.map((item: any) => (
-            <Link key={item.id} href={'proposal/' + item.id}>
-              <ProposalList {...item} />
-            </Link>
-          ))}
+          {dataVotes ?
+            <>
+              {voteList.map((item: any) => (
+                <Link key={item.id} href={'proposal/' + item.id}>
+                  <ProposalList {...item} />
+                </Link>
+              ))}
+              <div className="flex justify-end">
+                <Pagination id={'proposal'} total={Math.ceil(totalVotes / 10)} current={Number(sessionStorage.getItem(`arcane-proposal-pagin`))} onPageChange={handlePageChange} />
+              </div>
+            </>
+          :
+            <div className="bg-gray-50 text-gray-300 px-6 py-4 rounded-lg italic">
+              No proposal here, please create new one.
+            </div>
+          }
         </div>
       </Card>
     </>

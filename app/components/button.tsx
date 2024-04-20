@@ -41,7 +41,7 @@ export const Button: FC<ButtonProps> = ({ type, disabled, loading, className, va
   }
 
   return (
-    <button type={type} disabled={disabled} className={`flex justify-center gap-3 w-full rounded-xl py-3 px-4 lg:px-6 font-medium focus-visible:outline-none lg:transition disabled:pointer-events-none [&.disabled]:pointer-events-none disabled:bg-gray-300 [&.disabled]:bg-gray-300 ${variantStyle} ${className || ''}`} onClick={onClick}>
+    <button type={type} disabled={disabled} className={`flex justify-center gap-3 w-full rounded-xl py-3 px-4 lg:px-6 font-medium focus-visible:outline-none lg:transition disabled:pointer-events-none [&.disabled]:pointer-events-none disabled:bg-gray-200 [&.disabled]:bg-gray-200 [&[disabled]_img]:filter-white [&.disabled_img]:filter-white ${variantStyle} ${className || ''}`} onClick={onClick}>
       <span>{children}</span>
       {loading !== 'none' &&
         <div className={`transition-all ${!loading ? '-mr-9 opacity-0' : ''}`}>

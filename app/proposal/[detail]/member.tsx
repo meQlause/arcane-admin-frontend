@@ -4,9 +4,10 @@ import { ProposalDetail, ProposalDetailProps, ProposalVoteProps } from "@/app/co
 import { useWallet } from "@/app/auth/wallet";
 import { useEffect, useState } from "react";
 import Loading from "@/app/loading";
+import Unavailable from "@/app/unavailable";
 
 export default function ProposalDetailMember({ rdt, id }: any) {
-  const { account } = useAccount({ rdt })
+  const { account, nft_id } = useAccount({ rdt })
   const [isLoading, setIsLoading] = useState(true)
   const [dataProposal, setDataProposal] = useState<ProposalDetailProps>({
     id:'',
@@ -16,7 +17,8 @@ export default function ProposalDetailMember({ rdt, id }: any) {
     title: '',
     photos: [],
     description: '',
-    end: '',
+    start: 0,
+    end: 0,
     status: '',
     vote: [],
     voter: [],
@@ -127,6 +129,7 @@ export default function ProposalDetailMember({ rdt, id }: any) {
   //   ]
   // }
 
+  const [dataVoteDetail, setDataVoteDetail] = useState<boolean>()
   const getVoteDetail = async () => {
     return await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/vote/${id}`,
@@ -138,70 +141,138 @@ export default function ProposalDetailMember({ rdt, id }: any) {
         },
       }
     ).then((res) => res.json());
+    // return {
+    //   "id": "1",
+    //   "startDate": "2024-02-17T14:35:50.509Z",
+    //   "endDate": "2024-02-17T14:35:50.509Z",
+    //   "title": "qlauseqq",
+    //   "description": "qqqq",
+    //   "componentAddress": "component_tdx_2_1cpmpq9pl4vqq6dfq6dsqn97v47mw5jpmq7e7qq2mqpkxgukcqhsyx2",
+    //   "voteTokenAmount": {
+    //       "For": 0,
+    //       "Againts": 0,
+    //       "Abstain": 0
+    //   },
+    //   "voteAddressCount": {
+    //       "For": 0,
+    //       "Againts": 0,
+    //       "Abstain": 0
+    //   },
+    //   "isPending": true,
+    //   "address": {
+    //       "id": 2,
+    //       "address": "account_tdx_2_12yq620haqzlptj7tumgnyl8a9lwpg0z3cwtfyha754rtw2lggn033c",
+    //       "role": "admin",
+    //       "vault_admin_address": null,
+    //       "nft_id": null,
+    //       "signUpAt": "2024-02-17T14:34:50.800Z"
+    //   },
+    //   "voters": []
+    // }
+  }
+
+  const getVoterDetail = async (id : any, nft_id: string) => {
+    console.log(id, nft_id);
+    return await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/voter/${id}/${nft_id.slice(1, -1)}`,
+      {
+        method: 'GET',
+        headers: { 
+          'content-type': 'application/json',
+          'Authorization': `Bearer ${access_token}`
+        },
+      }
+    )
+    .then((res) => res.json())
+    .catch((_) => undefined);
+    // return {
+    //   "id": "1",
+    //   "AddressId": "15",
+    //   "title": "qlause",
+    //   "votedAt": "2024-04-17T13:43:15.352Z",
+    //   "voter": "account_tdx_2_12x4e62hgnpvrtuazf2248uk2rmcknshf2yp6e298klnhaxfrddpzgm",
+    //   "selected": "For",
+    //   "amount": "100",
+    //   "isWithdrawed": true,
+    //   "vote": {
+    //     "id": 66,
+    //     "startEpoch": "53728",
+    //     "endEpoch": "53729",
+    //     "title": "qlause",
+    //     "metadata": "req_686cc7222edc49db8548e5d4aaee87d3",
+    //     "description": "ljn;ljn;jn;",
+    //     "componentAddress": "component_tdx_2_1cr6q8mjgu2apcxpnnzzp4pcswm9yfrm2tnndxc6vc3st2s7eehlwv8",
+    //     "picture": "",
+    //     "voteTokenAmount": {
+    //       "For": 100,
+    //       "Againts": 0,
+    //       "Abstain": 0
+    //     },
+    //     "voteAddressCount": {
+    //       "For": 1,
+    //       "Againts": 0,
+    //       "Abstain": 0
+    //     },
+    //     "isPending": true
+    //   }
+    // }
   }
 
   useEffect(() => {
-    // response data
-  //   {
-  //     "id": "1",
-  //     "startDate": "2024-02-17T14:35:50.509Z",
-  //     "endDate": "2024-02-17T14:35:50.509Z",
-  //     "title": "qlauseqq",
-  //     "description": "qqqq",
-  //     "componentAddress": "component_tdx_2_1cpmpq9pl4vqq6dfq6dsqn97v47mw5jpmq7e7qq2mqpkxgukcqhsyx2",
-  //     "voteTokenAmount": {
-  //         "For": 0,
-  //         "Againts": 0,
-  //         "Abstain": 0
-  //     },
-  //     "voteAddressCount": {
-  //         "For": 0,
-  //         "Againts": 0,
-  //         "Abstain": 0
-  //     },
-  //     "isPending": true,
-  //     "address": {
-  //         "id": 2,
-  //         "address": "account_tdx_2_12yq620haqzlptj7tumgnyl8a9lwpg0z3cwtfyha754rtw2lggn033c",
-  //         "role": "admin",
-  //         "vault_admin_address": null,
-  //         "nft_id": null,
-  //         "signUpAt": "2024-02-17T14:34:50.800Z"
-  //     },
-  //     "voters": []
-  // }
     const fetchData = async () => {
       const data = await getVoteDetail();
-      
-      const vote_list: ProposalVoteProps[] = Object.entries(data?.voteTokenAmount).map(([label, token]) => ({
-        label,
-        token: typeof token === 'number' ? token : undefined,
-        amount: data?.voteAddressCount[label],
-      }));
 
-      const voter = data?.voters.map(({ amount, voter, selected } : any) => ({
-        user_address: voter,
-        avatar: '/user/user-1.png',
-        selected: selected,
-        amount: Number(amount),
-        label: 'ARC'
-      }));
-      setDataProposal({
-        id: data?.id,
-        user_address: data?.address.address,
-        user_role: data?.address.role,
-        avatar: '/user/user-1.png',
-        title: data?.title,
-        photos: '/user/user-1.png',
-        description: data?.title,
-        end: `${data?.endEpoch}`,
-        status: data?.isPending ? 'pending' : 'active',
-        vote: vote_list,
-        voter: voter,
-        ComponentAddress: data?.componentAddress,
-      })
+      if (data) {
+        const vote_list: ProposalVoteProps[] = Object.entries(data?.voteTokenAmount).map(([label, token]) => ({
+          label,
+          token: typeof token === 'number' ? token : undefined,
+          amount: data?.voteAddressCount[label],
+        }));
+
+        const voter = data?.voters.map(({ amount, voter, selected } : any) => ({
+          user_address: voter,
+          avatar: '/user/user-1.png',
+          selected: selected,
+          amount: Number(amount),
+          label: 'ARC'
+        }));
+
+        let proposalData: any = {};
+
+        if (nft_id) {
+          const dataVoter = await getVoterDetail(data?.id, nft_id);
+          proposalData = {
+            ...proposalData,
+            user_voted: dataVoter?.selected,
+            user_withdraw: dataVoter?.isWithdrawed,
+          };
+        } 
+
+        proposalData = {
+          ...proposalData,
+          id: data?.id,
+          user_address: data?.address.address,
+          user_role: data?.address.role,
+          avatar: '/user/user-1.png',
+          title: data?.title,
+          photos: [data?.picture],
+          description: data?.title,
+          end: data?.endEpoch,
+          start: data?.startEpoch,
+          status: data?.isPending ? 'pending' : 'active',
+          vote: vote_list,
+          voter: voter,
+          ComponentAddress: data?.componentAddress,
+        };
+
+        setDataProposal(proposalData);
+        setDataVoteDetail(true);
+      } else {
+        setDataVoteDetail(false);
+      }
     }
     fetchData();
+
     setIsLoading(false);
   }, [])
 
@@ -212,12 +283,18 @@ export default function ProposalDetailMember({ rdt, id }: any) {
   }
 
   return (
-    <>{
-      isLoading ?
-      <Loading></Loading> 
+    <>
+      {isLoading ?
+        <Loading />
       :
-      <ProposalDetail {...dataProposal} handleBack={handleBack} account={account} />
-    }
-      </>
+        <>
+          {dataVoteDetail ?
+            <ProposalDetail {...dataProposal} handleBack={handleBack} account={account} />
+          :
+            <Unavailable />
+          }
+        </>
+      }
+    </>
   )
 }

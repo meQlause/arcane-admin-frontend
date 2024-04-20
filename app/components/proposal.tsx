@@ -18,7 +18,7 @@ import { useKeenSlider } from "keen-slider/react";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
 import { Tooltip } from "@/app/components/tooltip";
 import { RTMGenerator } from "@/app/rtm_generator";
-import fs from 'fs/promises';
+import { formatDate } from "@/app/functions/datetime";
 import https from 'https';
 import axios from 'axios';
 
@@ -30,8 +30,8 @@ export type ProposalProps = {
   description: string
   ComponentAddress: string
   avatar: string
-  start?: string
-  end?: string
+  start?: number
+  end?: number
   status?: string
   vote?: ProposalVoteProps[] | null
   vote_hide?: string
@@ -65,7 +65,9 @@ export const ProposalList: FC<ProposalProps> = ({ id, user_address, title, descr
         <div className="flex items-center max-md:justify-between gap-4 text-sm text-gray-600 md:ml-auto">
           {(status?.toLowerCase() === 'active' || status?.toLowerCase() === 'pending' || status?.toLowerCase() === 'closed') &&
             <>
-              <span>{end}</span>
+              {end && 
+                <span>{end}</span>
+              }
               <div className="w-px h-8 bg-gray-300 max-md:hidden"></div>
             </>
           }
@@ -123,6 +125,8 @@ export type ProposalDetailProps = ProposalProps & {
   photos?: any
   handleBack?: (event: React.MouseEvent<HTMLButtonElement>) => void
   account?: any
+  user_voted?: any
+  user_withdraw?: any
 }
 
 type ProposalVoterProps = {
@@ -133,7 +137,7 @@ type ProposalVoterProps = {
   label?: string
 }
 
-export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, user_address, user_role, title, description, avatar, start, end, status, vote, vote_hide, voter, photos, handleBack, account }) => {
+export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, user_address, user_role, title, description, avatar, start, end, status, vote, vote_hide, voter, photos, handleBack, account, user_voted, user_withdraw }) => {
   const { walletConnect, role, rdt, access_token, nft_id} = useWallet()
   const pathname = usePathname()
   const router = useRouter()
@@ -150,9 +154,8 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
     setShowPopupSignin(false)
   }
 
-   // custom load for image to fix https issue
+  // custom load for image to fix https issue
   const customImageLoader = async (src:string ) => {
-    return src;
     try {
       const instance = axios.create({
         httpsAgent: new https.Agent({ 
@@ -174,14 +177,16 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
   };
 
   useEffect(() => {
-    setImagesData([photos])
-  //   photos.forEach((photo : any) => {
-  //     customImageLoader(photo)
-  //       .then((dataUrl)=> {
-  //         if (dataUrl) {
-  //           setImagesData(prevData => [...prevData, dataUrl])};
-  //         }
-  // )});
+    
+    if (photos[0]) {
+      photos.forEach((photo : any) => {
+        customImageLoader(`https://localhost:4001/votes/pict/${photo}`)
+        .then((dataUrl)=> {
+          if (dataUrl) {
+            setImagesData(prevData => [...prevData, dataUrl])};
+          }
+      )});
+    }
   }, [photos]);
 
   const [showPopupVote, setShowPopupVote] = useState(false)
@@ -242,16 +247,35 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
   }, [voting])
 
   const [isClosed, setIsClosed] = useState(false)
+  const [isVoteAbleToUse, setIsVoteAbleToUse] = useState(true)
+  const [isWithdrawAbleToUse, setIsWithdrawAbleToUse] = useState(true)
   useEffect(() => {
     if ( end ) {
-      let ends = new Date(end)
-      let now = new Date()
-      if ( now < ends ) {
-        // setIsClosed(true)
-        setIsClosed(false)
+      const getEpoch = async () => {
+        let data = await rdt.gatewayApi.status.getCurrent();
+        const now = data.ledger_state.epoch;
+        if ( now < end ) {
+          setIsClosed(true)
+        } else {
+          if ( typeof user_withdraw !== 'undefined' && !user_withdraw ) {
+            setIsWithdrawAbleToUse(false)
+          }
+        }
       }
+      getEpoch()
     }
   }, [end])
+
+  useEffect(() => {
+    if ( Number(tokenAmount) > 0 && voting) {
+      setIsVoteAbleToUse(false);
+    } else {
+      setIsVoteAbleToUse(true);
+    }
+    if (typeof user_voted !== 'undefined' && user_voted !== '') {
+      setIsVoteAbleToUse(true);
+    }
+  }, [tokenAmount, voting])
 
   const handleWithdraw = async () => {
     setLoading(true)
@@ -261,6 +285,16 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
       transactionManifest: withdrawFromVote,
       message: 'withdraw'
     })
+
+    if (!result.isErr()) {
+      sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
+      sessionStorage.setItem('arcane-alert-message','You have successfully withdrawn')
+      if ( pathname.indexOf('admin') > -1 ) {
+        router.push('/admin/proposal')
+      } else {
+        router.push('/proposal')
+      }
+    }
 
     if (result.isErr()) {
       /* write logic here when the transaction signed on wallet unsucessfull */
@@ -272,14 +306,6 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
       } else {
         router.push('/proposal')
       }
-    }
-
-    sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
-    sessionStorage.setItem('arcane-alert-message','You have successfully withdrawn')
-    if ( pathname.indexOf('admin') > -1 ) {
-      router.push('/admin/proposal')
-    } else {
-      router.push('/proposal')
     }
   }
 
@@ -556,16 +582,16 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
                 {isNotCreate ?
                   <form spellCheck="false" onSubmit={handleVoteSubmit}>
                     {vote?.map((item: any, index: number) => (
-                      <Fieldset key={index} className="!mb-3 !last:mb-0">
+                      <Fieldset key={index} className={`!mb-3 !last:mb-0 ${!isClosed ? 'pointer-events-none' : ''}`}>
                         <Radio id={`proposal-voting-${index}`} name={"proposal-voting"} value={item.label} disabled={false} onChange={(e) => setVoting(e.target.value)}>
                           {item.label}
                         </Radio>
                       </Fieldset>
                     ))}
-                    {true &&
+                    {isClosed &&
                       <>
                         <Input type={"number"} className="!mb-3 !last:mb-0" id={"proposal-token"} name={"proposal-token"} variant={"secondary"} showLabel={true} required={true} label={"Token"} placeholder={"Amount of token you will commit"} defaultValue={"0"} onChange={(e) => setTokenAmount(e.target.value)} />
-                        <Button type="button" variant="primary" loading="none" disabled={false} onClick={handleOpenPopupVote}>
+                        <Button type="button" variant="primary" loading="none" disabled={isVoteAbleToUse} onClick={handleOpenPopupVote}>
                           Vote
                         </Button>
                       </>
@@ -619,15 +645,20 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
             }
           </Card>
 
-          <Card className="mb-8">
-            <div className="flex items-center gap-4">
-              {/* <Button type="button" variant="primary" loading={loading} disabled={isClosed} className="shadow-main" onClick={handleWithdraw}> */}
-              <Button type="button" variant="primary" loading={loading} disabled={false} className="shadow-main" onClick={handleWithdraw}>
-                Withdraw
-              </Button>
-              {true &&
+          {isNotCreate &&
+            <Card className="mb-8">
+              <div className="flex items-center gap-4">
+                <Button type="button" variant="primary" loading={loading} disabled={isWithdrawAbleToUse} className="shadow-main" onClick={handleWithdraw}>
+                  Withdraw
+                </Button>
                 <Tooltip
-                  content="You can withdraw your token after proposal closed!"
+                  content={isClosed ?
+                    (typeof user_voted !== 'undefined' && user_voted !== '') ? `You can withdraw your token after proposal closed` : `You have to vote first to be able to make a withdrawal` 
+                  :
+                    (typeof user_voted !== 'undefined' && user_voted !== '') ? 
+                      user_withdraw ? `You have made a withdrawal` : `You can withdraw your token right now` 
+                    : `You can't make a withdrawal because you didn't vote`
+                  }
                   className="[&_.tooltip]:-translate-x-44 [&_.tooltip]:max-w-[27ch]"
                 >
                   <Image
@@ -638,9 +669,9 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
                     height={24}
                   />
                 </Tooltip>
-              }
-            </div>
-          </Card>
+              </div>
+            </Card>
+          }
 
           {(voter && voter.length > 0 && (vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) && !isMobile) &&
             <Card className="mb-8">
@@ -689,24 +720,76 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
         </div>
 
         <div className="md:col-span-5 xl:col-span-4 h-fit">
-          {photos.length > 0 &&
-            <Card className="mb-8 !bg-primary-400 !p-2 overflow-hidden">
-              <div className="rounded-md overflow-hidden max-w-[calc(100vw-4rem)] keen-slider" ref={sliderRef}>
-                {imagesData?.map((item: any, index: number) => (
-                  <div key={index} className="keen-slider__slide">
-                    <Image
-                      // src={typeof item === 'string' ? item : URL.createObjectURL(item)}
-                      src={item}
-
-                      alt="photo"
-                      className="w-full h-auto"
-                      width={300}
-                      height={300}
-                    />
-                  </div>
-                ))}
-              </div>
-            </Card>
+        {isNotCreate ?
+            <>
+              {imagesData.length > 0 &&
+                <Card className="mb-8 !bg-primary-400 !p-2 overflow-hidden">
+                  {imagesData.length > 1 ?
+                    <div className="rounded-md overflow-hidden max-w-[calc(100vw-4rem)] keen-slider" ref={sliderRef}>
+                      {imagesData?.map((item: any, index: number) => (
+                        <div key={index} className="keen-slider__slide">
+                          <Image
+                            src={item}
+                            alt="photo"
+                            className="w-full h-auto"
+                            width={300}
+                            height={300}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  :
+                    <div className="rounded-md overflow-hidden max-w-[calc(100vw-4rem)]">
+                      {imagesData?.map((item: any, index: number) => (
+                        <Image
+                          key={index}
+                          src={item}
+                          alt="photo"
+                          className="w-full h-auto"
+                          width={300}
+                          height={300}
+                        />
+                      ))}
+                    </div>
+                  }
+                </Card>
+              }
+            </>
+          :
+            <>
+              {photos.length > 0 &&
+                <Card className="mb-8 !bg-primary-400 !p-2 overflow-hidden">
+                  {photos.length > 1 ?
+                    <div className="rounded-md overflow-hidden max-w-[calc(100vw-4rem)] keen-slider" ref={sliderRef}>
+                      {photos?.map((item: any, index: number) => (
+                        <div key={index} className="keen-slider__slide">
+                          <Image
+                            src={typeof item === 'string' ? item : URL.createObjectURL(item)}
+                            alt="photo"
+                            className="w-full h-auto"
+                            width={300}
+                            height={300}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  :
+                    <div className="rounded-md overflow-hidden max-w-[calc(100vw-4rem)]">
+                      {photos?.map((item: any, index: number) => (
+                        <Image
+                          key={index}
+                          src={typeof item === 'string' ? item : URL.createObjectURL(item)}
+                          alt="photo"
+                          className="w-full h-auto"
+                          width={300}
+                          height={300}
+                        />
+                      ))}
+                    </div>
+                  }
+                </Card>
+              }
+            </>
           }
 
           <Card className="mb-8">
@@ -720,13 +803,13 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
               </li>
               {start &&
                 <li className="mb-5 last:mb-0">
-                  <div className="float-left mr-4">Start date</div>
+                  <div className="float-left mr-4">Start Epoch</div>
                   <div className="font-semibold text-right">{start}</div>
                 </li>
               }
               {end &&
                 <li className="mb-5 last:mb-0">
-                  <div className="float-left mr-4">End date</div>
+                  <div className="float-left mr-4">End Epoch</div>
                   <div className="font-semibold text-right">{end}</div>
                 </li>
               }

@@ -99,6 +99,7 @@ export default function ProposalCreateMember({ rdt }: any) {
   }
   const defaultDuration = [1,2,3] 
   const options: any = { month: 'short', day: 'numeric', year: 'numeric' }
+  
   const currentDate = new Date()
   const today = currentDate.toLocaleDateString('en-US', options)
   const getEndDate = (quarter: number) => {
@@ -184,7 +185,13 @@ export default function ProposalCreateMember({ rdt }: any) {
             'Authorization': `Bearer ${access_token}`
           },
         }
-      ).then((r) => r.text());
+      ).then((r) => {
+        if (r.status !== 200) {
+          rdt.disconnect()
+          localStorage.removeItem('arcane');
+        }
+        r.text()
+      });
     }
     let meta: any = "";
     const options = {
@@ -462,8 +469,8 @@ export default function ProposalCreateMember({ rdt }: any) {
                   description={description ? description : ''}
                   ComponentAddress=""
                   photos={blobImage}
-                  start={today}
-                  end={getEndDate(Number(votingDuration))}
+                  start={0}
+                  end={0}
                   vote={votingOptions ? votingOptions : null}
                   handleBack={handleClosePreview}
                 />

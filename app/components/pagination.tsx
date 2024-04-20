@@ -24,19 +24,26 @@ export const Pagination: FC<PaginationProps> = ({ id, total, current, className,
 
   const handlePrev = () => {
     onPageChange(Number(current-1))
+    handleSelect(String(current-1))
     sessionStorage.setItem(`arcane-${id}-pagin`,`${current-1}`)
   }
 
   const handleNext = () => {
     onPageChange(Number(current+1))
+    handleSelect(String(current+1))
     sessionStorage.setItem(`arcane-${id}-pagin`,`${current+1}`)
   }
 
   const [prevDisabled, setPrevDisabled] = useState(false)
   const [nextDisabled, setNextDisabled] = useState(false)
   useEffect(() => {
+    console.log(current)
+    if (current > 1) {
+      setPrevDisabled(false);
+    }
     if ( current === 1 ) {
       setPrevDisabled(true)
+      setNextDisabled(false)
     }
     if ( current == total ) {
       setNextDisabled(true)

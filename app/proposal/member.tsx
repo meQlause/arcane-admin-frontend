@@ -19,6 +19,7 @@ export default function ProposalMember({ rdt }: any) {
 
   const [currentOptionsActive, setCurrentOptionsActive] = useState('All')
   const [voteList, setVotesList] = useState<ProposalProps[]>([])
+  const [totalVotes, setTotalVotes] = useState<number>(0)
   const optionsActive: any = [
     {
       value: 'All',
@@ -48,7 +49,31 @@ export default function ProposalMember({ rdt }: any) {
   }
 
   const [dataVotes, setDataVotes] = useState<boolean>()
+
+  const getTotalVotes = async () => {
+    return await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter/pending`,
+      {
+        method: 'GET',
+        headers: { 
+          'content-type': 'application/json',
+        },
+      }
+    ).then(async (res) => Number(await res.text()));
+  }
+
   const getVotes = async (page: number) => {
+    const total = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter/pending`,
+      {
+        method: 'GET',
+        headers: { 
+          'content-type': 'application/json',
+        },
+      }
+    ).then(async (res) => Number(await res.text()));
+    setTotalVotes(total);
+
     return await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/get-votes?page=${page}`,
       {
@@ -58,6 +83,7 @@ export default function ProposalMember({ rdt }: any) {
         },
       }
     ).then((res) => res.json());
+
     // return [
     //   {
     //     "id": "5",
@@ -93,7 +119,9 @@ export default function ProposalMember({ rdt }: any) {
     const fetchData = async () => {
       const currentPage: number = sessionStorage.getItem('arcane-proposal-pagin') ? Number(sessionStorage.getItem('arcane-proposal-pagin')) : 1
       const data = await getVotes(currentPage);
-      if (data && data.length > 0) {
+      const total = await getTotalVotes();
+      setTotalVotes(total);
+      if (data && total > 0) {
         let dataProposal = data.map((item:any) => {
           return {
             id: item.id,
@@ -101,7 +129,7 @@ export default function ProposalMember({ rdt }: any) {
             avatar: '/user/user-1.png',
             title: item.title,
             description: item.description,
-            end: `Ends on ${item.endEpoch?.slice(-1).toLowerCase() === 'z' ? formatDate(item.endEpoch) : (/^\d+$/.test(item.endEpoch)) ? formatDate(new Date(Number(item.endEpoch)*1000).toISOString()) : item.endEpoch}`,
+            end: item.endEpoch,
             status: item.isPending ? 'pending' : 'active',
             vote: Object.entries(item.voteTokenAmount).map(([label, amount]) => ({ label, amount }))
           };
@@ -118,7 +146,9 @@ export default function ProposalMember({ rdt }: any) {
 
   const handlePageChange = async (page: number) => {
     const data = await getVotes(page);
-    if (data && data.length > 0) {
+    const total = await getTotalVotes();
+    setTotalVotes(total);
+    if (data && total > 0) {
       let dataProposal: any = data.map((item:any) => {
         return {
           id: item.id,
@@ -126,7 +156,7 @@ export default function ProposalMember({ rdt }: any) {
           avatar: '/user/user-1.png',
           title: item.title,
           description: item.description,
-          end: `Ends on ${item.endEpoch?.slice(-1).toLowerCase() === 'z' ? formatDate(item.endEpoch) : (/^\d+$/.test(item.endEpoch)) ? formatDate(new Date(Number(item.endEpoch)*1000).toISOString()) : item.endEpoch}`,
+          end: item.endEpoch,
           status: item.isPending ? 'pending' : 'active',
           vote: Object.entries(item.voteTokenAmount).map(([label, amount]) => ({ label, amount }))
         };
@@ -241,7 +271,7 @@ export default function ProposalMember({ rdt }: any) {
                 </Link>
               ))}
               <div className="flex justify-end">
-                <Pagination id={'proposal'} total={10} current={1} onPageChange={handlePageChange} />
+                <Pagination id={'proposal'} total={Math.ceil(totalVotes / 10)} current={Number(sessionStorage.getItem(`arcane-proposal-pagin`))} onPageChange={handlePageChange} />
               </div>
             </>
           :

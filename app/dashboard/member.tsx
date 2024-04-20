@@ -275,7 +275,7 @@ export default function DashboardMember({ rdt }: any) {
             avatar: '/user/user-1.png',
             title: responseVote[x].title,
             description: responseVote[x].description,
-            end: `Ends on 123123`,
+            end:  responseVote[x].endEpoch,
             status: responseVote[x].isPending ? 'pending' : 'active',
             vote: Object.entries(responseVote[x].voteTokenAmount).map(([label, amount]) => ({ label, amount }))
           })
@@ -284,12 +284,14 @@ export default function DashboardMember({ rdt }: any) {
 
         const response = await (await fetch(`https://localhost:4001/votes/get-voter-data/${nft_id.slice(1, -1)}`)).json();
         let dataH : any = []
+        console.log(response)
         for(let x = 0; x < response.length; x++) {
           dataH.push({
             user_address: response[x].voter,
             title: response[x].title,
             amount: response[x].amount,
-            label: 'ARC'
+            label: 'ARC',
+            vote: response[x].vote.id
           })
         }
         setDataHistoryVote(dataH)
@@ -583,27 +585,29 @@ export default function DashboardMember({ rdt }: any) {
                             return (
                               <tr key={index} className="[&_td]:py-6 [&:not(:last-child)_td]:border-b [&_td]:border-gray-300">
                                 <td>
-                                  <div className="flex justify-between gap-4">
-                                    <div className="flex gap-2" title={item.title}>
-                                      <Image
-                                        src="/icon/cryptocurrency-02.svg"
-                                        alt="icon"
-                                        className="w-6 h-6 min-w-[1.5rem] rounded-md object-cover inline-block filter-primary-500"
-                                        width={24}
-                                        height={24}
-                                      />
-                                      {item.title && 
-                                        <div>
-                                          <div className="font-bold line-clamp-1">{item.title}</div>
-                                          {item.user_address && <span className="line-clamp-1 break-all text-sm text-gray-400">from {truncateMiddle(item.user_address,13)}</span>}
-                                        </div>
-                                      }
+                                  <Link key={item.vote} href={'proposal/' + item.vote}>
+                                    <div className="flex justify-between gap-4">
+                                      <div className="flex gap-2" title={item.title}>
+                                        <Image
+                                          src="/icon/cryptocurrency-02.svg"
+                                          alt="icon"
+                                          className="w-6 h-6 min-w-[1.5rem] rounded-md object-cover inline-block filter-primary-500"
+                                          width={24}
+                                          height={24}
+                                        />
+                                        {item.title && 
+                                          <div>
+                                            <div className="font-bold line-clamp-1">{item.title}</div>
+                                            {item.user_address && <span className="line-clamp-1 break-all text-sm text-gray-400">from {truncateMiddle(item.user_address,13)}</span>}
+                                          </div>
+                                        }
+                                      </div>
+                                      <div className="text-right">
+                                        {item.amount && <span className="text-primary-600 font-medium mr-1">{formatNumber(item.amount)}</span>}
+                                        {item.label && <span className="text-gray-400">{item.label}</span>}
+                                      </div>
                                     </div>
-                                    <div className="text-right">
-                                      {item.amount && <span className="text-primary-600 font-medium mr-1">{formatNumber(item.amount)}</span>}
-                                      {item.label && <span className="text-gray-400">{item.label}</span>}
-                                    </div>
-                                  </div>
+                                  </Link>
                                 </td>
                               </tr>
                             )

@@ -30,8 +30,8 @@ export type ProposalProps = {
   description: string
   ComponentAddress: string
   avatar: string
-  start?: string
-  end?: string
+  start?: number
+  end?: number
   status?: string
   vote?: ProposalVoteProps[] | null
   vote_hide?: string
@@ -66,7 +66,7 @@ export const ProposalList: FC<ProposalProps> = ({ id, user_address, title, descr
           {(status?.toLowerCase() === 'active' || status?.toLowerCase() === 'pending' || status?.toLowerCase() === 'closed') &&
             <>
               {end && 
-                <span>{end?.slice(-1).toLowerCase() === 'z' ? formatDate(end) : (/^\d+$/.test(end)) ? formatDate(new Date(Number(end)*1000).toISOString()) : end}</span>
+                <span>{end}</span>
               }
               <div className="w-px h-8 bg-gray-300 max-md:hidden"></div>
             </>
@@ -177,13 +177,16 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
   };
 
   useEffect(() => {
-    photos.forEach((photo : any) => {
-      customImageLoader(`https://localhost:4001/votes/pict/${photo}`)
+    
+    if (photos[0]) {
+      photos.forEach((photo : any) => {
+        customImageLoader(`https://localhost:4001/votes/pict/${photo}`)
         .then((dataUrl)=> {
           if (dataUrl) {
             setImagesData(prevData => [...prevData, dataUrl])};
           }
-  )});
+      )});
+    }
   }, [photos]);
 
   const [showPopupVote, setShowPopupVote] = useState(false)
@@ -244,20 +247,35 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
   }, [voting])
 
   const [isClosed, setIsClosed] = useState(false)
+  const [isVoteAbleToUse, setIsVoteAbleToUse] = useState(true)
   const [isWithdrawAbleToUse, setIsWithdrawAbleToUse] = useState(true)
   useEffect(() => {
     if ( end ) {
-      let ended = (/^\d+$/.test(end)) ? new Date(Number(end)*1000) : new Date(end)
-      let now = new Date()
-      if ( now < ended ) {
-        setIsClosed(true)
-      } else {
-        if ( typeof user_withdraw !== 'undefined' && !user_withdraw ) {
-          setIsWithdrawAbleToUse(false)
+      const getEpoch = async () => {
+        let data = await rdt.gatewayApi.status.getCurrent();
+        const now = data.ledger_state.epoch;
+        if ( now < end ) {
+          setIsClosed(true)
+        } else {
+          if ( typeof user_withdraw !== 'undefined' && !user_withdraw ) {
+            setIsWithdrawAbleToUse(false)
+          }
         }
       }
+      getEpoch()
     }
   }, [end])
+
+  useEffect(() => {
+    if ( Number(tokenAmount) > 0 && voting) {
+      setIsVoteAbleToUse(false);
+    } else {
+      setIsVoteAbleToUse(true);
+    }
+    if (typeof user_voted !== 'undefined' && user_voted !== '') {
+      setIsVoteAbleToUse(true);
+    }
+  }, [tokenAmount, voting])
 
   const handleWithdraw = async () => {
     setLoading(true)
@@ -573,7 +591,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
                     {isClosed &&
                       <>
                         <Input type={"number"} className="!mb-3 !last:mb-0" id={"proposal-token"} name={"proposal-token"} variant={"secondary"} showLabel={true} required={true} label={"Token"} placeholder={"Amount of token you will commit"} defaultValue={"0"} onChange={(e) => setTokenAmount(e.target.value)} />
-                        <Button type="button" variant="primary" loading="none" disabled={false} onClick={handleOpenPopupVote}>
+                        <Button type="button" variant="primary" loading="none" disabled={isVoteAbleToUse} onClick={handleOpenPopupVote}>
                           Vote
                         </Button>
                       </>
@@ -635,7 +653,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
                 </Button>
                 <Tooltip
                   content={isClosed ?
-                    (typeof user_voted !== 'undefined' && user_voted !== '') ? `You have to vote first to be able to make a withdrawal` : `You can withdraw your token after proposal closed`
+                    (typeof user_voted !== 'undefined' && user_voted !== '') ? `You can withdraw your token after proposal closed` : `You have to vote first to be able to make a withdrawal` 
                   :
                     (typeof user_voted !== 'undefined' && user_voted !== '') ? 
                       user_withdraw ? `You have made a withdrawal` : `You can withdraw your token right now` 
@@ -785,14 +803,14 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
               </li>
               {start &&
                 <li className="mb-5 last:mb-0">
-                  <div className="float-left mr-4">Start date</div>
-                  <div className="font-semibold text-right">{start?.slice(-1).toLowerCase() === 'z' ? formatDate(start) : (/^\d+$/.test(start)) ? formatDate(new Date(Number(start)*1000).toISOString()) : start}</div>
+                  <div className="float-left mr-4">Start Epoch</div>
+                  <div className="font-semibold text-right">{start}</div>
                 </li>
               }
               {end &&
                 <li className="mb-5 last:mb-0">
-                  <div className="float-left mr-4">End date</div>
-                  <div className="font-semibold text-right">{end?.slice(-1).toLowerCase() === 'z' ? formatDate(end) : (/^\d+$/.test(end)) ? formatDate(new Date(Number(end)*1000).toISOString()) : end}</div>
+                  <div className="float-left mr-4">End Epoch</div>
+                  <div className="font-semibold text-right">{end}</div>
                 </li>
               }
             </ul>
@@ -805,7 +823,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
                   {status?.toLocaleLowerCase() !== 'done' ? 'Current' : 'Vote' } Result
                 </h2>
                 {status?.toLocaleLowerCase() === 'done' &&
-                  <p className="text-gray-400 text-sm mt-3">Vote result which was carried out, from {start && (start?.slice(-1).toLowerCase() === 'z' ? formatDate(start) : (/^\d+$/.test(start)) ? formatDate(new Date(Number(start)*1000).toISOString()) : start)} to {end && (end?.slice(-1).toLowerCase() === 'z' ? formatDate(end) : (/^\d+$/.test(end)) ? formatDate(new Date(Number(end)*1000).toISOString()) : end)} {(vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) && `with the participation of ${totalVotes} user${totalVotes > 1 && 's'}`}</p>
+                  <p className="text-gray-400 text-sm mt-3">Vote result which was carried out, from {start} to {end} {(vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) && `with the participation of ${totalVotes} user${totalVotes > 1 && 's'}`}</p>
                 }
               </div>
               {(vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) &&

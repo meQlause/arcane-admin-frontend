@@ -7,7 +7,7 @@ import Loading from "@/app/loading";
 import Unavailable from "@/app/unavailable";
 
 export default function ProposalDetailMember({ rdt, id }: any) {
-  const { account } = useAccount({ rdt })
+  const { account, nft_id } = useAccount({ rdt })
   const [isLoading, setIsLoading] = useState(true)
   const [dataProposal, setDataProposal] = useState<ProposalDetailProps>({
     id:'',
@@ -17,7 +17,8 @@ export default function ProposalDetailMember({ rdt, id }: any) {
     title: '',
     photos: [],
     description: '',
-    end: '',
+    start: 0,
+    end: 0,
     status: '',
     vote: [],
     voter: [],
@@ -170,9 +171,10 @@ export default function ProposalDetailMember({ rdt, id }: any) {
     // }
   }
 
-  const getVoterDetail = async (nft_id: any) => {
+  const getVoterDetail = async (id : any, nft_id: string) => {
+    console.log(id, nft_id);
     return await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/voter/${id}/${nft_id}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/voter/${id}/${nft_id.slice(1, -1)}`,
       {
         method: 'GET',
         headers: { 
@@ -180,7 +182,9 @@ export default function ProposalDetailMember({ rdt, id }: any) {
           'Authorization': `Bearer ${access_token}`
         },
       }
-    ).then((res) => res.json());
+    )
+    .then((res) => res.json())
+    .catch((_) => undefined);
     // return {
     //   "id": "1",
     //   "AddressId": "15",
@@ -235,8 +239,8 @@ export default function ProposalDetailMember({ rdt, id }: any) {
 
         let proposalData: any = {};
 
-        if (data?.address?.nft_id) {
-          const dataVoter = await getVoterDetail(data?.address?.nft_id);
+        if (nft_id) {
+          const dataVoter = await getVoterDetail(data?.id, nft_id);
           proposalData = {
             ...proposalData,
             user_voted: dataVoter?.selected,
@@ -254,6 +258,7 @@ export default function ProposalDetailMember({ rdt, id }: any) {
           photos: [data?.picture],
           description: data?.title,
           end: data?.endEpoch,
+          start: data?.startEpoch,
           status: data?.isPending ? 'pending' : 'active',
           vote: vote_list,
           voter: voter,

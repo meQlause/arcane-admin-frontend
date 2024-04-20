@@ -126,11 +126,12 @@ export default function SettingAdmin({ rdt }: any) {
   const handleAddMemberClick = async () => {
     setAddMemberLoading(true)
     setAddMemberDisabled(true)
-    // // try {
-    // //   console.log("Button clicked, performing action...")
-    // // } catch (error) {
-    // //   console.error("Error during action:", error)
-    // // }
+
+    // try {
+    //   console.log("Button clicked, performing action...")
+    // } catch (error) {
+    //   console.error("Error during action:", error)
+    // }
     // const rtmSignupAdmin = signUpAdmin(account?.address.trim(), addMemberAccount.trim()).trim()
     // const result = await rdt.walletApi.sendTransaction({
     //   transactionManifest: rtmSignupAdmin,

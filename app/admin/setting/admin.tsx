@@ -126,6 +126,7 @@ export default function SettingAdmin({ rdt }: any) {
   const handleAddMemberClick = async () => {
     setAddMemberLoading(true)
     setAddMemberDisabled(true)
+
     // try {
     //   console.log("Button clicked, performing action...")
     // } catch (error) {

@@ -341,8 +341,8 @@ export default function ProposalCreateAdmin({ rdt }: any) {
                   description={description ? description : ''}
                   ComponentAddress=""
                   photos={blobImage}
-                  start={today}
-                  end={getEndDate(Number(votingDuration))}
+                  start={0}
+                  end={0}
                   vote={votingOptions ? votingOptions : null}
                   handleBack={handleClosePreview}
                 />

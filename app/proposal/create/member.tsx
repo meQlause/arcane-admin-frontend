@@ -186,9 +186,10 @@ export default function ProposalCreateMember({ rdt }: any) {
           },
         }
       ).then(async (r) => {
-        if (r.status !== 200) {
+        if (r.status === 401) {
           rdt.disconnect();
           localStorage.removeItem('arcane');
+          router.push('/')
           return '';
         }
         return await r.text()

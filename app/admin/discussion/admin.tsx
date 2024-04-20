@@ -415,7 +415,7 @@ export default function DiscussionAdmin({ rdt }: any) {
                       </div>
 
                       <form spellCheck="false" className="max-sm:grid grid-cols-4 flex items-end gap-4 mt-auto">
-                        <Fieldset className="max-sm:order-2 col-span-1 !mb-0 min-w-[52px]">
+                        {/* <Fieldset className="max-sm:order-2 col-span-1 !mb-0 min-w-[52px]">
                           <label htmlFor="discussion-attach" className="flex items-center justify-center h-full p-3.5 mb-px rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-100">
                             <input type="file" id="discussion-attach" name="discussion-attach" className="sr-only" ref={attachRef} onChange={handleAttach} />
                             <Image
@@ -426,7 +426,7 @@ export default function DiscussionAdmin({ rdt }: any) {
                               className="inline-block"
                             />
                           </label>
-                        </Fieldset>
+                        </Fieldset> */}
                         <Fieldset className="max-sm:order-1 col-span-4 !mb-0 w-full flex flex-col">
                           {attach.blob &&
                             <div className="flex items-center gap-3 overflow-hidden rounded-xl border border-gray-200 pr-3 mb-3">

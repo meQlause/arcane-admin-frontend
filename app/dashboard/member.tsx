@@ -617,7 +617,7 @@ export default function DashboardMember({ rdt }: any) {
                     </div>
                   :
                     <div className="bg-gray-50 text-gray-300 px-6 py-4 rounded-lg italic mt-4">
-                      You didn't vote on any proposal
+                      You did not vote on any proposal
                     </div>
                   }
                 </Card>
@@ -674,7 +674,7 @@ export default function DashboardMember({ rdt }: any) {
                       </div>
                     :
                       <div className="bg-gray-50 text-gray-300 px-6 py-4 rounded-lg italic">
-                        You didn't have any NFT
+                        You did not have any NFT
                       </div>
                     }
                   </div>
@@ -712,7 +712,7 @@ export default function DashboardMember({ rdt }: any) {
                       </>
                     :
                       <div className="bg-gray-50 text-gray-300 px-6 py-4 rounded-lg italic">
-                        You've never made a proposal
+                        You have never made a proposal
                       </div>
                     }
                   </div>

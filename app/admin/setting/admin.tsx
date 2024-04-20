@@ -12,7 +12,7 @@ import { Button } from "@/app/components/button";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
 import { formatDate } from "@/app/functions/datetime";
 import { Alert } from "@/app/components/alert";
-import { recallAdminBadge, signUpAdmin } from "@/app/rtm_generator";
+// import { recallAdminBadge, signUpAdmin } from "@/app/rtm_generator";
 import { useWallet } from "@/app/auth/wallet";
 
 export default function SettingAdmin({ rdt }: any) {
@@ -126,46 +126,46 @@ export default function SettingAdmin({ rdt }: any) {
   const handleAddMemberClick = async () => {
     setAddMemberLoading(true)
     setAddMemberDisabled(true)
-    // try {
-    //   console.log("Button clicked, performing action...")
-    // } catch (error) {
-    //   console.error("Error during action:", error)
-    // }
-    const rtmSignupAdmin = signUpAdmin(account?.address.trim(), addMemberAccount.trim()).trim()
-    const result = await rdt.walletApi.sendTransaction({
-      transactionManifest: rtmSignupAdmin,
-      message: 'Make particular address becomes admin'
-    })
+    // // try {
+    // //   console.log("Button clicked, performing action...")
+    // // } catch (error) {
+    // //   console.error("Error during action:", error)
+    // // }
+    // const rtmSignupAdmin = signUpAdmin(account?.address.trim(), addMemberAccount.trim()).trim()
+    // const result = await rdt.walletApi.sendTransaction({
+    //   transactionManifest: rtmSignupAdmin,
+    //   message: 'Make particular address becomes admin'
+    // })
     
-    if (result.isErr()) {
-      /* write logic here when the transaction signed on wallet unsucessfull */
-      throw new Error("Minting Error")
-    }
+    // if (result.isErr()) {
+    //   /* write logic here when the transaction signed on wallet unsucessfull */
+    //   throw new Error("Minting Error")
+    // }
 
-    /* write logic here when the transaction signed on wallet sucessfull */ 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/make-admin/${addMemberAccount.trim()}`, {
-        method: 'PUT',
-        headers: { 
-          'content-type': 'application/json',
-          'Authorization': `Bearer ${access_token}`
-        },
-      }
-    )
-    if (res.ok) {
-      sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
-      sessionStorage.setItem('arcane-alert-message','New admin added successfully')
-      // console.log("added successfully")
-    } 
+    // /* write logic here when the transaction signed on wallet sucessfull */ 
+    // const res = await fetch(
+    //   `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/make-admin/${addMemberAccount.trim()}`, {
+    //     method: 'PUT',
+    //     headers: { 
+    //       'content-type': 'application/json',
+    //       'Authorization': `Bearer ${access_token}`
+    //     },
+    //   }
+    // )
+    // if (res.ok) {
+    //   sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
+    //   sessionStorage.setItem('arcane-alert-message','New admin added successfully')
+    //   // console.log("added successfully")
+    // } 
 
-    /* logic here when data is failed storing on database */
-    const fetchData = async () => {
-      const data = await getAdminList();
-      setAdminList(data);
-      sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
-      sessionStorage.setItem('arcane-alert-message','New admin is failed to add')
-    }
-    fetchData();
+    // /* logic here when data is failed storing on database */
+    // const fetchData = async () => {
+    //   const data = await getAdminList();
+    //   setAdminList(data);
+    //   sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
+    //   sessionStorage.setItem('arcane-alert-message','New admin is failed to add')
+    // }
+    // fetchData();
 
     setAddMemberAccount('')
     setAddMemberLoading(false)
@@ -215,39 +215,39 @@ export default function SettingAdmin({ rdt }: any) {
   const handleRemoveMemberSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    const rtmDeleteAdmin = recallAdminBadge(account?.address.trim(), adminData?.vault_admin_address, adminData?.nft_id).trim()
-    const result = await rdt.walletApi.sendTransaction({
-      transactionManifest: rtmDeleteAdmin,
-      message: 'delete admin role'
-    })
+    // const rtmDeleteAdmin = recallAdminBadge(account?.address.trim(), adminData?.vault_admin_address, adminData?.nft_id).trim()
+    // const result = await rdt.walletApi.sendTransaction({
+    //   transactionManifest: rtmDeleteAdmin,
+    //   message: 'delete admin role'
+    // })
 
-    if (result.isErr()) {
-      console.log(result)
-      throw new Error(result.message)
-    }
+    // if (result.isErr()) {
+    //   console.log(result)
+    //   throw new Error(result.message)
+    // }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/unmake-admin/${selectedAddress.trim()}`, {
-        method: 'PUT',
-        headers: { 
-          'content-type': 'application/json',
-          'Authorization': `Bearer ${access_token}`
-        },
-      }
-    )
-    if (res.ok) {
-      sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
-      sessionStorage.setItem('arcane-alert-message','One of admin removed successfully')
-      // console.log("removed successfully")
-    }
+    // const res = await fetch(
+    //   `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/unmake-admin/${selectedAddress.trim()}`, {
+    //     method: 'PUT',
+    //     headers: { 
+    //       'content-type': 'application/json',
+    //       'Authorization': `Bearer ${access_token}`
+    //     },
+    //   }
+    // )
+    // if (res.ok) {
+    //   sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
+    //   sessionStorage.setItem('arcane-alert-message','One of admin removed successfully')
+    //   // console.log("removed successfully")
+    // }
 
-    const fetchData = async () => {
-      const data = await getAdminList();
-      setAdminList(data);
-      sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
-      sessionStorage.setItem('arcane-alert-message','One of admin is failed to remove')
-    }
-    fetchData();
+    // const fetchData = async () => {
+    //   const data = await getAdminList();
+    //   setAdminList(data);
+    //   sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
+    //   sessionStorage.setItem('arcane-alert-message','One of admin is failed to remove')
+    // }
+    // fetchData();
 
     setShowPopupRemove(false)
   }

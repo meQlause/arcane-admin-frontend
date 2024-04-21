@@ -271,7 +271,7 @@ export default function ProposalMember({ rdt }: any) {
                 </Link>
               ))}
               <div className="flex justify-end">
-                <Pagination id={'proposal'} total={Math.ceil(totalVotes / 10)} current={Number(sessionStorage.getItem(`arcane-proposal-pagin`))} onPageChange={handlePageChange} />
+                <Pagination id={'proposal'} total={Math.ceil(totalVotes / 10)} current={sessionStorage.getItem(`arcane-proposal-pagin`) ? Number(sessionStorage.getItem(`arcane-proposal-pagin`)) : 1} onPageChange={handlePageChange} />
               </div>
             </>
           :

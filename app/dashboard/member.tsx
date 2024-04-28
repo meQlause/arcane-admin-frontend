@@ -14,6 +14,8 @@ import { truncateMiddle } from "@/app/functions/truncate";
 import { formatNumber } from "@/app/functions/notation";
 import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
+import { useWallet } from "../auth/wallet";
+import { useRouter } from "next/navigation";
 
 type VaultResponse = {
   address: string,
@@ -55,7 +57,8 @@ type VaultResponse = {
 }
 
 export default function DashboardMember({ rdt }: any) {
-  const { account, nft_id } = useAccount({ rdt })
+  const { account } = useAccount({ rdt })
+  const { nft_id , access_token} = useWallet()
   const [currentOptionsProposal, setCurrentOptionsProposal] = useState('All')
   const [totalNFT, setTotalNFT] = useState<number>(0)
   const [totalProposal, setTotalProposal] = useState<number>(0)
@@ -63,6 +66,8 @@ export default function DashboardMember({ rdt }: any) {
   const [dataNFT, setDataNFT] = useState<any>([]);
   const [dataHistoryVote, setDataHistoryVote] = useState<any>([]);
   const [dataProposal, setDataProposal] = useState<ProposalProps[]>([]);
+  const router = useRouter()
+
   const optionsProposal: any = [
     {
       value: 'All',
@@ -257,41 +262,69 @@ export default function DashboardMember({ rdt }: any) {
     const fetchEntityMetadata = async () => {
       let dataV: any = []
       if(account?.address) {
-        const responseVote =await (await fetch(
+        const responseVote = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/get-votes-by/${nft_id.slice(1, -1)}`,
           {
             method: 'GET',
             headers: { 
               'content-type': 'application/json',
-            },
+              'Authorization': `Bearer ${access_token}`
+            }
           }
-        )).json();
+        );
 
-        setTotalProposal(responseVote.length)
-        for(let x = 0; x < responseVote.length; x++) {
+        if (responseVote.status === 401) {
+          rdt.diconnect();
+          router.push('/about');
+          localStorage.removeItem('arcane');
+          return;
+        }
+
+        let resV = await responseVote.json();
+
+
+        setTotalProposal(resV.length)
+        for(let x = 0; x < resV.length; x++) {
           dataV.push({
-            id: responseVote[x].id,
-            user_address: responseVote[x].address.address,
+            id: resV[x].id,
+            user_address: resV[x].address.address,
             avatar: '/user/user-1.png',
-            title: responseVote[x].title,
-            description: responseVote[x].description,
-            end:  responseVote[x].endEpoch,
-            status: responseVote[x].isPending ? 'pending' : 'active',
-            vote: Object.entries(responseVote[x].voteTokenAmount).map(([label, amount]) => ({ label, amount }))
+            title: resV[x].title,
+            description: resV[x].description,
+            end:  resV[x].endEpoch,
+            status: resV[x].isPending ? 'pending' : 'active',
+            vote: Object.entries(resV[x].voteTokenAmount).map(([label, amount]) => ({ label, amount }))
           })
         }
         setDataProposal(dataV)
 
-        const response = await (await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/get-voter-data/${nft_id.slice(1, -1)}`)).json();
+        const responseHistory = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/get-voter-data/${nft_id.slice(1, -1)}`,
+          {
+            method: 'GET',
+            headers: { 
+              'content-type': 'application/json',
+              'Authorization': `Bearer ${access_token}`
+            },
+          }
+        ); 
+
+        if (responseHistory.status === 401) {
+          rdt.diconnect();
+          router.push('/about');
+          localStorage.removeItem('arcane');
+          return;
+        }
+
+        let resH = await responseHistory.json();
         let dataH : any = []
-        console.log(response)
-        for(let x = 0; x < response.length; x++) {
+        for(let x = 0; x < resH.length; x++) {
           dataH.push({
-            user_address: response[x].voter,
-            title: response[x].title,
-            amount: response[x].amount,
+            user_address: resH[x].voter,
+            title: resH[x].title,
+            amount: resH[x].amount,
             label: 'ARC',
-            vote: response[x].vote.id
+            vote: resH[x].vote.id
           })
         }
         setDataHistoryVote(dataH)

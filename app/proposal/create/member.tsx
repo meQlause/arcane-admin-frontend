@@ -168,41 +168,50 @@ export default function ProposalCreateMember({ rdt }: any) {
     if (errorSubmit) setTimeout(() => setErrorSubmit(false),11000)
   },[errorSubmit])
 
+  const updloadPict = async (data:any) : Promise<Response> => {
+    const pict = new FormData();
+    pict.append("photo", data, "0image" + "." + data.type.split('/')[1]);
+    return fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/upload-pict`,
+      {
+        method: 'POST',
+        body: pict,
+        headers: { 
+          'Authorization': `Bearer ${access_token}`
+        },
+      }
+    );
+  } 
+
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
-    const value = blobImage[0];
-    let res1: any = "";
-    if (value) {
-      const pict = new FormData();
-      pict.append("photo", value, "0image" + "." + value.type.split('/')[1]);
-      res1 = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/upload-pict`,
-        {
-          method: 'POST',
-          body: pict,
-          headers: { 
-            'Authorization': `Bearer ${access_token}`
-          },
-        }
-      ).then(async (r) => {
-        if (r.status === 401) {
-          rdt.disconnect();
-          localStorage.removeItem('arcane');
-          router.push('/')
-          return '';
-        }
-        return await r.text()
-      });
+    let resPict = await updloadPict(blobImage[0]);
+    if (resPict.status === 401) {
+      rdt.diconnect();
+      router.push('/about');
+      localStorage.removeItem('arcane');
+      return;
     }
     let meta: any = "";
-    const options = {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-Api-Key': 'sk_live_00998243-feff-49f8-a092-8cb33d87e5c9'},
-      body: `{"name":"arcane","content": {"title": ${JSON.stringify(title.trim())}, "description": ${JSON.stringify(description.trim())}, "picture": "${res1.slice(39,)}", "endEpoch": "${votingDuration}"}, "metadata":{"picture": "${res1.slice(39,)}", "endEpoch": "${votingDuration}"}}`
-    };
-
     try {
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', 
+          'X-Api-Key': 'sk_live_00998243-feff-49f8-a092-8cb33d87e5c9'
+        },
+        body: `{
+          "name":"arcane",
+          "content": {
+            "title": ${JSON.stringify(title.trim())}, 
+            "description": ${JSON.stringify(description.trim())}, 
+            "picture": "${(await resPict.text()).slice(39,)}", 
+            "endEpoch": "${votingDuration}"
+          }, 
+          "metadata": {}
+        }`
+      };
       const response = await fetch('https://api.starton.com/v3/ipfs/json', options);
       meta = await response.json();
     } catch (error) {
@@ -215,9 +224,9 @@ export default function ProposalCreateMember({ rdt }: any) {
       transactionManifest: manifest,
       message: 'Create New Proposal'
     })
-    rdt.buttonApi.status$.subscribe((data:any) => {
-      console.log(data);
-    })
+    // rdt.buttonApi.status$.subscribe((data:any) => {
+    //   console.log(data);
+    // })
     // if (result.isErr()) {
     //   throw new Error("Error creating voting")
     // }

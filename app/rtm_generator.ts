@@ -1,13 +1,11 @@
 const arcaneMain =
-  "component_tdx_2_1cr8g28hpxhxwx5q24aq7ugtpd0rtg5n8hep79j99w56469prsgdqh3";
+  "component_tdx_2_1cz3qywv5hmnutpnp9jcku2tpgtuy6uajnaet0qq9y3rhvaulvthaxw";
 const arcaneVoteStyle =
-  "package_tdx_2_1p4c05m2t2aqzyv4zlq2th797hq8wql3527nye72xzzgfvwzs3zfx99";
-const arcaneMainInstance =
-  "component_tdx_2_1cr8g28hpxhxwx5q24aq7ugtpd0rtg5n8hep79j99w56469prsgdqh3";
+  "package_tdx_2_1pkjga85fmvxhmsncqukm6vmg8fhvrj9z3rgs3j52rp36kcpjc4l7ps";
 const arcaneBadge =
-  "resource_tdx_2_1ng4ahrcmujzvzmz40h527g0thyzm8wglq8uku2yn8lfcaptwfdzm9s";
+  "resource_tdx_2_1n23f3q3s0wywk2749p7lyxpenqzj5qkq6xe3854hqs5j6jeqg436g4";
 const arcaneCoreBadge =
-  "resource_tdx_2_1nfccyj7azztguyvw9jffhd2c394m6w0uhzpyz225jvyq8d2jt0up2n";
+  "resource_tdx_2_1ng3wstxykch30yhldq2u74gckeywaqzclcyce98p504sc7ndgvtk9m";
 const ARC =
   "resource_tdx_2_1tk2zhlv50l4nl5flx2qc2y0zavp65xwt8khufun3kmq7xh90896gvc";
 

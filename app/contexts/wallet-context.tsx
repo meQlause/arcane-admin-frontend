@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   createContext,
@@ -6,18 +6,18 @@ import {
   useState,
   useContext,
   ReactNode,
-} from 'react';
+} from "react";
 import {
   RadixDappToolkit,
   RadixNetwork,
   DataRequestBuilder,
   createLogger,
   RdtState,
-} from '@radixdlt/radix-dapp-toolkit';
-import CryptoJS from 'crypto-js';
-import Loading from '@/app/loading';
-import { NFTauth } from '@/app/types';
-import * as dotenv from 'dotenv';
+} from "@radixdlt/radix-dapp-toolkit";
+import CryptoJS from "crypto-js";
+import Loading from "@/app/loading";
+import { NFTauth } from "@/app/types";
+import * as dotenv from "dotenv";
 
 dotenv.config();
 
@@ -34,9 +34,10 @@ export function WalletContextProvider({
 }: WalletContextProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
-    if (typeof window !== 'undefined' && !rdt) {
+    if (typeof window !== "undefined" && !rdt) {
       rdt = RadixDappToolkit({
-        dAppDefinitionAddress: 'account_tdx_2_1293z892mr8wx3ga73zlrfwmlakx38te882yjfe2ehuxhk5z2cgp8rc',
+        dAppDefinitionAddress:
+          "account_tdx_2_1293z892mr8wx3ga73zlrfwmlakx38te882yjfe2ehuxhk5z2cgp8rc",
         networkId: RadixNetwork.Stokenet,
         logger: createLogger(1),
       });
@@ -47,8 +48,8 @@ export function WalletContextProvider({
         DataRequestBuilder.personaData().fullName().emailAddresses()
       );
 
-      rdt.buttonApi.setTheme('radix-blue');
-      rdt.buttonApi.setMode('dark');
+      rdt.buttonApi.setTheme("radix-blue");
+      rdt.buttonApi.setMode("dark");
 
       const getChallenge: () => Promise<string> = () =>
         fetch(
@@ -63,16 +64,16 @@ export function WalletContextProvider({
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/rola/verify`,
           {
-            method: 'POST',
+            method: "POST",
             body: JSON.stringify(proofs),
-            headers: { 'content-type': 'application/json' },
+            headers: { "content-type": "application/json" },
           }
         ).then((res): Promise<NFTauth> => res.json());
         const ciphertext = CryptoJS.AES.encrypt(
           JSON.stringify(res),
           `${process.env.SECRET_JS}`
         ).toString();
-        localStorage.setItem('arcane', ciphertext);
+        localStorage.setItem("arcane", ciphertext);
       });
       setIsLoading(false);
     }

@@ -133,7 +133,7 @@ export default function ProposalDetailMember({ rdt, id }: any) {
   //   ]
   // }
 
-  const [dataVoteDetail, setDataVoteDetail] = useState<boolean>();
+  const [dataVoteDetail, setDataVoteDetail] = useState<boolean>(true);
   const getVoteDetail = async () => {
     return await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/vote/${id}`,
@@ -176,7 +176,6 @@ export default function ProposalDetailMember({ rdt, id }: any) {
   };
 
   const getVoterDetail = async (id: any, nft_id: string) => {
-    console.log(id, nft_id);
     return await fetch(
       `${
         process.env.NEXT_PUBLIC_BACKEND_API_SERVER
@@ -189,8 +188,8 @@ export default function ProposalDetailMember({ rdt, id }: any) {
         },
       }
     )
-      .then((res) => res.json())
-      .catch((_) => undefined);
+    .then((res) => res.json())
+    .catch((_) => undefined);
     // return {
     //   "id": "1",
     //   "AddressId": "15",

@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/auth/account";
+import { useWallet } from "@/app/auth/wallet";
 import { MainTitle } from "@/app/components/main";
 import { Alert } from "@/app/components/alert";
 import { Card } from "@/app/components/card";
@@ -14,8 +16,6 @@ import { truncateMiddle } from "@/app/functions/truncate";
 import { formatNumber } from "@/app/functions/notation";
 import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
-import { useWallet } from "../auth/wallet";
-import { useRouter } from "next/navigation";
 
 type VaultResponse = {
   address: string,
@@ -618,8 +618,8 @@ export default function DashboardMember({ rdt }: any) {
                             return (
                               <tr key={index} className="[&_td]:py-6 [&:not(:last-child)_td]:border-b [&_td]:border-gray-300">
                                 <td>
-                                  <Link key={item.vote} href={'proposal/' + item.vote}>
-                                    <div className="flex justify-between gap-4">
+                                  <Link href={'proposal/' + item.vote} className="group">
+                                    <div className="flex justify-between gap-4 rounded-lg p-4 -m-4 transition md:group-hover:bg-gray-100">
                                       <div className="flex gap-2" title={item.title}>
                                         <Image
                                           src="/icon/cryptocurrency-02.svg"

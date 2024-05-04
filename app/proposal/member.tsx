@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 // import { RoleType } from "@/app/types";
 import { useAccount } from "@/app/auth/account";
 import { MainTitle } from "@/app/components/main";
@@ -11,9 +12,8 @@ import { Fieldset, Select } from "@/app/components/form";
 import { ProposalList, ProposalProps } from "@/app/components/proposal";
 import { Button } from "@/app/components/button";
 import { Alert } from "@/app/components/alert";
-import { formatDate } from "@/app/functions/datetime";
+// import { formatDate } from "@/app/functions/datetime";
 import { Pagination } from "@/app/components/pagination";
-import { useRouter } from "next/navigation";
 
 export default function ProposalMember({ rdt }: any) {
   const { account, access_token } = useAccount({ rdt });
@@ -22,6 +22,7 @@ export default function ProposalMember({ rdt }: any) {
   const [voteList, setVotesList] = useState<ProposalProps[]>([]);
   const [totalVotes, setTotalVotes] = useState<number>(0);
   const router = useRouter();
+
   const optionsActive: any = [
     {
       value: "All",

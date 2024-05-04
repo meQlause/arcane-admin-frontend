@@ -63,11 +63,9 @@ export const ProposalList: FC<ProposalProps> = ({ id, user_address, title, descr
           <div className="break-all line-clamp-1 md:hidden" title={user_address}>{user_address}</div>
         </div>
         <div className="flex items-center max-md:justify-between gap-4 text-sm text-gray-600 md:ml-auto">
-          {(status?.toLowerCase() === 'active' || status?.toLowerCase() === 'pending' || status?.toLowerCase() === 'closed') &&
+          {((status?.toLowerCase() === 'active' || status?.toLowerCase() === 'pending' || status?.toLowerCase() === 'closed') && end) &&
             <>
-              {end && 
-                <span>{end}</span>
-              }
+              <span>{end}</span>
               <div className="w-px h-8 bg-gray-300 max-md:hidden"></div>
             </>
           }

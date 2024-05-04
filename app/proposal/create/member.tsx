@@ -204,6 +204,8 @@ export default function ProposalCreateMember({ rdt }: any) {
       if (rdt) {
         rdt.disconnect();
       }
+      sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
+      sessionStorage.setItem('arcane-alert-message','Your session is over, please login again to create a proposal.')
       router.push("/about");
       localStorage.removeItem("arcane");
       return;

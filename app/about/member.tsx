@@ -4,6 +4,7 @@ import { useAccount } from "@/app/auth/account";
 import { MainTitle } from "@/app/components/main";
 import { Card } from "@/app/components/card";
 import { Button } from "@/app/components/button";
+import { Alert } from "@/app/components/alert";
 import { formatDate } from "@/app/functions/datetime";
 
 export default function AboutMember({ rdt }: any) {
@@ -23,7 +24,26 @@ export default function AboutMember({ rdt }: any) {
         userName={account && account.address}
         userImage={account && account.avatar}
         userRole={account && account.role}
-      />
+      >
+        {sessionStorage.getItem("arcane-alert-status")?.toLocaleLowerCase() ===
+          "success" && (
+          <Alert
+            variant="success"
+            icon="/icon/check-circle.svg"
+            duration={5}
+            source="arcane-alert-message"
+          />
+        )}
+        {sessionStorage.getItem("arcane-alert-status")?.toLocaleLowerCase() ===
+          "error" && (
+          <Alert
+            variant="error"
+            icon="/icon/alert-circle.svg"
+            duration={5}
+            source="arcane-alert-message"
+          />
+        )}
+      </MainTitle>
 
       <Card className="my-8">
         <div className="border-b-2 border-dashed border-gray-300 mb-8 pb-8">

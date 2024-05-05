@@ -22,6 +22,80 @@ export class RTMGenerator {
     `;
   }
 
+  static changeRoleTo(
+    role: string,
+    coreAddress: string,
+    id: string,
+    accountAddress: string,
+    vaultAddress: string
+  ): string {
+    return `
+    CALL_METHOD
+        Address("${coreAddress}")
+        "create_proof_of_non_fungibles"
+        Address("${arcaneCoreBadge}")
+        Array<NonFungibleLocalId>(
+            NonFungibleLocalId("#0#")
+        )
+    ;
+      
+    RECALL_NON_FUNGIBLES_FROM_VAULT
+        Address("${vaultAddress}")
+        Array<NonFungibleLocalId>(
+            NonFungibleLocalId("#${id}#"),
+        )
+    ;
+      
+    TAKE_ALL_FROM_WORKTOP
+        Address("${arcaneBadge}")
+        Bucket("nft")
+    ;
+      
+    CALL_METHOD
+        Address("${arcaneMain}")
+        "change_role"
+        Bucket("nft")
+        "${role}"
+    ;
+      
+    CALL_METHOD
+        Address("${accountAddress}")
+        "try_deposit_batch_or_refund"
+        Expression("ENTIRE_WORKTOP")
+        Enum<0u8>()
+    ;
+    `;
+  }
+
+  static changeProposalStatusTo(
+    status: boolean,
+    proposalAddress: string,
+    accountAddress: string,
+    nftId: string
+  ): string {
+    return `
+      CALL_METHOD
+        Address("${accountAddress}")
+        "create_proof_of_non_fungibles"
+        Address("${arcaneBadge}")
+        Array<NonFungibleLocalId>(
+            NonFungibleLocalId("#${nftId}#")
+        )
+    ;
+      
+    POP_FROM_AUTH_ZONE
+      Proof("nft_proof")
+    ;
+      
+    CALL_METHOD
+      Address("${arcaneMain}")
+      "set_status"
+      Proof("nft_proof")
+      Address("${proposalAddress}")
+      ${status}
+    ;
+    `;
+  }
   static createVote(
     address: string,
     nftId: string,
@@ -132,7 +206,7 @@ export class RTMGenerator {
   static mint_arc(address: string): string {
     return `
     MINT_FUNGIBLE
-      Address("resource_tdx_2_1tk2zhlv50l4nl5flx2qc2y0zavp65xwt8khufun3kmq7xh90896gvc")
+      Address("${ARC}")
       Decimal("900")
     ;
     CALL_METHOD

@@ -1,6 +1,7 @@
-'use client'
+"use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useAccount } from "@/app/auth/account";
@@ -11,121 +12,210 @@ import { Alert } from "@/app/components/alert";
 import Chart from "@/app/components/chart";
 import { formatNumber } from "@/app/functions/notation";
 import { ProposalList, ProposalProps } from "@/app/components/proposal";
+import { Pagination } from "@/app/components/pagination";
 
 export default function DashboardAdmin({ rdt }: any) {
-  const { account } = useAccount({ rdt })
-  const [votesList, setVotesList] = useState<ProposalProps[]>([])
-  const [currentOptionsYear, setCurrentOptionsYear] = useState('')
+  const { account, access_token } = useAccount({ rdt });
+  const [voteList, setVotesList] = useState<ProposalProps[]>([]);
+  const [currentOptionsYear, setCurrentOptionsYear] = useState("");
+  const [totalVotes, setTotalVotes] = useState<number>(0);
+  const [dataVotes, setDataVotes] = useState<boolean>();
+  const router = useRouter();
   const optionsYear: any = [
     {
-      value: '2023',
-      label: '2023'
+      value: "2023",
+      label: "2023",
     },
     {
-      value: '2022',
-      label: '2022'
+      value: "2022",
+      label: "2022",
     },
     {
-      value: '2021',
-      label: '2021'
-    }
-  ]
+      value: "2021",
+      label: "2021",
+    },
+  ];
   const handleSelectYear = (value: string) => {
-    setCurrentOptionsYear(value)
-  }
+    setCurrentOptionsYear(value);
+  };
 
-  const [searchKeyword, setSearchKeyword] = useState('')
+  const [searchKeyword, setSearchKeyword] = useState("");
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    console.log(searchKeyword)
-  }
+    console.log(searchKeyword);
+  };
   const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchKeyword(e.target.value)
-  }
+    setSearchKeyword(e.target.value);
+  };
 
   const dataChart = [
     {
-      name: 'Jan',
+      name: "Jan",
       total: 220,
     },
     {
-      name: 'Feb',
+      name: "Feb",
       total: 309,
     },
     {
-      name: 'Mar',
+      name: "Mar",
       total: 170,
     },
     {
-      name: 'Apr',
+      name: "Apr",
       total: 303,
     },
     {
-      name: 'May',
+      name: "May",
       total: 413,
     },
     {
-      name: 'Jun',
+      name: "Jun",
       total: 407,
     },
     {
-      name: 'Jul',
+      name: "Jul",
       total: 240,
     },
     {
-      name: 'Aug',
+      name: "Aug",
       total: 174,
     },
     {
-      name: 'Sep',
+      name: "Sep",
       total: 211,
     },
     {
-      name: 'Oct',
+      name: "Oct",
       total: 466,
     },
     {
-      name: 'Nov',
+      name: "Nov",
       total: 382,
     },
     {
-      name: 'Dec',
+      name: "Dec",
       total: 459,
     },
-  ]
+  ];
 
-  const getVotes = async () => {
-    return await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/get-votes`,
-      {
-        method: 'GET',
-        headers: { 
-          'content-type': 'application/json',
-        },
+  const handlePageChange = async (page: number) => {
+    const data = await getVotes(page);
+    let res = await getTotalVotes();
+    if (res.status === 401) {
+      if (rdt) {
+        rdt.disconnect();
       }
-    ).then((res) => res.json());
-  }
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await getVotes();
-      let dataProposal = data.map((item:any) => {
+      router.push("/about");
+      localStorage.removeItem("arcane");
+      return;
+    }
+    const total = Number(await res.text());
+    setTotalVotes(total);
+    if (data && total > 0) {
+      let dataProposal: any = data.map((item: any) => {
         return {
           id: item.id,
           user_address: item.address.address,
-          avatar: '/user/user-1.png',
+          avatar: "/user/user-1.png",
           title: item.title,
           description: item.description,
-          end: `Ends on ${new Date(new Date(item.endDate).setDate(new Date(item.endDate).getDate() + 7)).toLocaleDateString()}`,
-          status: item.isPending ? 'pending' : 'active',
-          vote: Object.entries(item.vote_choice).map(([label, amount]) => ({ label, amount }))
+          end: item.endEpoch,
+          status: item.status,
+          vote: Object.entries(item.voteTokenAmount).map(([label, amount]) => ({
+            label,
+            amount,
+          })),
         };
-      })
+      });
       setVotesList(dataProposal);
+      setDataVotes(true);
+    } else {
+      setVotesList([]);
+      setDataVotes(false);
     }
+  };
+
+  const getTotalVotes = async (): Promise<Response> => {
+    return await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter/pending`,
+      {
+        method: "GET",
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${access_token}`,
+        },
+      }
+    );
+  };
+
+  const getVotes = async (page: number) => {
+    let res = await getTotalVotes();
+    if (res.status === 401) {
+      if (rdt) {
+        rdt.disconnect();
+      }
+      router.push("/about");
+      localStorage.removeItem("arcane");
+      return;
+    }
+    setTotalVotes(Number(await res.text()));
+    return await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/get-votes?page=${page}`,
+      {
+        method: "GET",
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${access_token}`,
+        },
+      }
+    ).then((res) => res.json());
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const currentPage: number = sessionStorage.getItem(
+        "arcane-proposal-pagin"
+      )
+        ? Number(sessionStorage.getItem("arcane-proposal-pagin"))
+        : 1;
+      const data = await getVotes(currentPage);
+      let res = await getTotalVotes();
+      if (res.status === 401) {
+        if (rdt) {
+          rdt.disconnect();
+        }
+        router.push("/about");
+        localStorage.removeItem("arcane");
+        return;
+      }
+      const total = Number(await res.text());
+      setTotalVotes(total);
+      if (data && total > 0) {
+        let dataProposal = data.map((item: any) => {
+          return {
+            id: item.id,
+            user_address: item.address.address,
+            avatar: "/user/user-1.png",
+            title: item.title,
+            description: item.description,
+            end: item.endEpoch,
+            status: item.status,
+            vote: Object.entries(item.voteTokenAmount).map(
+              ([label, amount]) => ({ label, amount })
+            ),
+          };
+        });
+        setVotesList(dataProposal);
+        setDataVotes(true);
+      } else {
+        setVotesList([]);
+        setDataVotes(false);
+      }
+    };
     fetchData();
-  }, [])
+  }, []);
   // const dataProposal: ProposalProps[] = [
   //   {
   //     id: '1',
@@ -166,12 +256,26 @@ export default function DashboardAdmin({ rdt }: any) {
             userImage={account.avatar}
             userRole={account.role}
           >
-            {sessionStorage.getItem('arcane-alert-status')?.toLocaleLowerCase() === 'success' &&
-              <Alert variant="success" icon="/icon/check-circle.svg" duration={5} source="arcane-alert-message" />
-            }
-            {sessionStorage.getItem('arcane-alert-status')?.toLocaleLowerCase() === 'error' &&
-              <Alert variant="error" icon="/icon/alert-circle.svg" duration={5} source="arcane-alert-message" />
-            }
+            {sessionStorage
+              .getItem("arcane-alert-status")
+              ?.toLocaleLowerCase() === "success" && (
+              <Alert
+                variant="success"
+                icon="/icon/check-circle.svg"
+                duration={5}
+                source="arcane-alert-message"
+              />
+            )}
+            {sessionStorage
+              .getItem("arcane-alert-status")
+              ?.toLocaleLowerCase() === "error" && (
+              <Alert
+                variant="error"
+                icon="/icon/alert-circle.svg"
+                duration={5}
+                source="arcane-alert-message"
+              />
+            )}
           </MainTitle>
 
           <div className="grid gap-6">
@@ -182,9 +286,21 @@ export default function DashboardAdmin({ rdt }: any) {
                     <div className="text-xl font-medium">240 Proposals</div>
                     <div>have been submitted</div>
                   </div>
-                  <Select label={"Year"} id={"chart-year"} name={"chart-year"} showLabel={false} className={"!w-fit"} value={currentOptionsYear} options={optionsYear} onChange={(e) => handleSelectYear(e.target.value)} />
+                  <Select
+                    label={"Year"}
+                    id={"chart-year"}
+                    name={"chart-year"}
+                    showLabel={false}
+                    className={"!w-fit"}
+                    value={currentOptionsYear}
+                    options={optionsYear}
+                    onChange={(e) => handleSelectYear(e.target.value)}
+                  />
                 </div>
-                <div className="w-full h-full max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-white mb-2" style={{ maxHeight: '250px' }}>
+                <div
+                  className="w-full h-full max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-white mb-2"
+                  style={{ maxHeight: "250px" }}
+                >
                   <Chart data={dataChart} />
                 </div>
               </Card>
@@ -201,12 +317,12 @@ export default function DashboardAdmin({ rdt }: any) {
                     />
                     <div className="bg-primary-100 rounded-full animate-ping absolute top-0 left-0 w-full h-full -z-[1]"></div>
                   </div>
-                  <div className="font-medium mt-2.5">
-                    Request Accepted
-                  </div>
+                  <div className="font-medium mt-2.5">Request Accepted</div>
                 </div>
                 <div className="mt-6">
-                  <span className="font-semibold text-2xl md:text-4xl mr-4">{formatNumber(4)}</span>
+                  <span className="font-semibold text-2xl md:text-4xl mr-4">
+                    {formatNumber(4)}
+                  </span>
                   <Image
                     src="/icon/arrow-up.svg"
                     alt="icon"
@@ -232,12 +348,12 @@ export default function DashboardAdmin({ rdt }: any) {
                     />
                     <div className="bg-primary-100 rounded-full animate-ping absolute top-0 left-0 w-full h-full -z-[1]"></div>
                   </div>
-                  <div className="font-medium mt-2.5">
-                    Request Rejected
-                  </div>
+                  <div className="font-medium mt-2.5">Request Rejected</div>
                 </div>
                 <div className="mt-6">
-                  <span className="font-semibold text-2xl md:text-4xl mr-4">{formatNumber(1)}</span>
+                  <span className="font-semibold text-2xl md:text-4xl mr-4">
+                    {formatNumber(1)}
+                  </span>
                   <Image
                     src="/icon/arrow-down.svg"
                     alt="icon"
@@ -253,10 +369,15 @@ export default function DashboardAdmin({ rdt }: any) {
             </div>
             <Card className="mb-4">
               <div className="grid md:grid-cols-2 gap-4 items-center mb-6">
-                <h2 className="font-maven-pro font-semibold text-lg">Need Review</h2>
+                <h2 className="font-maven-pro font-semibold text-lg">
+                  Need Review
+                </h2>
                 <form spellCheck="false" onSubmit={handleSearch}>
                   <Fieldset className="relative">
-                    <label htmlFor="search-proposal" className="absolute top-0 bottom-0 left-0 my-auto mx-3 h-fit opacity-50">
+                    <label
+                      htmlFor="search-proposal"
+                      className="absolute top-0 bottom-0 left-0 my-auto mx-3 h-fit opacity-50"
+                    >
                       <Image
                         src="/icon/search-md.svg"
                         alt="icon"
@@ -266,21 +387,52 @@ export default function DashboardAdmin({ rdt }: any) {
                       />
                       <span className="sr-only">Search</span>
                     </label>
-                    <input type="text" id="search-proposal" name="search-proposal" placeholder="Search Proposal" className="w-full appearance-none rounded-xl py-3 pr-4 pl-11 text-gray-500 bg-gray-100 border-2 border-transparent placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default" onChange={handleSearchInput} />
+                    <input
+                      type="text"
+                      id="search-proposal"
+                      name="search-proposal"
+                      placeholder="Search Proposal"
+                      className="w-full appearance-none rounded-xl py-3 pr-4 pl-11 text-gray-500 bg-gray-100 border-2 border-transparent placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default"
+                      onChange={handleSearchInput}
+                    />
                   </Fieldset>
                 </form>
               </div>
               <div className="grid gap-6 mb-2 lg:mb-1">
-                {votesList.map((item: any) => (
-                  <Link key={item.id} href={'proposal/' + item.id}>
-                    <ProposalList {...item} />
-                  </Link>
-                ))}
+                {dataVotes ? (
+                  <>
+                    {voteList.map((item: any) => (
+                      <Link key={item.id} href={"proposal/" + item.id}>
+                        <ProposalList {...item} />
+                      </Link>
+                    ))}
+                    <div className="flex justify-end">
+                      <Pagination
+                        id={"proposal-admin"}
+                        total={Math.ceil(totalVotes / 10)}
+                        current={
+                          sessionStorage.getItem(`arcane-proposal-admin-pagin`)
+                            ? Number(
+                                sessionStorage.getItem(
+                                  `arcane-proposal-admin-pagin`
+                                )
+                              )
+                            : 1
+                        }
+                        onPageChange={handlePageChange}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div className="bg-gray-50 text-gray-300 px-6 py-4 rounded-lg italic">
+                    No proposal here, please create new one.
+                  </div>
+                )}
               </div>
             </Card>
           </div>
         </>
       )}
     </>
-  )
+  );
 }

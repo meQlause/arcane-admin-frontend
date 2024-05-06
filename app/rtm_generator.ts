@@ -96,6 +96,7 @@ export class RTMGenerator {
     ;
     `;
   }
+
   static createVote(
     address: string,
     nftId: string,

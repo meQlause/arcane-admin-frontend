@@ -12,7 +12,7 @@ import { truncateMiddle } from "@/app/functions/truncate";
 import { Card, CardOutline } from "@/app/components/card";
 import { Badge } from "@/app/components/badge";
 import { Button } from "@/app/components/button";
-import { Fieldset, Input, Radio } from "@/app/components/form";
+import { Fieldset, Input, Radio, Checkbox } from "@/app/components/form";
 import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
 import { Popup, PopupBody, PopupFooter, PopupHeader } from "@/app/components/popup";
@@ -125,6 +125,7 @@ export type ProposalDetailProps = ProposalProps & {
   account?: any
   user_voted?: any
   user_withdraw?: any
+  need_approval?: boolean
 }
 
 type ProposalVoterProps = {
@@ -135,7 +136,7 @@ type ProposalVoterProps = {
   label?: string
 }
 
-export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, user_address, user_role, title, description, avatar, start, end, status, vote, vote_hide, voter, photos, handleBack, account, user_voted, user_withdraw }) => {
+export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, user_address, user_role, title, description, avatar, start, end, status, vote, vote_hide, voter, photos, handleBack, account, user_voted, user_withdraw, need_approval }) => {
   const { walletConnect, role, rdt, access_token, nft_id} = useWallet()
   const pathname = usePathname()
   const router = useRouter()
@@ -175,7 +176,6 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
   };
 
   useEffect(() => {
-    
     if (photos[0]) {
       photos.forEach((photo : any) => {
         customImageLoader(`${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/pict/${photo}`)
@@ -201,6 +201,14 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
   }
   const handleClosePopupShare = () => {
     setShowPopupShare(false)
+  }
+
+  const [showPopupApproval, setShowPopupApproval] = useState(false)
+  const handleOpenPopupApproval = () => {
+    setShowPopupApproval(true)
+  }
+  const handleClosePopupApproval = () => {
+    setShowPopupApproval(false)
   }
 
   const [copy, setCopy] = useState(false)
@@ -365,6 +373,25 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
     } else {
       router.push('/proposal')
     }
+  }
+
+  const [approvalChoice, setApprovalChoice] = useState<string>()
+  const [approvalResult, setApprovalResult] = useState<boolean>()
+
+  const handleApprovalSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setLoading(true)
+    console.log('approving...')
+
+    // if success
+    // sessionStorage.setItem('arcane-alert-status','success') // primary, error, warning, success, info
+    // sessionStorage.setItem('arcane-alert-message','You have successfully approved the proposal')
+    
+    // if error
+    sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
+    sessionStorage.setItem('arcane-alert-message','You failed to approve the proposal')
+
+    router.push('/admin/proposal')
   }
 
   return (
@@ -577,7 +604,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
             <h2 className="text-lg font-maven-pro font-semibold text-center mb-6">Cast Your Vote</h2>
             {(account || walletConnect) ?
               <>
-                {isNotCreate ?
+                {(need_approval && isNotCreate) ?
                   <form spellCheck="false" onSubmit={handleVoteSubmit}>
                     {vote?.map((item: any, index: number) => (
                       <Fieldset key={index} className={`!mb-3 !last:mb-0 ${!isClosed ? 'pointer-events-none' : ''}`}>
@@ -643,7 +670,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
             }
           </Card>
 
-          {isNotCreate &&
+          {(!need_approval && isNotCreate) &&
             <Card className="mb-8">
               <div className="flex items-center gap-4">
                 <Button type="button" variant="primary" loading={loading} disabled={isWithdrawAbleToUse} className="shadow-main" onClick={handleWithdraw}>
@@ -671,7 +698,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
             </Card>
           }
 
-          {(voter && voter.length > 0 && (vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) && !isMobile) &&
+          {(!need_approval && (voter && voter.length > 0 && (vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) && !isMobile)) &&
             <Card className="mb-8">
               <div className="flex items-center justify-between gap-4 mb-2">
                 <h2 className="text-lg font-maven-pro font-semibold">Voters</h2>
@@ -718,7 +745,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
         </div>
 
         <div className="md:col-span-5 xl:col-span-4 h-fit">
-        {isNotCreate ?
+          {isNotCreate ?
             <>
               {imagesData.length > 0 &&
                 <Card className="mb-8 !bg-primary-400 !p-2 overflow-hidden">
@@ -814,7 +841,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
             </ul>
           </Card>
 
-          {voter &&
+          {(!need_approval && voter) &&
             <Card className="mb-8">
               <div className="mb-6">
                 <h2 className="text-lg font-maven-pro font-semibold">
@@ -865,7 +892,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
             </Card>
           }
 
-          {(voter && voter.length > 0 && (vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) && isMobile) &&
+          {(!need_approval && (voter && voter.length > 0 && (vote_hide?.toLocaleLowerCase() !== 'true' || role === RoleType.Admin) && isMobile)) &&
             <Card className="mb-8">
               <div className="flex items-center justify-between gap-4 mb-2">
                 <h2 className="text-lg font-maven-pro font-semibold">Voters</h2>
@@ -906,6 +933,40 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({ id, ComponentAddress, 
             </Card>
           }
         </div>
+
+        {(need_approval && isNotCreate) &&
+          <Card className="md:col-span-12 mb-4">
+            <form spellCheck="false" onSubmit={handleApprovalSubmit}>
+              <h2 className="text-lg font-maven-pro font-semibold mb-4">Proposal Approval</h2>
+              <Fieldset>
+                <Checkbox label={"Hide current result"} id={"proposal-approval-result"} name={"proposal-approval-result"} revert={false} className="text-sm text-gray-500 !mr-1.5 [&+input]:mb-0" onChange={(e) => setApprovalResult(e.target.checked)} />
+              </Fieldset>
+              <div className="flex gap-4 flex-col sm:flex-row">
+                <Fieldset className="!mb-0 w-full">
+                  <Radio id="proposal-approval-1" name="proposal-approval" value="reject" className="text-center transition border-0 bg-error-50 text-error-500 lg:hover:!bg-error-500 lg:hover:!text-white peer-checked:!border-0 peer-checked:!ring-0 peer-checked:!bg-error-50 peer-checked:!text-error-500 peer-checked:lg:hover:!bg-error-500 peer-checked:lg:hover:!text-white" onChange={(e) => setApprovalChoice(e.target.value)} onClick={handleOpenPopupApproval}>
+                    Reject
+                  </Radio>
+                </Fieldset>
+                <Fieldset className="!mb-0 w-full">
+                  <Radio id="proposal-approval-2" name="proposal-approval" value="approve" className="text-center transition border-0 bg-success-500 text-white lg:hover:!bg-success-600 peer-checked:!border-0 peer-checked:!ring-0 peer-checked:!bg-success-500 peer-checked:!text-white peer-checked:lg:hover:!bg-success-600" onChange={(e) => setApprovalChoice(e.target.value)} onClick={handleOpenPopupApproval}>
+                    Approve
+                  </Radio>
+                </Fieldset>
+              </div>
+              <Popup show={showPopupApproval} backdropClose={true} handleClose={handleClosePopupApproval}>
+                <PopupHeader variant={"primary"} icon={"/icon/alert-circle.svg"} />
+                <PopupBody>
+                  <h3 className="text-xl font-semibold mb-4">Do you {approvalChoice?.toLowerCase()} this proposal?</h3>
+                  <p>Make sure your acceptance.</p>
+                </PopupBody>
+                <PopupFooter>
+                  <Button type="button" variant="light" loading="none" className="md:w-fit" onClick={handleClosePopupApproval}>Cancel</Button>
+                  <Button type="submit" variant="primary" className="md:w-fit" loading={loading}>Yes</Button>
+                </PopupFooter>
+              </Popup>
+            </form>
+          </Card>
+        }
       </section>
     </>
   )

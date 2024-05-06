@@ -106,7 +106,8 @@ export default function ProposalDetailAdmin({ rdt, id }: any) {
         amount: 5600,
         label: 'vARC'
       }
-    ]
+    ],
+    need_approval: true
   }
 
   const router = useRouter()

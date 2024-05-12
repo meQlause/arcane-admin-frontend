@@ -102,19 +102,8 @@ export default function DashboardAdmin({ rdt }: any) {
 
   const handlePageChange = async (page: number) => {
     const data = await getVotes(page);
-    let res = await getTotalVotes();
-    if (res.status === 401) {
-      if (rdt) {
-        rdt.disconnect();
-      }
-      router.push("/about");
-      localStorage.removeItem("arcane");
-      return;
-    }
-    const total = Number(await res.text());
-    setTotalVotes(total);
-    if (data && total > 0) {
-      let dataProposal: any = data.map((item: any) => {
+    if (data?.data && data?.total > 0) {
+      let dataProposal: any = data?.data.map((item: any) => {
         return {
           id: item.id,
           user_address: item.address.address,
@@ -139,7 +128,7 @@ export default function DashboardAdmin({ rdt }: any) {
 
   const getTotalVotes = async (): Promise<Response> => {
     return await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter/pending`,
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter?count=pending`,
       {
         method: "GET",
         headers: {
@@ -158,42 +147,42 @@ export default function DashboardAdmin({ rdt }: any) {
       }
       router.push("/about");
       localStorage.removeItem("arcane");
+      setTimeout(() => {
+        sessionStorage.setItem("arcane-alert-status", "error"); // primary, error, warning, success, info
+        sessionStorage.setItem(
+          "arcane-alert-message",
+          "Your session is over, please login again to create a proposal."
+        );
+      }, 1000);
       return;
     }
-    setTotalVotes(Number(await res.text()));
-    return await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/get-votes?page=${page}`,
-      {
-        method: "GET",
-        headers: {
-          "content-type": "application/json",
-          Authorization: `Bearer ${access_token}`,
-        },
-      }
-    ).then((res) => res.json());
+    let totalVotes_ = Number(await res.text());
+    setTotalVotes(totalVotes_);
+    return {
+      data: await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/get-votes?page=${page}&status=pending`,
+        {
+          method: "GET",
+          headers: {
+            "content-type": "application/json",
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      ).then((res) => res.json()),
+      total: totalVotes_,
+    };
   };
 
   useEffect(() => {
     const fetchData = async () => {
       const currentPage: number = sessionStorage.getItem(
-        "arcane-proposal-pagin"
+        "arcane-proposal-admin-pagin"
       )
-        ? Number(sessionStorage.getItem("arcane-proposal-pagin"))
+        ? Number(sessionStorage.getItem("arcane-proposal-admin-pagin"))
         : 1;
       const data = await getVotes(currentPage);
-      let res = await getTotalVotes();
-      if (res.status === 401) {
-        if (rdt) {
-          rdt.disconnect();
-        }
-        router.push("/about");
-        localStorage.removeItem("arcane");
-        return;
-      }
-      const total = Number(await res.text());
-      setTotalVotes(total);
-      if (data && total > 0) {
-        let dataProposal = data.map((item: any) => {
+      if (data?.data && data?.total > 0) {
+        let dataProposal = data?.data.map((item: any) => {
           return {
             id: item.id,
             user_address: item.address.address,
@@ -208,6 +197,7 @@ export default function DashboardAdmin({ rdt }: any) {
           };
         });
         setVotesList(dataProposal);
+        console.log(dataProposal);
         setDataVotes(true);
       } else {
         setVotesList([]);

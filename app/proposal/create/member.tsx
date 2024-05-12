@@ -28,7 +28,7 @@ import { useWallet } from "@/app/auth/wallet";
 
 export default function ProposalCreateMember({ rdt }: any) {
   const { account } = useAccount({ rdt });
-  const { nft_id, access_token } = useWallet();
+  const { nft_id, access_token, role } = useWallet();
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
@@ -204,10 +204,13 @@ export default function ProposalCreateMember({ rdt }: any) {
       if (rdt) {
         rdt.disconnect();
       }
-      sessionStorage.setItem('arcane-alert-status','error') // primary, error, warning, success, info
-      sessionStorage.setItem('arcane-alert-message','Your session is over, please login again to create a proposal.')
       router.push("/about");
       localStorage.removeItem("arcane");
+      sessionStorage.setItem("arcane-alert-status", "error"); // primary, error, warning, success, info
+      sessionStorage.setItem(
+        "arcane-alert-message",
+        "Your session is over, please login again to create a proposal."
+      );
       return;
     }
     let meta: any = "";
@@ -225,6 +228,7 @@ export default function ProposalCreateMember({ rdt }: any) {
             "description": ${JSON.stringify(description.trim())}, 
             "picture": "${resPict.ok ? (await resPict.text()).slice(39) : ""}", 
             "endEpoch": "${votingDuration}"
+            "createdBy": "${role}"
           }, 
           "metadata": {}
         }`,

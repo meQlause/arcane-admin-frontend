@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useAccount } from "@/app/auth/account";
@@ -12,145 +12,365 @@ import { ProposalList, ProposalProps } from "@/app/components/proposal";
 import { Button } from "@/app/components/button";
 import { Alert } from "@/app/components/alert";
 import { formatDate } from "@/app/functions/datetime";
+import { useRouter } from "next/navigation";
+import { Pagination } from "@/app/components/pagination";
 
 export default function ProposalAdmin({ rdt }: any) {
-  const { account } = useAccount({ rdt })
-
-  const [currentOptionsActive, setCurrentOptionsActive] = useState('All')
+  const { account, access_token } = useAccount({ rdt });
+  const router = useRouter();
+  const [currentOptionsActive, setCurrentOptionsActive] = useState("All");
+  const [totalVotesActive, setTotalVotesActive] = useState<number>(0);
+  const [activeProposals, setActiveProposals] = useState<ProposalProps[]>([]);
+  const [dataVotesActive, setDataVotesActive] = useState<boolean>(false);
+  const [dataVotesHistory, setDataVotesHistory] = useState<boolean>(false);
   const optionsActive: any = [
     {
-      value: 'All',
-      label: 'All'
+      value: "All",
+      label: "All",
     },
     {
-      value: 'Pending',
-      label: 'Pending'
+      value: "Pending",
+      label: "Pending",
     },
     {
-      value: 'Active',
-      label: 'Active'
-    }
-  ]
+      value: "Active",
+      label: "Active",
+    },
+  ];
   const handleSelectActive = (value: string) => {
-    setCurrentOptionsActive(value)
-  }
+    setCurrentOptionsActive(value);
+  };
+  const [historyProposals, setHistoryProposals] = useState<ProposalProps[]>([]);
 
-  const [currentOptionsHistory, setCurrentOptionsHistory] = useState('All')
+  const [totalVotesHistory, setTotalVotesHistory] = useState<number>(0);
+  const [currentOptionsHistory, setCurrentOptionsHistory] = useState("All");
   const optionsHistory: any = [
     {
-      value: 'All',
-      label: 'All'
+      value: "All",
+      label: "All",
     },
     {
-      value: 'Rejected',
-      label: 'Rejected'
+      value: "Rejected",
+      label: "Rejected",
     },
     {
-      value: 'Closed',
-      label: 'Closed'
-    }
-  ]
+      value: "Closed",
+      label: "Closed",
+    },
+  ];
   const handleSelectHistory = (value: string) => {
-    setCurrentOptionsHistory(value)
-  }
+    setCurrentOptionsHistory(value);
+  };
 
-  const [searchKeyword, setSearchKeyword] = useState('')
+  const [searchKeyword, setSearchKeyword] = useState("");
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    console.log(searchKeyword)
-  }
+    console.log(searchKeyword);
+  };
   const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchKeyword(e.target.value)
-  }
+    setSearchKeyword(e.target.value);
+  };
 
-  const dataProposalActive: ProposalProps[] = [
-    {
-      id: '1',
-      user_address: 'rdx1shb1412422216dba',
-      avatar: '/user/user-1.png',
-      title: 'Arcane Labyrinth',
-      ComponentAddress: '',
-      description: 'Laborum officia incididunt consequat veniam tempor ea officia minim id excepteur pariatur nisi dolor. Deserunt occaecat ullamco est consequat. Culpa consequat veniam ullamco veniam aute culpa laborum nostrud dolor mollit non elit veniam commodo.',
-      end: 0,
-      status: 'Pending'
-    },
-    {
-      id: '2',
-      user_address: 'rdx1shb1412422216dbb',
-      avatar: '/user/user-1.png',
-      title: '[ARFC] Add fUSDC to Ethereum v3',
-      ComponentAddress: '',
-      description: 'Qui aliquip reprehenderit veniam sit eu nostrud ad ipsum laboris exercitation.Tempor nulla irure aute minim ea occaecat do magna velit voluptate occaecat minim duis.Elit ex minim exercitation labore et.',
-      end: 0,
-      status: 'Active',
-      vote: [
-        {
-          label: 'Yes',
-          amount: 120,
-          selected: true
-        },
-        {
-          label: 'No',
-          amount: 48
-        }
-      ]
-    },
-    {
-      id: '3',
-      user_address: 'rdx1shb1412422216dbc',
-      avatar: '/user/user-1.png',
-      title: 'Arcane Labyrinth',
-      ComponentAddress: '',
-      description: 'Laboris labore culpa duis in esse in reprehenderit excepteur sit ut labore dolore.Aliquip do duis occaecat voluptate.Ad qui ullamco sunt sunt pariatur est ullamco.Id incididunt et ipsum elit non veniam et laborum elit anim.',
-      end: 0,
-      status: 'Pending'
+  // const dataProposalActive: ProposalProps[] = [
+  // {
+  //   id: "1",
+  //   user_address: "rdx1shb1412422216dba",
+  //   avatar: "/user/user-1.png",
+  //   title: "Arcane Labyrinth",
+  //   ComponentAddress: "",
+  //   description:
+  //     "Laborum officia incididunt consequat veniam tempor ea officia minim id excepteur pariatur nisi dolor. Deserunt occaecat ullamco est consequat. Culpa consequat veniam ullamco veniam aute culpa laborum nostrud dolor mollit non elit veniam commodo.",
+  //   end: 0,
+  //   status: "Pending",
+  // },
+  // {
+  //   id: "2",
+  //   user_address: "rdx1shb1412422216dbb",
+  //   avatar: "/user/user-1.png",
+  //   title: "[ARFC] Add fUSDC to Ethereum v3",
+  //   ComponentAddress: "",
+  //   description:
+  //     "Qui aliquip reprehenderit veniam sit eu nostrud ad ipsum laboris exercitation.Tempor nulla irure aute minim ea occaecat do magna velit voluptate occaecat minim duis.Elit ex minim exercitation labore et.",
+  //   end: 0,
+  //   status: "Active",
+  //   vote: [
+  //     {
+  //       label: "Yes",
+  //       amount: 120,
+  //       selected: true,
+  //     },
+  //     {
+  //       label: "No",
+  //       amount: 48,
+  //     },
+  //   ],
+  // },
+  // {
+  //   id: "3",
+  //   user_address: "rdx1shb1412422216dbc",
+  //   avatar: "/user/user-1.png",
+  //   title: "Arcane Labyrinth",
+  //   ComponentAddress: "",
+  //   description:
+  //     "Laboris labore culpa duis in esse in reprehenderit excepteur sit ut labore dolore.Aliquip do duis occaecat voluptate.Ad qui ullamco sunt sunt pariatur est ullamco.Id incididunt et ipsum elit non veniam et laborum elit anim.",
+  //   end: 0,
+  //   status: "Pending",
+  // },
+  // ];
+  const handlePageChangeActive = async (page: number) => {
+    const dataActive = await getActiveVotes(page);
+    if (dataActive?.data && dataActive?.total > 0) {
+      let dataProposal = dataActive?.data.map((item: any) => {
+        return {
+          id: item.id,
+          user_address: item.address.address,
+          avatar: "/user/user-1.png",
+          title: item.title,
+          description: item.description,
+          end: item.endEpoch,
+          status: item.status,
+          vote: Object.entries(item.voteTokenAmount).map(([label, amount]) => ({
+            label,
+            amount,
+          })),
+        };
+      });
+      setActiveProposals(dataProposal);
+      setDataVotesActive(true);
+    } else {
+      setDataVotesActive(false);
     }
-  ]
+  };
 
-  const dataProposalHistory: ProposalProps[] = [
-    {
-      id: '1',
-      user_address: 'rdx1shb1412422216dba',
-      avatar: '/user/user-1.png',
-      title: 'fUSDC to Ethereum v3',
-      ComponentAddress: '',
-      description: 'Laborum officia incididunt consequat veniam tempor ea officia minim id excepteur pariatur nisi dolor. Deserunt occaecat ullamco est consequat. Culpa consequat veniam ullamco veniam aute culpa laborum nostrud dolor mollit non elit veniam commodo.',
-      end: 0,
-      status: 'Closed',
-      vote: [
-        {
-          label: '1M vARC',
-          amount: 120,
-          selected: true
-        },
-        {
-          label: '20K sARB',
-          amount: 48
-        }
-      ]
-    },
-    {
-      id: '2',
-      user_address: 'rdx1shb1412422216dbb',
-      avatar: '/user/user-1.png',
-      title: '[ARFC] Add fUSDC to Ethereum v3',
-      ComponentAddress: '',
-      description: 'Qui aliquip reprehenderit veniam sit eu nostrud ad ipsum laboris exercitation.Tempor nulla irure aute minim ea occaecat do magna velit voluptate occaecat minim duis.Elit ex minim exercitation labore et.',
-      end: 0,
-      status: 'Rejected'
-    },
-    {
-      id: '3',
-      user_address: 'rdx1shb1412422216dbc',
-      avatar: '/user/user-1.png',
-      title: 'Arcane Labyrinth',
-      ComponentAddress: '',
-      description: 'Laboris labore culpa duis in esse in reprehenderit excepteur sit ut labore dolore.Aliquip do duis occaecat voluptate.Ad qui ullamco sunt sunt pariatur est ullamco.Id incididunt et ipsum elit non veniam et laborum elit anim.',
-      end: 0,
-      status: 'Rejected'
+  const handlePageChangeHistory = async (page: number) => {
+    const dataHistory = await getHistoryVotes(page);
+    if (dataHistory?.data && dataHistory?.total > 0) {
+      let dataProposal = dataHistory?.data.map((item: any) => {
+        return {
+          id: item.id,
+          user_address: item.address.address,
+          avatar: "/user/user-1.png",
+          title: item.title,
+          description: item.description,
+          end: item.endEpoch,
+          status: item.status,
+          vote: Object.entries(item.voteTokenAmount).map(([label, amount]) => ({
+            label,
+            amount,
+          })),
+        };
+      });
+      setHistoryProposals(dataProposal);
+      setDataVotesHistory(true);
+    } else {
+      setDataVotesHistory(false);
     }
-  ]
+  };
+  const getTotalVotes = async (): Promise<Response> => {
+    return await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter?count=${
+        currentOptionsActive === "All"
+          ? ["pending", "active"]
+          : [currentOptionsActive.toLocaleLowerCase()]
+      }`,
+      {
+        method: "GET",
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${access_token}`,
+        },
+      }
+    );
+  };
+
+  const getActiveVotes = async (page: number) => {
+    let res = await getTotalVotes();
+    if (res.status === 401) {
+      if (rdt) {
+        rdt.disconnect();
+      }
+      sessionStorage.setItem("arcane-alert-status", "error"); // primary, error, warning, success, info
+      sessionStorage.setItem(
+        "arcane-alert-message",
+        "Your session is over, please login again to create a proposal."
+      );
+      router.push("/about");
+      localStorage.removeItem("arcane");
+      return;
+    }
+    let totalVotes_ = Number(await res.text());
+    setTotalVotesActive(totalVotes_);
+    return {
+      data: await fetch(
+        `${
+          process.env.NEXT_PUBLIC_BACKEND_API_SERVER
+        }/votes/get-votes?page=${page}&status=${
+          currentOptionsActive === "All"
+            ? ["pending", "active"]
+            : [currentOptionsActive.toLocaleLowerCase()]
+        }`,
+        {
+          method: "GET",
+          headers: {
+            "content-type": "application/json",
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      ).then((res) => res.json()),
+      total: totalVotes_,
+    };
+  };
+
+  const getHistoryVotes = async (page: number) => {
+    let res = await getTotalVotes();
+    if (res.status === 401) {
+      if (rdt) {
+        rdt.disconnect();
+      }
+      sessionStorage.setItem("arcane-alert-status", "error"); // primary, error, warning, success, info
+      sessionStorage.setItem(
+        "arcane-alert-message",
+        "Your session is over, please login again to create a proposal."
+      );
+      router.push("/about");
+      localStorage.removeItem("arcane");
+      return;
+    }
+    let totalVotes_ = Number(await res.text());
+    setTotalVotesHistory(totalVotes_);
+    return {
+      data: await fetch(
+        `${
+          process.env.NEXT_PUBLIC_BACKEND_API_SERVER
+        }/votes/get-votes?page=${page}&status=${
+          currentOptionsHistory === "All"
+            ? ["rejected", "closed"]
+            : [currentOptionsHistory.toLocaleLowerCase()]
+        }`,
+        {
+          method: "GET",
+          headers: {
+            "content-type": "application/json",
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      ).then((res) => res.json()),
+      total: totalVotes_,
+    };
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const currentPageActive: number = sessionStorage.getItem(
+        "arcane-proposal-admin-active-pagin"
+      )
+        ? Number(sessionStorage.getItem("arcane-proposal-admin-active-pagin"))
+        : 1;
+      const dataActive = await getActiveVotes(currentPageActive);
+      console.log(dataActive);
+      if (dataActive?.data && dataActive?.total > 0) {
+        let dataProposal = dataActive?.data.map((item: any) => {
+          return {
+            id: item.id,
+            user_address: item.address.address,
+            avatar: "/user/user-1.png",
+            title: item.title,
+            description: item.description,
+            end: item.endEpoch,
+            status: item.status,
+            vote: Object.entries(item.voteTokenAmount).map(
+              ([label, amount]) => ({ label, amount })
+            ),
+          };
+        });
+        setActiveProposals(dataProposal);
+        setDataVotesActive(true);
+      } else {
+        setDataVotesActive(false);
+      }
+    };
+    fetchData();
+  }, [currentOptionsActive]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const currentPageHistory: number = sessionStorage.getItem(
+        "arcane-proposal-admin-active-pagin"
+      )
+        ? Number(sessionStorage.getItem("arcane-proposal-admin-active-pagin"))
+        : 1;
+      const dataHistory = await getHistoryVotes(currentPageHistory);
+      if (dataHistory?.data && dataHistory?.total > 0) {
+        let dataProposal = dataHistory?.data.map((item: any) => {
+          return {
+            id: item.id,
+            user_address: item.address.address,
+            avatar: "/user/user-1.png",
+            title: item.title,
+            description: item.description,
+            end: item.endEpoch,
+            status: item.status,
+            vote: Object.entries(item.voteTokenAmount).map(
+              ([label, amount]) => ({ label, amount })
+            ),
+          };
+        });
+        setHistoryProposals(dataProposal);
+        setDataVotesHistory(true);
+      } else {
+        setDataVotesHistory(false);
+      }
+    };
+    fetchData();
+  }, [currentOptionsHistory]);
+
+  // const dataProposalHistory: ProposalProps[] = [
+  // {
+  //   id: "1",
+  //   user_address: "rdx1shb1412422216dba",
+  //   avatar: "/user/user-1.png",
+  //   title: "fUSDC to Ethereum v3",
+  //   ComponentAddress: "",
+  //   description:
+  //     "Laborum officia incididunt consequat veniam tempor ea officia minim id excepteur pariatur nisi dolor. Deserunt occaecat ullamco est consequat. Culpa consequat veniam ullamco veniam aute culpa laborum nostrud dolor mollit non elit veniam commodo.",
+  //   end: 0,
+  //   status: "Closed",
+  //   vote: [
+  //     {
+  //       label: "1M vARC",
+  //       amount: 120,
+  //       selected: true,
+  //     },
+  //     {
+  //       label: "20K sARB",
+  //       amount: 48,
+  //     },
+  //   ],
+  // },
+  // {
+  //   id: "2",
+  //   user_address: "rdx1shb1412422216dbb",
+  //   avatar: "/user/user-1.png",
+  //   title: "[ARFC] Add fUSDC to Ethereum v3",
+  //   ComponentAddress: "",
+  //   description:
+  //     "Qui aliquip reprehenderit veniam sit eu nostrud ad ipsum laboris exercitation.Tempor nulla irure aute minim ea occaecat do magna velit voluptate occaecat minim duis.Elit ex minim exercitation labore et.",
+  //   end: 0,
+  //   status: "Rejected",
+  // },
+  // {
+  //   id: "3",
+  //   user_address: "rdx1shb1412422216dbc",
+  //   avatar: "/user/user-1.png",
+  //   title: "Arcane Labyrinth",
+  //   ComponentAddress: "",
+  //   description:
+  //     "Laboris labore culpa duis in esse in reprehenderit excepteur sit ut labore dolore.Aliquip do duis occaecat voluptate.Ad qui ullamco sunt sunt pariatur est ullamco.Id incididunt et ipsum elit non veniam et laborum elit anim.",
+  //   end: 0,
+  //   status: "Rejected",
+  // },
+  // ];
 
   return (
     <>
@@ -162,23 +382,53 @@ export default function ProposalAdmin({ rdt }: any) {
             userImage={account.avatar}
             userRole={account.role}
           >
-            {sessionStorage.getItem('arcane-alert-status')?.toLocaleLowerCase() === 'success' &&
-              <Alert variant="success" icon="/icon/check-circle.svg" duration={5} source="arcane-alert-message" />
-            }
-            {sessionStorage.getItem('arcane-alert-status')?.toLocaleLowerCase() === 'error' &&
-              <Alert variant="error" icon="/icon/alert-circle.svg" duration={5} source="arcane-alert-message" />
-            }
+            {sessionStorage
+              .getItem("arcane-alert-status")
+              ?.toLocaleLowerCase() === "success" && (
+              <Alert
+                variant="success"
+                icon="/icon/check-circle.svg"
+                duration={5}
+                source="arcane-alert-message"
+              />
+            )}
+            {sessionStorage
+              .getItem("arcane-alert-status")
+              ?.toLocaleLowerCase() === "error" && (
+              <Alert
+                variant="error"
+                icon="/icon/alert-circle.svg"
+                duration={5}
+                source="arcane-alert-message"
+              />
+            )}
           </MainTitle>
 
           <Card className="mb-4">
             <Tabs>
               <Tab label="Active" id="active">
                 <div className="grid md:grid-cols-5 gap-4 items-center mb-6">
-                  <Select label={"Status"} id={"filter-status"} name={"filter-status"} showLabel={false} className={"md:col-span-1"} value={currentOptionsActive} options={optionsActive} onChange={(e) => handleSelectActive(e.target.value)} />
+                  <Select
+                    label={"Status"}
+                    id={"filter-status"}
+                    name={"filter-status"}
+                    showLabel={false}
+                    className={"md:col-span-1"}
+                    value={currentOptionsActive}
+                    options={optionsActive}
+                    onChange={(e) => handleSelectActive(e.target.value)}
+                  />
                   <div className="md:col-span-4 flex max-md:flex-col gap-4">
-                    <form spellCheck="false" className="w-full" onSubmit={handleSearch}>
+                    <form
+                      spellCheck="false"
+                      className="w-full"
+                      onSubmit={handleSearch}
+                    >
                       <Fieldset className="relative">
-                        <label htmlFor="search-proposal" className="absolute top-0 bottom-0 left-0 my-auto mx-3 h-fit opacity-50">
+                        <label
+                          htmlFor="search-proposal"
+                          className="absolute top-0 bottom-0 left-0 my-auto mx-3 h-fit opacity-50"
+                        >
                           <Image
                             src="/icon/search-md.svg"
                             alt="icon"
@@ -188,10 +438,20 @@ export default function ProposalAdmin({ rdt }: any) {
                           />
                           <span className="sr-only">Search</span>
                         </label>
-                        <input type="text" id="search-proposal" name="search-proposal" placeholder="Search Proposal" className="w-full appearance-none rounded-xl py-3 pr-4 pl-11 text-gray-500 bg-gray-100 border-2 border-transparent placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default" onChange={handleSearchInput} />
+                        <input
+                          type="text"
+                          id="search-proposal"
+                          name="search-proposal"
+                          placeholder="Search Proposal"
+                          className="w-full appearance-none rounded-xl py-3 pr-4 pl-11 text-gray-500 bg-gray-100 border-2 border-transparent placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default"
+                          onChange={handleSearchInput}
+                        />
                       </Fieldset>
                     </form>
-                    <Link href="/admin/proposal/create" className="md:w-fit md:whitespace-nowrap">
+                    <Link
+                      href="/admin/proposal/create"
+                      className="md:w-fit md:whitespace-nowrap"
+                    >
                       <Button type={"button"} variant="primary" loading="none">
                         Create New Proposal
                         <Image
@@ -207,19 +467,61 @@ export default function ProposalAdmin({ rdt }: any) {
                   </div>
                 </div>
                 <div className="grid gap-6 mb-2 lg:mb-1">
-                  {dataProposalActive.map((item: any) => (
-                    <Link key={item.id} href={'proposal/' + item.id}>
-                      <ProposalList {...item} />
-                    </Link>
-                  ))}
+                  {dataVotesActive ? (
+                    <>
+                      {activeProposals.map((item: any) => (
+                        <Link key={item.id} href={"proposal/" + item.id}>
+                          <ProposalList {...item} />
+                        </Link>
+                      ))}
+                      <div className="flex justify-end">
+                        <Pagination
+                          id={"proposal-admin-active"}
+                          total={Math.ceil(totalVotesActive / 10)}
+                          current={
+                            sessionStorage.getItem(
+                              `arcane-proposal-admin-active-pagin`
+                            )
+                              ? Number(
+                                  sessionStorage.getItem(
+                                    `arcane-proposal-admin-active-pagin`
+                                  )
+                                )
+                              : 1
+                          }
+                          onPageChange={handlePageChangeActive}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="bg-gray-50 text-gray-300 px-6 py-4 rounded-lg italic">
+                      No proposal here, please create new one.
+                    </div>
+                  )}
                 </div>
               </Tab>
               <Tab label="History" id="history">
                 <div className="grid sm:grid-cols-8 md:grid-cols-5 gap-4 items-center mb-6">
-                  <Select label={"Status"} id={"filter-status"} name={"filter-status"} showLabel={false} className={"sm:col-span-2 md:col-span-1"} value={currentOptionsHistory} options={optionsHistory} onChange={(e) => handleSelectHistory(e.target.value)} />
-                  <form spellCheck="false" className="sm:col-span-6 md:col-span-4" onSubmit={handleSearch}>
+                  <Select
+                    label={"Status"}
+                    id={"filter-status"}
+                    name={"filter-status"}
+                    showLabel={false}
+                    className={"sm:col-span-2 md:col-span-1"}
+                    value={currentOptionsHistory}
+                    options={optionsHistory}
+                    onChange={(e) => handleSelectHistory(e.target.value)}
+                  />
+                  <form
+                    spellCheck="false"
+                    className="sm:col-span-6 md:col-span-4"
+                    onSubmit={handleSearch}
+                  >
                     <Fieldset className="relative">
-                      <label htmlFor="search-proposal" className="absolute top-0 bottom-0 left-0 my-auto mx-3 h-fit opacity-50">
+                      <label
+                        htmlFor="search-proposal"
+                        className="absolute top-0 bottom-0 left-0 my-auto mx-3 h-fit opacity-50"
+                      >
                         <Image
                           src="/icon/search-md.svg"
                           alt="icon"
@@ -229,16 +531,49 @@ export default function ProposalAdmin({ rdt }: any) {
                         />
                         <span className="sr-only">Search</span>
                       </label>
-                      <input type="text" id="search-proposal" name="search-proposal" placeholder="Search Proposal" className="w-full appearance-none rounded-xl py-3 pr-4 pl-11 text-gray-500 bg-gray-100 border-2 border-transparent placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default" onChange={handleSearchInput} />
+                      <input
+                        type="text"
+                        id="search-proposal"
+                        name="search-proposal"
+                        placeholder="Search Proposal"
+                        className="w-full appearance-none rounded-xl py-3 pr-4 pl-11 text-gray-500 bg-gray-100 border-2 border-transparent placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default"
+                        onChange={handleSearchInput}
+                      />
                     </Fieldset>
                   </form>
                 </div>
                 <div className="grid gap-6 mb-2 lg:mb-1">
-                  {dataProposalHistory.map((item: any) => (
-                    <Link key={item.id} href={'proposal/' + item.id}>
-                      <ProposalList {...item} />
-                    </Link>
-                  ))}
+                  {dataVotesHistory ? (
+                    <>
+                      {historyProposals.map((item: any) => (
+                        <Link key={item.id} href={"proposal/" + item.id}>
+                          <ProposalList {...item} />
+                        </Link>
+                      ))}
+                      <div className="flex justify-end">
+                        <Pagination
+                          id={"proposal-admin-history"}
+                          total={Math.ceil(totalVotesHistory / 10)}
+                          current={
+                            sessionStorage.getItem(
+                              `arcane-proposal-admin-history-pagin`
+                            )
+                              ? Number(
+                                  sessionStorage.getItem(
+                                    `arcane-proposal-pagin`
+                                  )
+                                )
+                              : 1
+                          }
+                          onPageChange={handlePageChangeHistory}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="bg-gray-50 text-gray-300 px-6 py-4 rounded-lg italic">
+                      No proposal here, please create new one.
+                    </div>
+                  )}
                 </div>
               </Tab>
             </Tabs>
@@ -246,5 +581,5 @@ export default function ProposalAdmin({ rdt }: any) {
         </>
       )}
     </>
-  )
+  );
 }

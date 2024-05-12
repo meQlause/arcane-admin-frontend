@@ -55,7 +55,11 @@ export default function ProposalMember({ rdt }: any) {
 
   const getTotalVotes = async (): Promise<Response> => {
     return await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter/pending`,
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter?count=${
+        currentOptionsActive === "All"
+          ? ["pending", "active"]
+          : [currentOptionsActive.toLocaleLowerCase()]
+      }`,
       {
         method: "GET",
         headers: {
@@ -72,21 +76,36 @@ export default function ProposalMember({ rdt }: any) {
       if (rdt) {
         rdt.disconnect();
       }
+      sessionStorage.setItem("arcane-alert-status", "error"); // primary, error, warning, success, info
+      sessionStorage.setItem(
+        "arcane-alert-message",
+        "Your session is over, please login again to create a proposal."
+      );
       router.push("/about");
       localStorage.removeItem("arcane");
       return;
     }
-    setTotalVotes(Number(await res.text()));
-    return await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/get-votes?page=${page}`,
-      {
-        method: "GET",
-        headers: {
-          "content-type": "application/json",
-          Authorization: `Bearer ${access_token}`,
-        },
-      }
-    ).then((res) => res.json());
+    let totalVotes_ = Number(await res.text());
+    setTotalVotes(totalVotes_);
+    return {
+      data: await fetch(
+        `${
+          process.env.NEXT_PUBLIC_BACKEND_API_SERVER
+        }/votes/get-votes?page=${page}&status=${
+          currentOptionsActive === "All"
+            ? ["pending", "active"]
+            : [currentOptionsActive.toLocaleLowerCase()]
+        }`,
+        {
+          method: "GET",
+          headers: {
+            "content-type": "application/json",
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      ).then((res) => res.json()),
+      total: totalVotes_,
+    };
 
     // return [
     //   {
@@ -127,19 +146,8 @@ export default function ProposalMember({ rdt }: any) {
         ? Number(sessionStorage.getItem("arcane-proposal-pagin"))
         : 1;
       const data = await getVotes(currentPage);
-      let res = await getTotalVotes();
-      if (res.status === 401) {
-        if (rdt) {
-          rdt.disconnect();
-        }
-        router.push("/about");
-        localStorage.removeItem("arcane");
-        return;
-      }
-      const total = Number(await res.text());
-      setTotalVotes(total);
-      if (data && total > 0) {
-        let dataProposal = data.map((item: any) => {
+      if (data?.data && data?.total > 0) {
+        let dataProposal = data?.data.map((item: any) => {
           return {
             id: item.id,
             user_address: item.address.address,
@@ -161,23 +169,12 @@ export default function ProposalMember({ rdt }: any) {
       }
     };
     fetchData();
-  }, []);
+  }, [currentOptionsActive]);
 
   const handlePageChange = async (page: number) => {
     const data = await getVotes(page);
-    let res = await getTotalVotes();
-    if (res.status === 401) {
-      if (rdt) {
-        rdt.disconnect();
-      }
-      router.push("/about");
-      localStorage.removeItem("arcane");
-      return;
-    }
-    const total = Number(await res.text());
-    setTotalVotes(total);
-    if (data && total > 0) {
-      let dataProposal: any = data.map((item: any) => {
+    if (data?.data && data?.total > 0) {
+      let dataProposal: any = data?.data.map((item: any) => {
         return {
           id: item.id,
           user_address: item.address.address,

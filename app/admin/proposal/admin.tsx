@@ -167,7 +167,7 @@ export default function ProposalAdmin({ rdt }: any) {
       setDataVotesHistory(false);
     }
   };
-  const getTotalVotes = async (): Promise<Response> => {
+  const getTotalVotesActive = async (): Promise<Response> => {
     return await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter?count=${
         currentOptionsActive === "All"
@@ -184,8 +184,25 @@ export default function ProposalAdmin({ rdt }: any) {
     );
   };
 
+  const getTotalVotesHistory = async (): Promise<Response> => {
+    return await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter?count=${
+        currentOptionsActive === "All"
+          ? ["rejected", "closed"]
+          : [currentOptionsHistory.toLocaleLowerCase()]
+      }`,
+      {
+        method: "GET",
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${access_token}`,
+        },
+      }
+    );
+  };
+
   const getActiveVotes = async (page: number) => {
-    let res = await getTotalVotes();
+    let res = await getTotalVotesActive();
     if (res.status === 401) {
       if (rdt) {
         rdt.disconnect();
@@ -223,7 +240,7 @@ export default function ProposalAdmin({ rdt }: any) {
   };
 
   const getHistoryVotes = async (page: number) => {
-    let res = await getTotalVotes();
+    let res = await getTotalVotesHistory();
     if (res.status === 401) {
       if (rdt) {
         rdt.disconnect();

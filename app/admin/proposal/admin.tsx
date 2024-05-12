@@ -187,7 +187,7 @@ export default function ProposalAdmin({ rdt }: any) {
   const getTotalVotesHistory = async (): Promise<Response> => {
     return await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter?count=${
-        currentOptionsActive === "All"
+        currentOptionsHistory === "All"
           ? ["rejected", "closed"]
           : [currentOptionsHistory.toLocaleLowerCase()]
       }`,

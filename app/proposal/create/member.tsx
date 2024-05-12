@@ -227,7 +227,7 @@ export default function ProposalCreateMember({ rdt }: any) {
             "title": ${JSON.stringify(title.trim())}, 
             "description": ${JSON.stringify(description.trim())}, 
             "picture": "${resPict.ok ? (await resPict.text()).slice(39) : ""}", 
-            "endEpoch": "${votingDuration}"
+            "endEpoch": "${votingDuration}",
             "createdBy": "${role}"
           }, 
           "metadata": {}

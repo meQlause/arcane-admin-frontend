@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useWallet } from "@/app/auth/wallet";
 
 export const useAccount = ({ rdt }: any) => {
-  const { role, nft_id } = useWallet();
+  const { role, nft_id, access_token, address } = useWallet();
   const router = useRouter();
   const [account, setAccount] = useState<any>(null);
 
@@ -30,5 +30,5 @@ export const useAccount = ({ rdt }: any) => {
     fetchAccount();
   }, [rdt, router]);
 
-  return { account, nft_id };
+  return { account, nft_id, access_token, address };
 };

@@ -1,4 +1,4 @@
-import React, { ReactNode, FC, KeyboardEvent, ChangeEvent, DragEvent, useEffect, useState, CSSProperties, Dispatch } from "react";
+import React, { ReactNode, FC, KeyboardEvent, MouseEvent, ChangeEvent, DragEvent, useEffect, useState, CSSProperties, Dispatch } from "react";
 import Image from "next/image";
 import { truncateMiddle } from "@/app/functions/truncate";
 
@@ -429,12 +429,13 @@ type RadioProps = {
   checked?: boolean
   className?: string
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void
+  onClick?: (event: MouseEvent<HTMLInputElement>) => void
 }
 
-export function Radio({children, id, name, defaultValue, value, disabled, required, checked, className, onChange}: Readonly<RadioProps>) {
+export function Radio({children, id, name, defaultValue, value, disabled, required, checked, className, onChange, onClick}: Readonly<RadioProps>) {
   return (
     <>
-      <input type="radio" id={id} name={name} defaultValue={defaultValue} value={value} disabled={disabled} required={required} onChange={onChange} className="sr-only peer" checked={checked} />
+      <input type="radio" id={id} name={name} defaultValue={defaultValue} value={value} disabled={disabled} required={required} onChange={onChange} onClick={onClick} className="sr-only peer" checked={checked} />
       <label htmlFor={id} className={`relative block px-4 py-3 rounded-lg cursor-pointer border border-gray-200 lg:hover:bg-gray-100 ring-primary-400 peer-checked:ring-1 peer-checked:text-primary-800 peer-checked:bg-primary-100 peer-checked:border-primary-400 focus:border-primary-400 focus:ring-primary-400 focus:outline-none focus-visible:outline-none ${disabled ? 'cursor-default bg-gray-100' : ''} ${className ?? ''}`}>
         {children}
       </label>

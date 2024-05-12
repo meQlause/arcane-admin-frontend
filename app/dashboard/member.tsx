@@ -1,9 +1,11 @@
-'use client'
+"use client";
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/auth/account";
+import { useWallet } from "@/app/auth/wallet";
 import { MainTitle } from "@/app/components/main";
 import { Alert } from "@/app/components/alert";
 import { Card } from "@/app/components/card";
@@ -16,151 +18,156 @@ import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
 
 type VaultResponse = {
-  address: string,
-  ancestor_identities: undefined,
-  details: any,
-  metadata: any
-  fungible_resources : {
-    total_count: number,
-    items: 
-      {
-        aggregation_level: any,
-        resource_address: string,
-        vaults: {
-          total_count: number,
-          items: {
-            vault_address: string,
-            amount: number,
-            last_updated_at_state_version: number
-          }[]
-        }
-    }[]
-  },
-  non_fungible_resources: {
-    total_count: number,
+  address: string;
+  ancestor_identities: undefined;
+  details: any;
+  metadata: any;
+  fungible_resources: {
+    total_count: number;
     items: {
-      aggregation_level: string,
-      resource_address: string,
+      aggregation_level: any;
+      resource_address: string;
       vaults: {
-        total_count: number,
+        total_count: number;
         items: {
-          total_count: number,
-          items: string[],
-          vault_address: string,
-          last_updated_at_state_version: number
-        }[]
-      }
-    }[]
-  }
-}
+          vault_address: string;
+          amount: number;
+          last_updated_at_state_version: number;
+        }[];
+      };
+    }[];
+  };
+  non_fungible_resources: {
+    total_count: number;
+    items: {
+      aggregation_level: string;
+      resource_address: string;
+      vaults: {
+        total_count: number;
+        items: {
+          total_count: number;
+          items: string[];
+          vault_address: string;
+          last_updated_at_state_version: number;
+        }[];
+      };
+    }[];
+  };
+};
 
 export default function DashboardMember({ rdt }: any) {
-  const { account, nft_id } = useAccount({ rdt })
-  const [currentOptionsProposal, setCurrentOptionsProposal] = useState('All')
-  const [totalNFT, setTotalNFT] = useState<number>(0)
-  const [totalProposal, setTotalProposal] = useState<number>(0)
+  const { account } = useAccount({ rdt });
+  const { nft_id, access_token } = useWallet();
+  const [currentOptionsProposal, setCurrentOptionsProposal] = useState("All");
+  const [totalNFT, setTotalNFT] = useState<number>(0);
+  const [totalProposal, setTotalProposal] = useState<number>(0);
   const [dataToken, setDataToken] = useState<any>([]);
   const [dataNFT, setDataNFT] = useState<any>([]);
   const [dataHistoryVote, setDataHistoryVote] = useState<any>([]);
   const [dataProposal, setDataProposal] = useState<ProposalProps[]>([]);
+  const router = useRouter();
+
   const optionsProposal: any = [
     {
-      value: 'All',
-      label: 'All'
+      value: "All",
+      label: "All",
     },
     {
-      value: 'Active',
-      label: 'Active'
+      value: "Active",
+      label: "Active",
     },
     {
-      value: 'Review',
-      label: 'Review'
+      value: "Review",
+      label: "Review",
     },
     {
-      value: 'Rejected',
-      label: 'Rejected'
+      value: "Rejected",
+      label: "Rejected",
     },
     {
-      value: 'Closed',
-      label: 'Closed'
-    }
-  ]
+      value: "Closed",
+      label: "Closed",
+    },
+  ];
   const handleSelectActive = (value: string) => {
-    setCurrentOptionsProposal(value)
-  }
-  const [searchKeyword, setSearchKeyword] = useState('')
+    setCurrentOptionsProposal(value);
+  };
+  const [searchKeyword, setSearchKeyword] = useState("");
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log(searchKeyword)
-  }
+    e.preventDefault();
+    console.log(searchKeyword);
+  };
   const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchKeyword(e.target.value)
-  }
-  const [sliderCurrent, setSliderCurrent] = useState(0)
-  const [sliderLoaded, setSliderLoaded] = useState(false)
-  const [sliderRef, instanceRef] = useKeenSlider({
-    loop: false,
-    mode: 'free-snap',
-    slides: {
-      perView: 2,
-      spacing: 15
-    },
-    breakpoints: {
-      '(min-width: 640px)': {
-        slides: {
-          perView: 4,
-          spacing: 15
+    setSearchKeyword(e.target.value);
+  };
+  const [sliderCurrent, setSliderCurrent] = useState(0);
+  const [sliderLoaded, setSliderLoaded] = useState(false);
+  const [sliderRef, instanceRef] = useKeenSlider(
+    {
+      loop: false,
+      mode: "free-snap",
+      slides: {
+        perView: 2,
+        spacing: 15,
+      },
+      breakpoints: {
+        "(min-width: 640px)": {
+          slides: {
+            perView: 4,
+            spacing: 15,
+          },
+        },
+        "(min-width: 1024px)": {
+          slides: {
+            perView: 3,
+            spacing: 15,
+          },
+        },
+        "(min-width: 1280px)": {
+          slides: {
+            perView: 5,
+            spacing: 15,
+          },
+        },
+        "(min-width: 1536px)": {
+          slides: {
+            perView: 4,
+            spacing: 15,
+          },
         },
       },
-      '(min-width: 1024px)': {
-        slides: {
-          perView: 3,
-          spacing: 15
-        },
+      initial: 0,
+      slideChanged(slider) {
+        setSliderCurrent(slider.track.details.rel);
       },
-      '(min-width: 1280px)': {
-        slides: {
-          perView: 5,
-          spacing: 15
-        },
+      created() {
+        setSliderLoaded(true);
       },
-      '(min-width: 1536px)': {
-        slides: {
-          perView: 4,
-          spacing: 15
-        },
-      }
     },
-    initial: 0,
-    slideChanged(slider) {
-      setSliderCurrent(slider.track.details.rel)
-    },
-    created() {
-      setSliderLoaded(true)
-    },
-  },[])
-  const [maxSlidesToShow, setMaxSlidesToShow] = useState(2)
+    []
+  );
+  const [maxSlidesToShow, setMaxSlidesToShow] = useState(2);
   useEffect(() => {
     const handleResize = () => {
-      const screen = window.innerWidth
-      let max
+      const screen = window.innerWidth;
+      let max;
       if (screen >= 640 && screen < 1024) {
-        max = 4
+        max = 4;
       } else if (screen >= 1024 && screen < 1280) {
-        max = 3
+        max = 3;
       } else if (screen >= 1280 && screen < 1536) {
-        max = 5
+        max = 5;
       } else if (screen >= 1536) {
-        max = 4
+        max = 4;
       } else {
-        max = 2
+        max = 2;
       }
-      setMaxSlidesToShow(max)
-    }
-    handleResize()
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
+      setMaxSlidesToShow(max);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // const dataProposal: ProposalProps[] = [
   //   {
@@ -255,63 +262,109 @@ export default function DashboardMember({ rdt }: any) {
 
   useEffect(() => {
     const fetchEntityMetadata = async () => {
-      let dataV: any = []
-      if(account?.address) {
-        const responseVote =await (await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/get-votes-by/${nft_id.slice(1, -1)}`,
+      let dataV: any = [];
+      if (account?.address) {
+        const responseVote = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_BACKEND_API_SERVER
+          }/votes/get-votes-by/${nft_id.slice(1, -1)}`,
           {
-            method: 'GET',
-            headers: { 
-              'content-type': 'application/json',
+            method: "GET",
+            headers: {
+              "content-type": "application/json",
+              Authorization: `Bearer ${access_token}`,
             },
           }
-        )).json();
+        );
 
-        setTotalProposal(responseVote.length)
-        for(let x = 0; x < responseVote.length; x++) {
+        if (responseVote.status === 401) {
+          rdt.diconnect();
+          router.push("/about");
+          localStorage.removeItem("arcane");
+          setTimeout(() => {
+            sessionStorage.setItem("arcane-alert-status", "error"); // primary, error, warning, success, info
+            sessionStorage.setItem(
+              "arcane-alert-message",
+              "Your session is over, please login again to create a proposal."
+            );
+          }, 1000);
+          return;
+        }
+
+        let resV = await responseVote.json();
+
+        setTotalProposal(resV.length);
+        for (let x = 0; x < resV.length; x++) {
           dataV.push({
-            id: responseVote[x].id,
-            user_address: responseVote[x].address.address,
-            avatar: '/user/user-1.png',
-            title: responseVote[x].title,
-            description: responseVote[x].description,
-            end:  responseVote[x].endEpoch,
-            status: responseVote[x].isPending ? 'pending' : 'active',
-            vote: Object.entries(responseVote[x].voteTokenAmount).map(([label, amount]) => ({ label, amount }))
-          })
+            id: resV[x].id,
+            user_address: resV[x].address.address,
+            avatar: "/user/user-1.png",
+            title: resV[x].title,
+            description: resV[x].description,
+            end: resV[x].endEpoch,
+            status: resV[x].status,
+            vote: Object.entries(resV[x].voteTokenAmount).map(
+              ([label, amount]) => ({ label, amount })
+            ),
+          });
         }
-        setDataProposal(dataV)
+        setDataProposal(dataV);
 
-        const response = await (await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/get-voter-data/${nft_id.slice(1, -1)}`)).json();
-        let dataH : any = []
-        console.log(response)
-        for(let x = 0; x < response.length; x++) {
-          dataH.push({
-            user_address: response[x].voter,
-            title: response[x].title,
-            amount: response[x].amount,
-            label: 'ARC',
-            vote: response[x].vote.id
-          })
+        const responseHistory = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_BACKEND_API_SERVER
+          }/votes/get-voter-data/${nft_id.slice(1, -1)}`,
+          {
+            method: "GET",
+            headers: {
+              "content-type": "application/json",
+              Authorization: `Bearer ${access_token}`,
+            },
+          }
+        );
+
+        if (responseHistory.status === 401) {
+          rdt.diconnect();
+          router.push("/about");
+          localStorage.removeItem("arcane");
+          return;
         }
-        setDataHistoryVote(dataH)
-        
-        const metadata : VaultResponse = await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(account?.address);
+
+        let resH = await responseHistory.json();
+        console.log(resH);
+        let dataH: any = [];
+        for (let x = 0; x < resH.length; x++) {
+          dataH.push({
+            user_address: resH[x].voter,
+            title: resH[x].title,
+            amount: resH[x].amount,
+            label: "ARC",
+            vote: resH[x].vote.id,
+          });
+        }
+        setDataHistoryVote(dataH);
+
+        const metadata: VaultResponse =
+          await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(
+            account?.address
+          );
         let ft_data = metadata.fungible_resources.items;
         let nft_data = metadata.non_fungible_resources.items;
-        let dataT: any = []
-        let dataN: any = []
+        let dataT: any = [];
+        let dataN: any = [];
 
-        setTotalNFT(metadata.non_fungible_resources.total_count)
-        for(let x = 0; x < ft_data.length; x++) {
-          let ft_metadata = await rdt.gatewayApi.state.getEntityMetadata(ft_data[x].resource_address)
-          let label = 'none';
-          let url = 'none';
-          for(let i = 0; i < ft_metadata.items.length; i++) {
-            if (ft_metadata.items[i].key === 'symbol') {
+        setTotalNFT(metadata.non_fungible_resources.total_count);
+        for (let x = 0; x < ft_data.length; x++) {
+          let ft_metadata = await rdt.gatewayApi.state.getEntityMetadata(
+            ft_data[x].resource_address
+          );
+          let label = "none";
+          let url = "none";
+          for (let i = 0; i < ft_metadata.items.length; i++) {
+            if (ft_metadata.items[i].key === "symbol") {
               label = ft_metadata.items[i].value.typed.value;
             }
-            if (ft_metadata.items[i].key === 'icon_url') {
+            if (ft_metadata.items[i].key === "icon_url") {
               url = ft_metadata.items[i].value.typed.value;
             }
           }
@@ -319,69 +372,70 @@ export default function DashboardMember({ rdt }: any) {
             label: label,
             url: url,
             amount: ft_data[x].vaults.items[0].amount,
-            value: 120100
+            value: 120100,
           });
         }
 
-        for(let x = 0; x < nft_data.length; x++) {
-          let nft_metadata = await rdt.gatewayApi.state.getEntityMetadata(nft_data[x].resource_address)
-          let title = 'none';
-          let src = 'none';
-          for(let i = 0; i < nft_metadata.items.length; i++) {
-            if(nft_metadata.items[i].key === 'name') {
+        for (let x = 0; x < nft_data.length; x++) {
+          let nft_metadata = await rdt.gatewayApi.state.getEntityMetadata(
+            nft_data[x].resource_address
+          );
+          let title = "none";
+          let src = "none";
+          for (let i = 0; i < nft_metadata.items.length; i++) {
+            if (nft_metadata.items[i].key === "name") {
               title = nft_metadata.items[i].value.typed.value;
             }
-            if(nft_metadata.items[i].key === 'icon_url') {
+            if (nft_metadata.items[i].key === "icon_url") {
               src = nft_metadata.items[i].value.typed.value;
             }
           }
           dataN.push({
             title: title,
-            src: src
+            src: src,
           });
         }
 
-        setDataToken(dataT)
+        setDataToken(dataT);
         setDataNFT(dataN);
       }
     };
-    fetchEntityMetadata()
+    fetchEntityMetadata();
   }, [account?.address]);
 
-
   // let dataToken: any = [
-    // {
-    //   label: 'XRD',
-    //   url: "https://i.ibb.co/2vtP4Kr/arcane.jpg",
-    //   amount: 1200000,
-    //   value: 120100
-    // },
-    // {
-    //   label: 'ARC',
-    //   url: "https://i.ibb.co/2vtP4Kr/arcane.jpg",
-    //   amount: 830000,
-    //   value: 83000
-    // },
-    // {
-    //   label: 'XRD',
-    //   url: "https://i.ibb.co/2vtP4Kr/arcane.jpg",
-    //   amount: 2500,
-    //   value: 250
-    // },
-    // {
-    //   label: 'XRD',
-    //   url: "https://i.ibb.co/2vtP4Kr/arcane.jpg",
-    //   amount: 1000,
-    //   value: 100
-    // },
-    // {
-    //   label: 'ARC',
-    //   url: "https://i.ibb.co/2vtP4Kr/arcane.jpg",
-    //   amount: 500,
-    //   value: 50
-    // }
+  // {
+  //   label: 'XRD',
+  //   url: "https://i.ibb.co/2vtP4Kr/arcane.jpg",
+  //   amount: 1200000,
+  //   value: 120100
+  // },
+  // {
+  //   label: 'ARC',
+  //   url: "https://i.ibb.co/2vtP4Kr/arcane.jpg",
+  //   amount: 830000,
+  //   value: 83000
+  // },
+  // {
+  //   label: 'XRD',
+  //   url: "https://i.ibb.co/2vtP4Kr/arcane.jpg",
+  //   amount: 2500,
+  //   value: 250
+  // },
+  // {
+  //   label: 'XRD',
+  //   url: "https://i.ibb.co/2vtP4Kr/arcane.jpg",
+  //   amount: 1000,
+  //   value: 100
+  // },
+  // {
+  //   label: 'ARC',
+  //   url: "https://i.ibb.co/2vtP4Kr/arcane.jpg",
+  //   amount: 500,
+  //   value: 50
+  // }
   // ]
-  
+
   // const dataHistoryVote: any = [
   // {
   //     user_address: 'yzp2lmc2445678901abc',
@@ -419,12 +473,26 @@ export default function DashboardMember({ rdt }: any) {
             userImage={account.avatar}
             userRole={account.role}
           >
-            {sessionStorage.getItem('arcane-alert-status')?.toLocaleLowerCase() === 'success' &&
-              <Alert variant="success" icon="/icon/check-circle.svg" duration={5} source="arcane-alert-message" />
-            }
-            {sessionStorage.getItem('arcane-alert-status')?.toLocaleLowerCase() === 'error' &&
-              <Alert variant="error" icon="/icon/alert-circle.svg" duration={5} source="arcane-alert-message" />
-            }
+            {sessionStorage
+              .getItem("arcane-alert-status")
+              ?.toLocaleLowerCase() === "success" && (
+              <Alert
+                variant="success"
+                icon="/icon/check-circle.svg"
+                duration={5}
+                source="arcane-alert-message"
+              />
+            )}
+            {sessionStorage
+              .getItem("arcane-alert-status")
+              ?.toLocaleLowerCase() === "error" && (
+              <Alert
+                variant="error"
+                icon="/icon/alert-circle.svg"
+                duration={5}
+                source="arcane-alert-message"
+              />
+            )}
           </MainTitle>
 
           <div className="grid gap-6">
@@ -442,12 +510,12 @@ export default function DashboardMember({ rdt }: any) {
                     />
                     <div className="bg-primary-100 rounded-full animate-ping absolute top-0 left-0 w-full h-full -z-[1]"></div>
                   </div>
-                  <div className="font-medium mt-2.5">
-                    Total Asset
-                  </div>
+                  <div className="font-medium mt-2.5">Total Asset</div>
                 </div>
                 <div className="mt-6">
-                  <div className="font-semibold text-2xl md:text-4xl mb-4">${formatNumber(1400)}</div>
+                  <div className="font-semibold text-2xl md:text-4xl mb-4">
+                    ${formatNumber(1400)}
+                  </div>
                   <Image
                     src="/icon/arrow-up.svg"
                     alt="icon"
@@ -456,7 +524,9 @@ export default function DashboardMember({ rdt }: any) {
                     height={20}
                     priority
                   />
-                  <span className="text-success-600 mr-2">{formatNumber(80)}%</span>
+                  <span className="text-success-600 mr-2">
+                    {formatNumber(80)}%
+                  </span>
                   <span className="text-gray-600 text-sm">vs last month</span>
                 </div>
               </Card>
@@ -473,12 +543,12 @@ export default function DashboardMember({ rdt }: any) {
                     />
                     <div className="bg-primary-100 rounded-full animate-ping absolute top-0 left-0 w-full h-full -z-[1]"></div>
                   </div>
-                  <div className="font-medium mt-2.5">
-                    Total Proposal
-                  </div>
+                  <div className="font-medium mt-2.5">Total Proposal</div>
                 </div>
                 <div className="mt-6">
-                  <div className="font-semibold text-2xl md:text-4xl mb-4">{totalProposal ? totalProposal : 0}</div>
+                  <div className="font-semibold text-2xl md:text-4xl mb-4">
+                    {totalProposal ? totalProposal : 0}
+                  </div>
                   <Image
                     src="/icon/arrow-up.svg"
                     alt="icon"
@@ -504,12 +574,12 @@ export default function DashboardMember({ rdt }: any) {
                     />
                     <div className="bg-primary-100 rounded-full animate-ping absolute top-0 left-0 w-full h-full -z-[1]"></div>
                   </div>
-                  <div className="font-medium mt-2.5">
-                    Total NFT
-                  </div>
+                  <div className="font-medium mt-2.5">Total NFT</div>
                 </div>
                 <div className="mt-6">
-                  <div className="font-semibold text-2xl md:text-4xl mb-4">{totalNFT ? totalNFT : 0}</div>
+                  <div className="font-semibold text-2xl md:text-4xl mb-4">
+                    {totalNFT ? totalNFT : 0}
+                  </div>
                   <Image
                     src="/icon/arrow-down.svg"
                     alt="icon"
@@ -527,21 +597,36 @@ export default function DashboardMember({ rdt }: any) {
               <div className="2xl:col-span-2 2xl:order-2 grid md:grid-cols-2 2xl:grid-cols-1 gap-6 h-fit">
                 <Card>
                   <div className="flex items-center justify-between gap-4 mb-2">
-                    <h2 className="text-lg font-maven-pro font-semibold">My Token</h2>
-                    {dataToken.length > 0 &&
-                      <Button type="button" variant="light" className="!px-3 !w-fit min-w-[100px] pointer-events-none">{formatNumber(dataToken.length)} item{dataToken.length > 1 && 's'}</Button>
-                    }
+                    <h2 className="text-lg font-maven-pro font-semibold">
+                      My Token
+                    </h2>
+                    {dataToken.length > 0 && (
+                      <Button
+                        type="button"
+                        variant="light"
+                        className="!px-3 !w-fit min-w-[100px] pointer-events-none"
+                      >
+                        {formatNumber(dataToken.length)} item
+                        {dataToken.length > 1 && "s"}
+                      </Button>
+                    )}
                   </div>
-                  {dataToken.length > 0 ?
+                  {dataToken.length > 0 ? (
                     <div className="max-h-[500px] max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-white -mb-4 -mx-6 px-6">
                       <table className="w-full">
                         <tbody>
-                        {dataToken.map((item: any, index: number) => {
+                          {dataToken.map((item: any, index: number) => {
                             return (
-                              <tr key={index} className="[&_td]:py-6 [&:not(:last-child)_td]:border-b [&_td]:border-gray-300">
+                              <tr
+                                key={index}
+                                className="[&_td]:py-6 [&:not(:last-child)_td]:border-b [&_td]:border-gray-300"
+                              >
                                 <td>
                                   <div className="flex justify-between gap-4">
-                                    <div className="flex gap-2" title={item.title}>
+                                    <div
+                                      className="flex gap-2"
+                                      title={item.title}
+                                    >
                                       {/* <Image
                                         src={item.url ? item.url : '/icon/logo-arc.svg'}
                                         alt="icon"
@@ -549,45 +634,83 @@ export default function DashboardMember({ rdt }: any) {
                                         width={24}
                                         height={24}
                                       /> */}
-                                      <img width={24} height={24} className="w-8 h-8 min-w-[2rem] rounded-md object-cover inline-block -my-1" src={item.url ? item.url : '/upload/proposal-1.png'} alt="description" />
-                                      {item.label && 
-                                        <div className="font-bold line-clamp-1">{item.label}</div>
-                                      }
+                                      <img
+                                        width={24}
+                                        height={24}
+                                        className="w-8 h-8 min-w-[2rem] rounded-md object-cover inline-block -my-1"
+                                        src={
+                                          item.url
+                                            ? item.url
+                                            : "/upload/proposal-1.png"
+                                        }
+                                        alt="description"
+                                      />
+                                      {item.label && (
+                                        <div className="font-bold line-clamp-1">
+                                          {item.label}
+                                        </div>
+                                      )}
                                     </div>
-                                    {item.amount && <div className="text-right min-w-[70px] text-primary-600 font-medium">{formatNumber(item.amount)}</div>}
-                                    {item.value && <div className="text-right min-w-[70px] text-success-500 font-medium">${formatNumber(item.value)}</div>}
+                                    {item.amount && (
+                                      <div className="text-right min-w-[70px] text-primary-600 font-medium">
+                                        {formatNumber(item.amount)}
+                                      </div>
+                                    )}
+                                    {item.value && (
+                                      <div className="text-right min-w-[70px] text-success-500 font-medium">
+                                        ${formatNumber(item.value)}
+                                      </div>
+                                    )}
                                   </div>
                                 </td>
                               </tr>
-                            )
+                            );
                           })}
                         </tbody>
                       </table>
                     </div>
-                  :
+                  ) : (
                     <div className="bg-gray-50 text-gray-300 px-6 py-4 rounded-lg italic mt-4">
                       You have no one token yet
                     </div>
-                  }
+                  )}
                 </Card>
                 <Card>
                   <div className="flex items-center justify-between gap-4 mb-2">
-                    <h2 className="text-lg font-maven-pro font-semibold">History Vote</h2>
-                    {dataHistoryVote.length > 0 &&
-                      <Button type="button" variant="light" className="!px-3 !w-fit min-w-[100px] pointer-events-none">{formatNumber(dataHistoryVote.length)} vote{dataHistoryVote.length > 1 && 's'}</Button>
-                    }
+                    <h2 className="text-lg font-maven-pro font-semibold">
+                      History Vote
+                    </h2>
+                    {dataHistoryVote.length > 0 && (
+                      <Button
+                        type="button"
+                        variant="light"
+                        className="!px-3 !w-fit min-w-[100px] pointer-events-none"
+                      >
+                        {formatNumber(dataHistoryVote.length)} vote
+                        {dataHistoryVote.length > 1 && "s"}
+                      </Button>
+                    )}
                   </div>
-                  {dataHistoryVote.length > 0 ?
+                  {dataHistoryVote.length > 0 ? (
                     <div className="max-h-[500px] max-md:overflow-auto md:overflow-hidden md:hover:overflow-auto scroll-bg-white -mb-4 -mx-6 px-6">
                       <table className="w-full">
                         <tbody>
                           {dataHistoryVote.map((item: any, index: number) => {
                             return (
-                              <tr key={index} className="[&_td]:py-6 [&:not(:last-child)_td]:border-b [&_td]:border-gray-300">
+                              <tr
+                                key={index}
+                                className="[&_td]:py-6 [&:not(:last-child)_td]:border-b [&_td]:border-gray-300"
+                              >
                                 <td>
-                                  <Link key={item.vote} href={'proposal/' + item.vote}>
-                                    <div className="flex justify-between gap-4">
-                                      <div className="flex gap-2" title={item.title}>
+                                  <Link
+                                    href={"proposal/" + item.vote}
+                                    className="group"
+                                  >
+                                    <div className="flex justify-between gap-4 rounded-lg p-4 -m-4 transition md:group-hover:bg-gray-100">
+                                      <div
+                                        className="flex gap-2"
+                                        title={item.title}
+                                      >
                                         <Image
                                           src="/icon/cryptocurrency-02.svg"
                                           alt="icon"
@@ -595,40 +718,69 @@ export default function DashboardMember({ rdt }: any) {
                                           width={24}
                                           height={24}
                                         />
-                                        {item.title && 
+                                        {item.title && (
                                           <div>
-                                            <div className="font-bold line-clamp-1">{item.title}</div>
-                                            {item.user_address && <span className="line-clamp-1 break-all text-sm text-gray-400">from {truncateMiddle(item.user_address,13)}</span>}
+                                            <div className="font-bold line-clamp-1">
+                                              {item.title}
+                                            </div>
+                                            {item.user_address && (
+                                              <span className="line-clamp-1 break-all text-sm text-gray-400">
+                                                from{" "}
+                                                {truncateMiddle(
+                                                  item.user_address,
+                                                  13
+                                                )}
+                                              </span>
+                                            )}
                                           </div>
-                                        }
+                                        )}
                                       </div>
                                       <div className="text-right">
-                                        {item.amount && <span className="text-primary-600 font-medium mr-1">{formatNumber(item.amount)}</span>}
-                                        {item.label && <span className="text-gray-400">{item.label}</span>}
+                                        {item.amount && (
+                                          <span className="text-primary-600 font-medium mr-1">
+                                            {formatNumber(item.amount)}
+                                          </span>
+                                        )}
+                                        {item.label && (
+                                          <span className="text-gray-400">
+                                            {item.label}
+                                          </span>
+                                        )}
                                       </div>
                                     </div>
                                   </Link>
                                 </td>
                               </tr>
-                            )
+                            );
                           })}
                         </tbody>
                       </table>
                     </div>
-                  :
+                  ) : (
                     <div className="bg-gray-50 text-gray-300 px-6 py-4 rounded-lg italic mt-4">
                       You did not vote on any proposal
                     </div>
-                  }
+                  )}
                 </Card>
               </div>
               <div className="2xl:col-span-4 2xl:order-1 grid gap-6 h-fit">
                 <Card>
                   <div className="flex items-center justify-between">
-                    <h2 className="font-maven-pro font-semibold text-lg">My NFT</h2>
+                    <h2 className="font-maven-pro font-semibold text-lg">
+                      My NFT
+                    </h2>
                     {sliderLoaded && instanceRef.current && (
                       <div className="flex gap-2">
-                        <Button type="button" variant="light" loading="none" className="!w-fit !p-2 disabled:opacity-50" onClick={(e: any) => e.stopPropagation() || instanceRef.current?.prev() } disabled={sliderCurrent === 0}>
+                        <Button
+                          type="button"
+                          variant="light"
+                          loading="none"
+                          className="!w-fit !p-2 disabled:opacity-50"
+                          onClick={(e: any) =>
+                            e.stopPropagation() || instanceRef.current?.prev()
+                          }
+                          disabled={sliderCurrent === 0}
+                        >
                           <Image
                             src="/icon/arrow-left.svg"
                             alt="icon"
@@ -638,7 +790,20 @@ export default function DashboardMember({ rdt }: any) {
                           />
                           <span className="sr-only">Back</span>
                         </Button>
-                        <Button type="button" variant="light" loading="none" className="!w-fit !p-2 disabled:opacity-50" onClick={(e: any) => e.stopPropagation() || instanceRef.current?.next() } disabled={sliderCurrent === instanceRef.current.track.details.slides.length - maxSlidesToShow}>
+                        <Button
+                          type="button"
+                          variant="light"
+                          loading="none"
+                          className="!w-fit !p-2 disabled:opacity-50"
+                          onClick={(e: any) =>
+                            e.stopPropagation() || instanceRef.current?.next()
+                          }
+                          disabled={
+                            sliderCurrent ===
+                            instanceRef.current.track.details.slides.length -
+                              maxSlidesToShow
+                          }
+                        >
                           <Image
                             src="/icon/arrow-right.svg"
                             alt="icon"
@@ -652,10 +817,14 @@ export default function DashboardMember({ rdt }: any) {
                     )}
                   </div>
                   <div className="overflow-hidden max-w-[calc(100vw-119px)] lg:max-w-[calc(100vw-461px)] 2xl:max-w-[687px] mt-4">
-                    {dataNFT?.length > 0 ?
+                    {dataNFT?.length > 0 ? (
                       <div className="keen-slider" ref={sliderRef}>
                         {dataNFT?.map((item: any, index: number) => (
-                          <div key={index} className="keen-slider__slide bg-primary-200 p-2 rounded-lg relative" title={item.title}>
+                          <div
+                            key={index}
+                            className="keen-slider__slide bg-primary-200 p-2 rounded-lg relative"
+                            title={item.title}
+                          >
                             {/* <Image
                               src={item.src ? item.src : '/upload/proposal-1.png'}
                               alt="photo"
@@ -663,31 +832,59 @@ export default function DashboardMember({ rdt }: any) {
                               width={300}
                               height={300}
                             /> */}
-                            <img width={300} height={300} className="w-full h-auto rounded-md object-cover aspect-[4/5]" src={item.src ? item.src : '/upload/proposal-1.png'} alt="description" />
-                            {item.title &&
+                            <img
+                              width={300}
+                              height={300}
+                              className="w-full h-auto rounded-md object-cover aspect-[4/5]"
+                              src={
+                                item.src ? item.src : "/upload/proposal-1.png"
+                              }
+                              alt="description"
+                            />
+                            {item.title && (
                               <div className="text-white bg-white/30 backdrop-blur-sm px-4 py-3 absolute bottom-2 left-2 right-2 rounded-b-md">
-                                <div className="font-maven-pro font-medium line-clamp-1">{item.title}</div>
+                                <div className="font-maven-pro font-medium line-clamp-1">
+                                  {item.title}
+                                </div>
                               </div>
-                            }
+                            )}
                           </div>
                         ))}
                       </div>
-                    :
+                    ) : (
                       <div className="bg-gray-50 text-gray-300 px-6 py-4 rounded-lg italic">
                         You did not have any NFT
                       </div>
-                    }
+                    )}
                   </div>
                 </Card>
                 <Card>
                   <div className="grid md:grid-cols-2 gap-4 items-center mb-6">
                     <div className="flex items-center justify-between">
-                      <h2 className="font-maven-pro font-semibold text-lg">My Proposal</h2>
-                      <Select label={"Status"} id={"filter-status"} name={"filter-status"} showLabel={false} className={"!w-fit"} value={currentOptionsProposal} options={optionsProposal} onChange={(e) => handleSelectActive(e.target.value)} />
+                      <h2 className="font-maven-pro font-semibold text-lg">
+                        My Proposal
+                      </h2>
+                      <Select
+                        label={"Status"}
+                        id={"filter-status"}
+                        name={"filter-status"}
+                        showLabel={false}
+                        className={"!w-fit"}
+                        value={currentOptionsProposal}
+                        options={optionsProposal}
+                        onChange={(e) => handleSelectActive(e.target.value)}
+                      />
                     </div>
-                    <form spellCheck="false" onSubmit={handleSearch} className="w-full">
+                    <form
+                      spellCheck="false"
+                      onSubmit={handleSearch}
+                      className="w-full"
+                    >
                       <Fieldset className="relative">
-                        <label htmlFor="search-proposal" className="absolute top-0 bottom-0 left-0 my-auto mx-3 h-fit opacity-50">
+                        <label
+                          htmlFor="search-proposal"
+                          className="absolute top-0 bottom-0 left-0 my-auto mx-3 h-fit opacity-50"
+                        >
                           <Image
                             src="/icon/search-md.svg"
                             alt="icon"
@@ -697,24 +894,31 @@ export default function DashboardMember({ rdt }: any) {
                           />
                           <span className="sr-only">Search</span>
                         </label>
-                        <input type="text" id="search-proposal" name="search-proposal" placeholder="Search Proposal" className="w-full appearance-none rounded-xl py-3 pr-4 pl-11 text-gray-500 bg-gray-100 border-2 border-transparent placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default" onChange={handleSearchInput} />
+                        <input
+                          type="text"
+                          id="search-proposal"
+                          name="search-proposal"
+                          placeholder="Search Proposal"
+                          className="w-full appearance-none rounded-xl py-3 pr-4 pl-11 text-gray-500 bg-gray-100 border-2 border-transparent placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none focus-visible:outline-none disabled:bg-gray-100 disabled:cursor-default"
+                          onChange={handleSearchInput}
+                        />
                       </Fieldset>
                     </form>
                   </div>
                   <div className="grid gap-6 mb-2 lg:mb-1">
-                    {dataProposal.length > 0 ?
+                    {dataProposal.length > 0 ? (
                       <>
                         {dataProposal.map((item: any) => (
-                          <Link key={item.id} href={'proposal/' + item.id}>
+                          <Link key={item.id} href={"proposal/" + item.id}>
                             <ProposalList {...item} />
                           </Link>
                         ))}
                       </>
-                    :
+                    ) : (
                       <div className="bg-gray-50 text-gray-300 px-6 py-4 rounded-lg italic">
                         You have never made a proposal
                       </div>
-                    }
+                    )}
                   </div>
                 </Card>
               </div>
@@ -723,5 +927,5 @@ export default function DashboardMember({ rdt }: any) {
         </>
       )}
     </>
-  )
+  );
 }

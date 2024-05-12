@@ -1,30 +1,34 @@
 import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/auth/account";
-import { ProposalDetail, ProposalDetailProps, ProposalVoteProps } from "@/app/components/proposal";
+import {
+  ProposalDetail,
+  ProposalDetailProps,
+  ProposalVoteProps,
+} from "@/app/components/proposal";
 import { useWallet } from "@/app/auth/wallet";
 import { useEffect, useState } from "react";
 import Loading from "@/app/loading";
 import Unavailable from "@/app/unavailable";
 
 export default function ProposalDetailMember({ rdt, id }: any) {
-  const { account, nft_id } = useAccount({ rdt })
-  const [isLoading, setIsLoading] = useState(true)
+  const { account, nft_id } = useAccount({ rdt });
+  const [isLoading, setIsLoading] = useState(true);
   const [dataProposal, setDataProposal] = useState<ProposalDetailProps>({
-    id:'',
-    user_address: '',
-    user_role: '',
-    avatar: '',
-    title: '',
+    id: "",
+    user_address: "",
+    user_role: "",
+    avatar: "",
+    title: "",
     photos: [],
-    description: '',
+    description: "",
     start: 0,
     end: 0,
-    status: '',
+    status: "",
     vote: [],
     voter: [],
-    ComponentAddress: '',
+    ComponentAddress: "",
   });
-  const { access_token } = useWallet()
+  const { access_token } = useWallet();
   // let dataProposals: ProposalDetailProps = {
   //   id: id,
   //   user_address: 'rdx1shb1412422216dba',
@@ -129,15 +133,15 @@ export default function ProposalDetailMember({ rdt, id }: any) {
   //   ]
   // }
 
-  const [dataVoteDetail, setDataVoteDetail] = useState<boolean>()
+  const [dataVoteDetail, setDataVoteDetail] = useState<boolean>(true);
   const getVoteDetail = async () => {
     return await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/vote/${id}`,
       {
-        method: 'GET',
-        headers: { 
-          'content-type': 'application/json',
-          'Authorization': `Bearer ${access_token}`
+        method: "GET",
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${access_token}`,
         },
       }
     ).then((res) => res.json());
@@ -169,17 +173,18 @@ export default function ProposalDetailMember({ rdt, id }: any) {
     //   },
     //   "voters": []
     // }
-  }
+  };
 
-  const getVoterDetail = async (id : any, nft_id: string) => {
-    console.log(id, nft_id);
+  const getVoterDetail = async (id: any, nft_id: string) => {
     return await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/voter/${id}/${nft_id.slice(1, -1)}`,
+      `${
+        process.env.NEXT_PUBLIC_BACKEND_API_SERVER
+      }/votes/voter/${id}/${nft_id.slice(1, -1)}`,
       {
-        method: 'GET',
-        headers: { 
-          'content-type': 'application/json',
-          'Authorization': `Bearer ${access_token}`
+        method: "GET",
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${access_token}`,
         },
       }
     )
@@ -216,25 +221,27 @@ export default function ProposalDetailMember({ rdt, id }: any) {
     //     "isPending": true
     //   }
     // }
-  }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       const data = await getVoteDetail();
 
       if (data) {
-        const vote_list: ProposalVoteProps[] = Object.entries(data?.voteTokenAmount).map(([label, token]) => ({
+        const vote_list: ProposalVoteProps[] = Object.entries(
+          data?.voteTokenAmount
+        ).map(([label, token]) => ({
           label,
-          token: typeof token === 'number' ? token : undefined,
+          token: typeof token === "number" ? token : undefined,
           amount: data?.voteAddressCount[label],
         }));
 
-        const voter = data?.voters.map(({ amount, voter, selected } : any) => ({
+        const voter = data?.voters.map(({ amount, voter, selected }: any) => ({
           user_address: voter,
-          avatar: '/user/user-1.png',
+          avatar: "/user/user-1.png",
           selected: selected,
           amount: Number(amount),
-          label: 'ARC'
+          label: "ARC",
         }));
 
         let proposalData: any = {};
@@ -246,20 +253,20 @@ export default function ProposalDetailMember({ rdt, id }: any) {
             user_voted: dataVoter?.selected,
             user_withdraw: dataVoter?.isWithdrawed,
           };
-        } 
+        }
 
         proposalData = {
           ...proposalData,
           id: data?.id,
           user_address: data?.address.address,
           user_role: data?.address.role,
-          avatar: '/user/user-1.png',
+          avatar: "/user/user-1.png",
           title: data?.title,
           photos: [data?.picture],
           description: data?.description,
           end: data?.endEpoch,
           start: data?.startEpoch,
-          status: data?.isPending ? 'pending' : 'active',
+          status: data?.status,
           vote: vote_list,
           voter: voter,
           ComponentAddress: data?.componentAddress,
@@ -270,31 +277,35 @@ export default function ProposalDetailMember({ rdt, id }: any) {
       } else {
         setDataVoteDetail(false);
       }
-    }
+    };
     fetchData();
 
     setIsLoading(false);
-  }, [])
+  }, []);
 
-  const router = useRouter()
+  const router = useRouter();
 
   const handleBack = () => {
-    router.push('/proposal')
-  }
+    router.push("/proposal");
+  };
 
   return (
     <>
-      {isLoading ?
+      {isLoading ? (
         <Loading />
-      :
+      ) : (
         <>
-          {dataVoteDetail ?
-            <ProposalDetail {...dataProposal} handleBack={handleBack} account={account} />
-          :
+          {dataVoteDetail ? (
+            <ProposalDetail
+              {...dataProposal}
+              handleBack={handleBack}
+              account={account}
+            />
+          ) : (
             <Unavailable />
-          }
+          )}
         </>
-      }
+      )}
     </>
-  )
+  );
 }

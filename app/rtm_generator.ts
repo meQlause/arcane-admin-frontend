@@ -1,13 +1,13 @@
 const arcaneMain =
-  "component_tdx_2_1cz3qywv5hmnutpnp9jcku2tpgtuy6uajnaet0qq9y3rhvaulvthaxw";
+  "component_tdx_2_1cqcthsh4906ntr59hweffm5zprmf692522dhyk6gastl38kdrche8t";
 const arcaneVoteStyle =
-  "package_tdx_2_1pkjga85fmvxhmsncqukm6vmg8fhvrj9z3rgs3j52rp36kcpjc4l7ps";
+  "package_tdx_2_1p4trqhttcancga3c9wg3zyg2v7qey7uztuya3vvp9rh3c0feehj73f";
 const arcaneBadge =
-  "resource_tdx_2_1n23f3q3s0wywk2749p7lyxpenqzj5qkq6xe3854hqs5j6jeqg436g4";
+  "resource_tdx_2_1nt7wuwezckc7xjpxyyhys2et8v754w925kpzrxq8st0ue62nzurdqx";
 const arcaneCoreBadge =
-  "resource_tdx_2_1ng3wstxykch30yhldq2u74gckeywaqzclcyce98p504sc7ndgvtk9m";
+  "resource_tdx_2_1nt8n54ttjtdantt8eulk4f0v4s7jjgfzazrm7vkhrye8k895e43hsd";
 const ARC =
-  "resource_tdx_2_1tk2zhlv50l4nl5flx2qc2y0zavp65xwt8khufun3kmq7xh90896gvc";
+  "resource_tdx_2_1tk08g7ulr5lp0lmm66me4gvzqp5dpq0dg84t8k78wlmacz7agwl8rs";
 
 export class RTMGenerator {
   constructor() {}

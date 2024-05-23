@@ -41,7 +41,7 @@ export function Sidebar({className}: any) {
 
   return (
     <>
-      <aside className={`bg-white flex flex-col gap-4 lg:gap-6 max-lg:w-screen lg:min-w-[250px] lg:w-[400px] lg:h-screen lg:pt-6 sticky top-0 z-10 ${className ? className : ''}`}>
+      <aside className={`bg-white flex flex-col gap-4 lg:gap-6 max-lg:w-screen lg:min-w-[250px] lg:w-[400px] lg:h-screen lg:pt-6 sticky top-0 z-10 lg:overflow-hidden ${className ? className : ''}`}>
         <div className="flex justify-between gap-4 w-full px-6 max-lg:py-3 max-lg:border-b max-lg:border-gray-100">
           <div className="flex items-center gap-3 lg:py-1">
             <Image

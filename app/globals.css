@@ -30,6 +30,12 @@
     @apply cursor-default;
     scrollbar-color: var(--color-2) var(--color-1);
   }
+  body::-webkit-scrollbar-track {
+    background: white;
+  }
+  body::-webkit-scrollbar-thumb {
+    border-color: white;
+  }
   body:has(> .loading) {
     @apply h-screen;
   }

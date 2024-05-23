@@ -31,6 +31,8 @@ export default function Wallet({ rdt, path, variant }: any) {
       router.push(path + 'dashboard')
     } else if ( path === '/admin' ) {
       router.push(path + '/dashboard')
+    } else if ( path === '/about' ) {
+      router.push('/dashboard')
     } else {
       window.location.reload()
     }

@@ -7,7 +7,7 @@ import { Card, CardOutline } from "@/app/components/card";
 import { Button } from "@/app/components/button";
 import WalletRadix from "@/app/wallet/radix";
 import CryptoJS from "crypto-js";
-import { RTMGenerator } from "../rtm_generator";
+import { RTMGenerator } from "@/app/rtm_generator";
 
 export default function Wallet({ rdt, path, variant }: any) {
   const router = useRouter();
@@ -18,6 +18,7 @@ export default function Wallet({ rdt, path, variant }: any) {
   const [isRegistered, setIsRegistered] = useState<boolean | null>(null);
   const [failedReg, setFailedReg] = useState<boolean>(false);
   const [provideProof, setProvideProof] = useState<boolean>(false);
+  const [failedProof, setFailedProof] = useState<boolean>(false);
   const [address, setAddress] = useState<string>("");
 
   useEffect(() => {
@@ -32,7 +33,7 @@ export default function Wallet({ rdt, path, variant }: any) {
 
   useEffect(() => {
     const verifyAddress = async () => {
-      console.log(walletConnect);
+      // console.log(walletConnect);
       if (walletConnect) {
         const data = localStorage.getItem("arcane")!;
         if (!data) {
@@ -52,9 +53,9 @@ export default function Wallet({ rdt, path, variant }: any) {
   }, [walletConnect, rdt.walletApi]);
 
   useEffect(() => {
-    console.log("aasdasdasdadsasdadasss");
-    console.log("isRegistered" + isRegistered);
-    console.log("isWalletConnect" + walletConnect);
+    // console.log("aasdasdasdadsasdadasss");
+    // console.log("isRegistered" + isRegistered);
+    // console.log("isWalletConnect" + walletConnect);
     const registered = async () => {
       if (isRegistered === false && walletConnect === true) {
         const rtm_signup = RTMGenerator.signUp(
@@ -80,13 +81,12 @@ export default function Wallet({ rdt, path, variant }: any) {
   }, [isRegistered, walletConnect]);
 
   const handleProvideProof = async () => {
+    setLoading(true);
     const result = await rdt.walletApi.sendRequest();
+
     if (address !== rdt?.walletApi.getWalletData().accounts[0]?.address) {
-      // change bellow
-      localStorage.removeItem("arcane")!;
-      router.push("/about");
-      rdt.disconnect();
-      return;
+      setFailedProof(true);
+      setLoading(false);
     }
 
     if (result.isErr()) {
@@ -95,6 +95,7 @@ export default function Wallet({ rdt, path, variant }: any) {
       rdt.disconnect();
       return;
     }
+
     router.push("/dashboard");
   };
 
@@ -122,6 +123,12 @@ export default function Wallet({ rdt, path, variant }: any) {
     }
   };
 
+  const handlePageReload = () => {
+    localStorage.removeItem("arcane")!;
+    rdt.disconnect();
+    window.location.reload();
+  };
+
   return (
     <div className={`${variant === "content-only" ? "" : "my-4"}`}>
       {walletConnect ? (
@@ -139,14 +146,52 @@ export default function Wallet({ rdt, path, variant }: any) {
           <p className="font-maven-pro font-medium text-center">
             Successfully Connected Wallet
           </p>
+
+          {(!isRegistered && !provideProof) &&
+            <div className="bg-error-100 text-error-700 px-4 py-3 rounded-lg my-4 flex items-start gap-2">
+              <Image
+                src="/icon/alert-circle.svg"
+                alt="icon"
+                className="filter-error-500 shrink-0"
+                width={24}
+                height={24}
+                priority
+              />
+              {failedReg ?
+                <span>
+                  You intentionally canceled or the address you selected does not have the XRD to pay the fee
+                </span>
+              :
+                <span>
+                  You are not a member yet. Please register by <b>sign the tx</b> on your wallet app.
+                </span>
+              }
+            </div>
+          }
+          {(!isRegistered && provideProof && failedProof) &&
+            <div className="bg-error-100 text-error-700 px-4 py-3 rounded-lg my-4 flex items-start gap-2">
+              <Image
+                src="/icon/alert-circle.svg"
+                alt="icon"
+                className="filter-error-500 shrink-0"
+                width={24}
+                height={24}
+                priority
+              />
+              <span>
+                Your address wallet is different between registered and chosen. Please relogin and choose the address that registered.
+              </span>
+            </div>
+          }
+
           <CardOutline className="my-6">
             <span className="font-maven-pro">Your Wallet</span>
             <hr className="mt-3 mb-5" />
-            <div className="flex items-start font-maven-pro font-medium break-all mt-1">
+            <div className="flex items-start gap-3 font-maven-pro font-medium break-all mt-1">
               <Image
                 src="/icon/logo-radix.svg"
                 alt="icon"
-                className="inline-block -mt-1 mr-3"
+                className="shrink-0 -mt-[3px]"
                 width={32}
                 height={32}
                 priority
@@ -156,14 +201,26 @@ export default function Wallet({ rdt, path, variant }: any) {
           </CardOutline>
 
           {provideProof ? (
-            <Button
-              type="button"
-              variant="primary"
-              onClick={handleProvideProof}
-              loading={loading}
-            >
-              Provide proof with above address
-            </Button>
+            <>
+              {!failedProof ?
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={handleProvideProof}
+                  loading={loading}
+                >
+                  Provide proof with the address above
+                </Button>
+              :
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={handlePageReload}
+                >
+                  Refresh page & Login again
+                </Button>
+              }
+            </>
           ) : isRegistered ? (
             <Button
               type="button"
@@ -174,9 +231,36 @@ export default function Wallet({ rdt, path, variant }: any) {
               Finish & Unlock
             </Button>
           ) : failedReg ? (
-            "you cancelled the tx intentionally or the address you selected does not have xrd to pay the fees"
+            <Button
+              type="button"
+              variant="primary"
+              onClick={handlePageReload}
+            >
+              Refresh page & Login again
+            </Button>
           ) : (
-            "you are not a member yet, please register first by sign the tx"
+            <>
+              <div className="flex justify-center gap-3 my-6">
+                <span className="italic text-gray-400">
+                  Waiting for a response from your wallet app
+                </span>
+                <Image
+                  src="/loading.svg"
+                  alt="loading"
+                  className="animate-spin shrink-0"
+                  width={24}
+                  height={24}
+                  priority
+                />
+              </div>
+              <Button
+                type="button"
+                variant="primary"
+                disabled={true}
+              >
+                Provide proof with the address above
+              </Button>
+            </>
           )}
         </Card>
       ) : (
@@ -206,7 +290,7 @@ export default function Wallet({ rdt, path, variant }: any) {
               priority
             />
           </Button>
-          {walletList && */}
+          {walletList && } */}
           <ul className="mt-6">
             <li className="flex items-start justify-between gap-1 border border-gray-300 lg:hover:bg-gray-100 lg:transition rounded-lg px-4 py-2 mb-5 last:mb-0">
               <div className="font-maven-pro font-medium mt-3">
@@ -225,7 +309,6 @@ export default function Wallet({ rdt, path, variant }: any) {
               </div>
             </li>
           </ul>
-          {/* } */}
         </Card>
       )}
     </div>

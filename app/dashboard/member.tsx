@@ -372,7 +372,7 @@ export default function DashboardMember({ rdt }: any) {
             label: label,
             url: url,
             amount: ft_data[x].vaults.items[0].amount,
-            value: 120100,
+            value: 0,
           });
         }
 
@@ -516,7 +516,7 @@ export default function DashboardMember({ rdt }: any) {
                 </div>
                 <div className="mt-6">
                   <div className="font-semibold text-2xl md:text-4xl mb-4">
-                    ${formatNumber(1400)}
+                    {/* ${formatNumber(1400)} */} $ ~
                   </div>
                   {/* <Image
                     src="/icon/arrow-up.svg"

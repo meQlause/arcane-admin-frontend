@@ -16,6 +16,7 @@ import { truncateMiddle } from "@/app/functions/truncate";
 import { formatNumber } from "@/app/functions/notation";
 import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
+import config from "../config";
 
 type VaultResponse = {
   address: string;
@@ -266,7 +267,7 @@ export default function DashboardMember({ rdt }: any) {
       if (account?.address) {
         const responseVote = await fetch(
           `${
-            process.env.NEXT_PUBLIC_BACKEND_API_SERVER
+            config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER
           }/votes/get-votes-by/${nft_id.slice(1, -1)}`,
           {
             method: "GET",
@@ -312,7 +313,7 @@ export default function DashboardMember({ rdt }: any) {
 
         const responseHistory = await fetch(
           `${
-            process.env.NEXT_PUBLIC_BACKEND_API_SERVER
+            config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER
           }/votes/get-voter-data/${nft_id.slice(1, -1)}`,
           {
             method: "GET",
@@ -331,7 +332,6 @@ export default function DashboardMember({ rdt }: any) {
         }
 
         let resH = await responseHistory.json();
-        console.log(resH);
         let dataH: any = [];
         for (let x = 0; x < resH.length; x++) {
           dataH.push({
@@ -377,6 +377,8 @@ export default function DashboardMember({ rdt }: any) {
         }
 
         for (let x = 0; x < nft_data.length; x++) {
+          if (nft_data[x].vaults.total_count === 0) continue;
+
           let nft_metadata = await rdt.gatewayApi.state.getEntityMetadata(
             nft_data[x].resource_address
           );

@@ -1,13 +1,4 @@
-const arcaneMain =
-  "component_tdx_2_1cqcthsh4906ntr59hweffm5zprmf692522dhyk6gastl38kdrche8t";
-const arcaneVoteStyle =
-  "package_tdx_2_1p4trqhttcancga3c9wg3zyg2v7qey7uztuya3vvp9rh3c0feehj73f";
-const arcaneBadge =
-  "resource_tdx_2_1nt7wuwezckc7xjpxyyhys2et8v754w925kpzrxq8st0ue62nzurdqx";
-const arcaneCoreBadge =
-  "resource_tdx_2_1nt8n54ttjtdantt8eulk4f0v4s7jjgfzazrm7vkhrye8k895e43hsd";
-const ARC =
-  "resource_tdx_2_1tk08g7ulr5lp0lmm66me4gvzqp5dpq0dg84t8k78wlmacz7agwl8rs";
+import config from "@/app/config";
 
 export class RTMGenerator {
   constructor() {}
@@ -15,7 +6,14 @@ export class RTMGenerator {
   static signUp(address: string): string {
     return `
     CALL_METHOD
-        Address("${arcaneMain}")
+      Address("${address}")
+      "withdraw"
+      Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+      Decimal("0") 
+    ;
+    
+    CALL_METHOD
+        Address("${config.addresses.arcaneMain}")
         "sign_up"
         Address("${address}")
     ;
@@ -33,7 +31,7 @@ export class RTMGenerator {
     CALL_METHOD
         Address("${coreAddress}")
         "create_proof_of_non_fungibles"
-        Address("${arcaneCoreBadge}")
+        Address("${config.addresses.arcaneCoreBadge}")
         Array<NonFungibleLocalId>(
             NonFungibleLocalId("#0#")
         )
@@ -47,12 +45,12 @@ export class RTMGenerator {
     ;
       
     TAKE_ALL_FROM_WORKTOP
-        Address("${arcaneBadge}")
+        Address("${config.addresses.arcaneBadge}")
         Bucket("nft")
     ;
       
     CALL_METHOD
-        Address("${arcaneMain}")
+        Address("${config.addresses.arcaneMain}")
         "change_role"
         Bucket("nft")
         "${role}"
@@ -77,7 +75,7 @@ export class RTMGenerator {
       CALL_METHOD
         Address("${accountAddress}")
         "create_proof_of_non_fungibles"
-        Address("${arcaneBadge}")
+        Address("${config.addresses.arcaneBadge}")
         Array<NonFungibleLocalId>(
             NonFungibleLocalId("#${nftId}#")
         )
@@ -88,7 +86,7 @@ export class RTMGenerator {
     ;
       
     CALL_METHOD
-      Address("${arcaneMain}")
+      Address("${config.addresses.arcaneMain}")
       "set_status"
       Proof("nft_proof")
       Address("${proposalAddress}")
@@ -108,7 +106,7 @@ export class RTMGenerator {
     CALL_METHOD
       Address("${address}")
       "create_proof_of_non_fungibles"
-      Address("${arcaneBadge}")
+      Address("${config.addresses.arcaneBadge}")
       Array<NonFungibleLocalId>(
           NonFungibleLocalId("${nftId}")
       )
@@ -119,10 +117,10 @@ export class RTMGenerator {
     ;
   
     CALL_METHOD
-        Address("${arcaneMain}")
+        Address("${config.addresses.arcaneMain}")
         "create_vote"
         Proof("nft_proof")
-        Address("${arcaneVoteStyle}")
+        Address("${config.addresses.arcaneVoteStyle}")
         "${id}"
         ${duration}u8
         Array<String>(${votes.map((item) => `"${item}"`).join(", ")})
@@ -140,12 +138,12 @@ export class RTMGenerator {
       CALL_METHOD
         Address("${address}")
         "withdraw"
-        Address("${ARC}")
+        Address("${config.addresses.ARC}")
         Decimal("${amount}") 
       ;
   
       TAKE_FROM_WORKTOP
-        Address("${ARC}")
+        Address("${config.addresses.ARC}")
         Decimal("${amount}")
         Bucket("arc_bucket")
       ;
@@ -153,7 +151,7 @@ export class RTMGenerator {
       CALL_METHOD
           Address("${address}")
           "create_proof_of_non_fungibles"
-          Address("${arcaneBadge}")
+          Address("${config.addresses.arcaneBadge}")
           Array<NonFungibleLocalId>(
               NonFungibleLocalId("${nft_id}")
           )
@@ -164,7 +162,7 @@ export class RTMGenerator {
       ;
           
       CALL_METHOD
-        Address("${arcaneMain}")
+        Address("${config.addresses.arcaneMain}")
         "vote"
         Proof("nft_proof")
         Address("${componentVoteAddress}")
@@ -181,7 +179,7 @@ export class RTMGenerator {
     CALL_METHOD
       Address("${address}")
       "create_proof_of_non_fungibles"
-      Address("${arcaneBadge}")
+      Address("${config.addresses.arcaneBadge}")
       Array<NonFungibleLocalId>(
           NonFungibleLocalId("${nft_id}")
       )
@@ -191,7 +189,7 @@ export class RTMGenerator {
     ;
         
     CALL_METHOD
-        Address("${arcaneMain}")
+        Address("${config.addresses.arcaneMain}")
         "withdraw"
         Proof("nft_proof")
         Address("${componentAddressVote}")
@@ -207,7 +205,7 @@ export class RTMGenerator {
   static mint_arc(address: string): string {
     return `
     MINT_FUNGIBLE
-      Address("${ARC}")
+      Address("${config.addresses.ARC}")
       Decimal("900")
     ;
     CALL_METHOD

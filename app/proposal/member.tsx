@@ -14,6 +14,7 @@ import { Button } from "@/app/components/button";
 import { Alert } from "@/app/components/alert";
 // import { formatDate } from "@/app/functions/datetime";
 import { Pagination } from "@/app/components/pagination";
+import config from "@/app/config";
 
 export default function ProposalMember({ rdt }: any) {
   const { account, access_token } = useAccount({ rdt });
@@ -55,7 +56,7 @@ export default function ProposalMember({ rdt }: any) {
 
   const getTotalVotes = async (): Promise<Response> => {
     return await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter?count=${
+      `${config.apis.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter?count=${
         currentOptionsActive === "All"
           ? ["pending", "active"]
           : [currentOptionsActive.toLocaleLowerCase()]
@@ -90,7 +91,7 @@ export default function ProposalMember({ rdt }: any) {
     return {
       data: await fetch(
         `${
-          process.env.NEXT_PUBLIC_BACKEND_API_SERVER
+          config.apis.NEXT_PUBLIC_BACKEND_API_SERVER
         }/votes/get-votes?page=${page}&status=${
           currentOptionsActive === "All"
             ? ["pending", "active"]

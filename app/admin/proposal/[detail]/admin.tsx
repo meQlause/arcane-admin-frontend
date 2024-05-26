@@ -7,6 +7,7 @@ import {
 } from "@/app/components/proposal";
 import { useWallet } from "@/app/auth/wallet";
 import { useEffect, useState } from "react";
+import config from "@/app/config";
 
 export default function ProposalDetailAdmin({ rdt, id }: any) {
   const { account, nft_id } = useAccount({ rdt });
@@ -134,7 +135,7 @@ export default function ProposalDetailAdmin({ rdt, id }: any) {
   const [dataVoteDetail, setDataVoteDetail] = useState<boolean>(true);
   const getVoteDetail = async () => {
     return await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/vote/${id}`,
+      `${config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/vote/${id}`,
       {
         method: "GET",
         headers: {
@@ -148,7 +149,7 @@ export default function ProposalDetailAdmin({ rdt, id }: any) {
   const getVoterDetail = async (id: any, nft_id: string) => {
     return await fetch(
       `${
-        process.env.NEXT_PUBLIC_BACKEND_API_SERVER
+        config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER
       }/votes/voter/${id}/${nft_id.slice(1, -1)}`,
       {
         method: "GET",

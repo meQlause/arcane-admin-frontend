@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { RoleType } from "@/app/types";
 import { useWallet } from "@/app/auth/wallet";
@@ -7,27 +7,27 @@ import { Main } from "@/app/components/main";
 import AboutMember from "./member";
 
 export default function About() {
-  const { isLoading, walletConnect, role, rdt } = useWallet()
+  const { isLoading, walletConnect, role, rdt } = useWallet();
 
   return (
     <Main>
-      {!isLoading ?
+      {!isLoading ? (
         <>
-          {walletConnect ?
+          {walletConnect ? (
             <>
-              {(role === RoleType.Admin || role === RoleType.Member) ?
+              {role === RoleType.Admin || role === RoleType.Member ? (
                 <AboutMember rdt={rdt} />
-              :
+              ) : (
                 <AboutMember />
-              }
+              )}
             </>
-          :
+          ) : (
             <AboutMember />
-          }
+          )}
         </>
-      :
+      ) : (
         <Loading className="max-lg:pb-10" />
-      }
+      )}
     </Main>
-  )
+  );
 }

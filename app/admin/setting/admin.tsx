@@ -27,6 +27,7 @@ import { Alert } from "@/app/components/alert";
 import { useWallet } from "@/app/auth/wallet";
 import { useRouter } from "next/navigation";
 import { RTMGenerator } from "@/app/rtm_generator";
+import config from "@/app/config";
 
 export default function SettingAdmin({ rdt }: any) {
   const { account, address } = useAccount({ rdt });
@@ -67,7 +68,7 @@ export default function SettingAdmin({ rdt }: any) {
 
   const getAdminList = async () => {
     return await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/get-admins`,
+      `${config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER}/address/get-admins`,
       {
         method: "GET",
         headers: {
@@ -102,7 +103,7 @@ export default function SettingAdmin({ rdt }: any) {
 
   const getAddressData = async (address: string) => {
     return await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/address/get/${address}`,
+      `${config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER}/address/get/${address}`,
       {
         method: "GET",
         headers: {

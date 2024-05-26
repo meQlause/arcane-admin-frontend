@@ -16,10 +16,7 @@ import {
 } from "@radixdlt/radix-dapp-toolkit";
 import CryptoJS from "crypto-js";
 import Loading from "@/app/loading";
-import { NFTauth } from "@/app/types";
-import * as dotenv from "dotenv";
-
-dotenv.config();
+import config from "../config";
 
 type WalletContextProviderProps = {
   children: ReactNode;
@@ -36,8 +33,7 @@ export function WalletContextProvider({
   useEffect(() => {
     if (typeof window !== "undefined" && !rdt) {
       rdt = RadixDappToolkit({
-        dAppDefinitionAddress:
-          "account_tdx_2_12y7f0ps67n7a2sc53wjwh9sw68uwmta6nfkcpqzz67zxmhad5ndtrz",
+        dAppDefinitionAddress: config.addresses?.dappsDefinition!,
         networkId: RadixNetwork.Stokenet,
         logger: createLogger(1),
       });
@@ -53,7 +49,7 @@ export function WalletContextProvider({
 
       const getChallenge: () => Promise<string> = () =>
         fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/rola/generate-challenge`
+          `${config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER}/rola/generate-challenge`
         )
           .then((res) => res.json())
           .then((res) => res.challenge);
@@ -62,13 +58,13 @@ export function WalletContextProvider({
 
       rdt.walletApi.dataRequestControl(async ({ proofs }) => {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/rola/verify`,
+          `${config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER}/rola/verify`,
           {
             method: "POST",
             body: JSON.stringify(proofs),
             headers: { "content-type": "application/json" },
           }
-        ).then((res): Promise<NFTauth> => res.json());
+        ).then((res): Promise<any> => res.json());
         const ciphertext = CryptoJS.AES.encrypt(
           JSON.stringify(res),
           `${process.env.SECRET_JS}`

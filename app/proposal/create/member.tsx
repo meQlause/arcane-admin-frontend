@@ -25,6 +25,7 @@ import { ProposalDetail } from "@/app/components/proposal";
 import { formatDate } from "@/app/functions/datetime";
 import { RTMGenerator } from "@/app/rtm_generator";
 import { useWallet } from "@/app/auth/wallet";
+import config from "@/app/config";
 
 export default function ProposalCreateMember({ rdt }: any) {
   const { account } = useAccount({ rdt });
@@ -185,7 +186,7 @@ export default function ProposalCreateMember({ rdt }: any) {
       pict.append("photo", data, "0image" + "." + data.type.split("/")[1]);
     }
     return fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/upload-pict`,
+      `${config.apis.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/upload-pict`,
       {
         method: "POST",
         body: pict,

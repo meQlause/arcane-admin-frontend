@@ -26,6 +26,7 @@ import { RTMGenerator } from "@/app/rtm_generator";
 import { formatDate } from "@/app/functions/datetime";
 import https from "https";
 import axios from "axios";
+import config from "@/app/config";
 
 export type ProposalProps = {
   id: string;
@@ -261,7 +262,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({
     if (photos[0]) {
       photos.forEach((photo: any) => {
         customImageLoader(
-          `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/pict/${photo}`
+          `${config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/pict/${photo}`
         ).then((dataUrl) => {
           if (dataUrl) {
             setImagesData((prevData) => [...prevData, dataUrl]);

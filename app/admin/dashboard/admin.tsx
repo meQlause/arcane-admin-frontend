@@ -13,6 +13,7 @@ import Chart from "@/app/components/chart";
 import { formatNumber } from "@/app/functions/notation";
 import { ProposalList, ProposalProps } from "@/app/components/proposal";
 import { Pagination } from "@/app/components/pagination";
+import config from "@/app/config";
 
 export default function DashboardAdmin({ rdt }: any) {
   const { account, access_token } = useAccount({ rdt });
@@ -128,7 +129,7 @@ export default function DashboardAdmin({ rdt }: any) {
 
   const getTotalVotes = async (): Promise<Response> => {
     return await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter?count=pending`,
+      `${config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter?count=pending`,
       {
         method: "GET",
         headers: {
@@ -160,7 +161,7 @@ export default function DashboardAdmin({ rdt }: any) {
     setTotalVotes(totalVotes_);
     return {
       data: await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/get-votes?page=${page}&status=pending`,
+        `${config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/get-votes?page=${page}&status=pending`,
         {
           method: "GET",
           headers: {

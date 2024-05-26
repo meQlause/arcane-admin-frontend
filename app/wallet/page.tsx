@@ -22,7 +22,7 @@ export default function Wallet({ rdt, path, variant }: any) {
   const [address, setAddress] = useState<string>("");
 
   useEffect(() => {
-    rdt.s;
+    // rdt.s;
     if (!rdt?.walletApi.getWalletData().accounts[0]) {
       setFailedReg(false);
       setProvideProof(false);
@@ -87,6 +87,8 @@ export default function Wallet({ rdt, path, variant }: any) {
     if (address !== rdt?.walletApi.getWalletData().accounts[0]?.address) {
       setFailedProof(true);
       setLoading(false);
+      localStorage.removeItem("arcane")!;
+      return;
     }
 
     if (result.isErr()) {
@@ -96,7 +98,7 @@ export default function Wallet({ rdt, path, variant }: any) {
       return;
     }
 
-    router.push("/dashboard");
+    window.location.reload();
   };
 
   // const openConnectWallet = () => {
@@ -147,7 +149,7 @@ export default function Wallet({ rdt, path, variant }: any) {
             Successfully Connected Wallet
           </p>
 
-          {(!isRegistered && !provideProof) &&
+          {!isRegistered && !provideProof && (
             <div className="bg-error-100 text-error-700 px-4 py-3 rounded-lg my-4 flex items-start gap-2">
               <Image
                 src="/icon/alert-circle.svg"
@@ -157,18 +159,20 @@ export default function Wallet({ rdt, path, variant }: any) {
                 height={24}
                 priority
               />
-              {failedReg ?
+              {failedReg ? (
                 <span>
-                  You intentionally canceled or the address you selected does not have the XRD to pay the fee
+                  You intentionally canceled or the address you selected does
+                  not have the XRD to pay the fee
                 </span>
-              :
+              ) : (
                 <span>
-                  You are not a member yet. Please register by <b>sign the tx</b> on your wallet app.
+                  You are not a member yet. Please register by{" "}
+                  <b>sign the tx</b> on your wallet app.
                 </span>
-              }
+              )}
             </div>
-          }
-          {(!isRegistered && provideProof && failedProof) &&
+          )}
+          {!isRegistered && provideProof && failedProof && (
             <div className="bg-error-100 text-error-700 px-4 py-3 rounded-lg my-4 flex items-start gap-2">
               <Image
                 src="/icon/alert-circle.svg"
@@ -179,10 +183,11 @@ export default function Wallet({ rdt, path, variant }: any) {
                 priority
               />
               <span>
-                Your address wallet is different between registered and chosen. Please relogin and choose the address that registered.
+                Your address wallet is different between registered and chosen.
+                Please relogin and choose the address that registered.
               </span>
             </div>
-          }
+          )}
 
           <CardOutline className="my-6">
             <span className="font-maven-pro">Your Wallet</span>
@@ -202,7 +207,7 @@ export default function Wallet({ rdt, path, variant }: any) {
 
           {provideProof ? (
             <>
-              {!failedProof ?
+              {!failedProof ? (
                 <Button
                   type="button"
                   variant="primary"
@@ -211,7 +216,7 @@ export default function Wallet({ rdt, path, variant }: any) {
                 >
                   Provide proof with the address above
                 </Button>
-              :
+              ) : (
                 <Button
                   type="button"
                   variant="primary"
@@ -219,7 +224,7 @@ export default function Wallet({ rdt, path, variant }: any) {
                 >
                   Refresh page & Login again
                 </Button>
-              }
+              )}
             </>
           ) : isRegistered ? (
             <Button
@@ -231,11 +236,7 @@ export default function Wallet({ rdt, path, variant }: any) {
               Finish & Unlock
             </Button>
           ) : failedReg ? (
-            <Button
-              type="button"
-              variant="primary"
-              onClick={handlePageReload}
-            >
+            <Button type="button" variant="primary" onClick={handlePageReload}>
               Refresh page & Login again
             </Button>
           ) : (
@@ -253,11 +254,7 @@ export default function Wallet({ rdt, path, variant }: any) {
                   priority
                 />
               </div>
-              <Button
-                type="button"
-                variant="primary"
-                disabled={true}
-              >
+              <Button type="button" variant="primary" disabled={true}>
                 Provide proof with the address above
               </Button>
             </>

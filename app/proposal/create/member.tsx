@@ -118,10 +118,20 @@ export default function ProposalCreateMember({ rdt }: any) {
   const currentDate = new Date();
   const today = currentDate.toLocaleDateString("en-US", options);
   const getEndDate = (quarter: number) => {
-    const distance = 1; // change 92 when mainnet
-    const endDate = new Date(
-      currentDate.getTime() + 1 * 60 * 40 * distance * quarter
-    );
+    const minutesPerEpoch = 40;
+    const epochsPerQuarter = 92;
+
+    // Total minutes to add for the given quarter
+    const totalMinutesToAdd = minutesPerEpoch * epochsPerQuarter * quarter;
+
+    // Convert minutes to milliseconds
+    const millisecondsToAdd = totalMinutesToAdd * 60 * 1000;
+
+    // Get the current date
+    const currentDate = new Date();
+
+    // Calculate the end date
+    const endDate = new Date(currentDate.getTime() + millisecondsToAdd);
     return endDate.toLocaleDateString("en-US", options);
   };
 

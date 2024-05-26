@@ -518,7 +518,7 @@ export default function DashboardMember({ rdt }: any) {
                   <div className="font-semibold text-2xl md:text-4xl mb-4">
                     ${formatNumber(1400)}
                   </div>
-                  <Image
+                  {/* <Image
                     src="/icon/arrow-up.svg"
                     alt="icon"
                     className="filter-success-500 min-w-[20px] inline -mt-1 mr-1"
@@ -529,7 +529,7 @@ export default function DashboardMember({ rdt }: any) {
                   <span className="text-success-600 mr-2">
                     {formatNumber(80)}%
                   </span>
-                  <span className="text-gray-600 text-sm">vs last month</span>
+                  <span className="text-gray-600 text-sm">vs last month</span> */}
                 </div>
               </Card>
               <Card>
@@ -551,7 +551,7 @@ export default function DashboardMember({ rdt }: any) {
                   <div className="font-semibold text-2xl md:text-4xl mb-4">
                     {totalProposal ? totalProposal : 0}
                   </div>
-                  <Image
+                  {/* <Image
                     src="/icon/arrow-up.svg"
                     alt="icon"
                     className="filter-success-500 min-w-[20px] inline -mt-1 mr-1"
@@ -559,8 +559,8 @@ export default function DashboardMember({ rdt }: any) {
                     height={20}
                     priority
                   />
-                  <span className="text-success-600 mr-2">+7</span>
-                  <span className="text-gray-600 text-sm">vs last month</span>
+                  <span className="text-success-600 mr-2">+7</span> 
+                  <span className="text-gray-600 text-sm">vs last month</span> */}
                 </div>
               </Card>
               <Card>
@@ -582,7 +582,7 @@ export default function DashboardMember({ rdt }: any) {
                   <div className="font-semibold text-2xl md:text-4xl mb-4">
                     {totalNFT ? totalNFT : 0}
                   </div>
-                  <Image
+                  {/* <Image
                     src="/icon/arrow-down.svg"
                     alt="icon"
                     className="filter-error-500 min-w-[20px] inline -mt-1 mr-1"
@@ -591,7 +591,7 @@ export default function DashboardMember({ rdt }: any) {
                     priority
                   />
                   <span className="text-error-600 mr-2">-3</span>
-                  <span className="text-gray-600 text-sm">vs last month</span>
+                  <span className="text-gray-600 text-sm">vs last month</span> */}
                 </div>
               </Card>
             </div>

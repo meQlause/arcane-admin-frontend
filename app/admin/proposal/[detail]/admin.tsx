@@ -6,7 +6,7 @@ import {
   ProposalVoteProps,
 } from "@/app/components/proposal";
 import { useWallet } from "@/app/auth/wallet";
-import { useEffect, useState } from "react";
+import { Component, useEffect, useState } from "react";
 import config from "@/app/config";
 
 export default function ProposalDetailAdmin({ rdt, id }: any) {
@@ -209,7 +209,7 @@ export default function ProposalDetailAdmin({ rdt, id }: any) {
           status: data?.status,
           vote: vote_list,
           voter: voter,
-          ComponentAddress: data?.component_address,
+          component_address: data?.component_address,
         };
 
         setDataProposal(proposalData);

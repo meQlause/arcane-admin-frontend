@@ -118,9 +118,9 @@ export class RTMGenerator {
   
     CALL_METHOD
         Address("${config.addresses.arcaneMain}")
-        "create_vote"
+        "create_proposal"
         Proof("nft_proof")
-        Address("${config.addresses.arcaneVoteStyle}")
+        Address("${config.addresses.arcaneVoteStylePackage}")
         "${id}"
         ${duration}u8
         Array<String>(${votes.map((item) => `"${item}"`).join(", ")})

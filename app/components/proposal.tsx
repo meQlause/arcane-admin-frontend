@@ -2,7 +2,7 @@
 
 import React, { FC, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import Image, { ImageLoaderProps } from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import { RoleType } from "@/app/types";
 import { useWallet } from "@/app/auth/wallet";
@@ -34,7 +34,7 @@ export type ProposalProps = {
   user_role?: string;
   title: string;
   description: string;
-  ComponentAddress: string;
+  component_address: string;
   avatar: string;
   start?: number;
   end?: number;
@@ -201,7 +201,7 @@ type ProposalVoterProps = {
 
 export const ProposalDetail: FC<ProposalDetailProps> = ({
   id,
-  ComponentAddress,
+  component_address,
   user_address,
   user_role,
   title,
@@ -226,6 +226,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({
   const [tokenAmount, setTokenAmount] = useState<string>("0");
   const [loading, setLoading] = useState(false);
   const [imagesData, setImagesData] = useState<string[]>([]);
+  const [totalArcToken, setTotalArcToken] = useState<number | null>(null);
   const isNotCreate = pathname.indexOf("/create") < 0;
 
   const [showPopupSignin, setShowPopupSignin] = useState(false);
@@ -262,7 +263,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({
     if (photos[0]) {
       photos.forEach((photo: any) => {
         customImageLoader(
-          `${config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/pict/${photo}`
+          `${config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER}/proposal/pict/${photo}`
         ).then((dataUrl) => {
           if (dataUrl) {
             setImagesData((prevData) => [...prevData, dataUrl]);
@@ -348,31 +349,43 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({
   const [isClosed, setIsClosed] = useState(false);
   const [isVoteAbleToUse, setIsVoteAbleToUse] = useState(true);
   const [isWithdrawAbleToUse, setIsWithdrawAbleToUse] = useState(true);
+
   useEffect(() => {
-    if (end) {
-      const getEpoch = async () => {
-        let data = await rdt.gatewayApi.status.getCurrent();
-        const now = data.ledger_state.epoch;
-        if (now < end) {
-          setIsClosed(true);
-        } else {
-          if (typeof user_withdraw !== "undefined" && !user_withdraw) {
-            setIsWithdrawAbleToUse(false);
-          }
-        }
-      };
-      getEpoch();
-    }
-  }, [end]);
+    const getArcTokenData = async () => {
+      const metadata =
+        await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(
+          account?.address
+        );
+      let ft_data = metadata.fungible_resources.items;
+      const filteredObject = ft_data.find(
+        (item) => item.resource_address === config.addresses.ARC
+      );
+      console.log(filteredObject);
+      setTotalArcToken(
+        filteredObject ? Number(filteredObject.vaults.items[0].amount) : null
+      );
+    };
+    getArcTokenData();
+    setIsClosed(status === "closed" ? true : false);
+    setIsWithdrawAbleToUse(
+      status === "closed" ? (user_withdraw ? true : false) : false
+    );
+  }, []);
 
   useEffect(() => {
     if (Number(tokenAmount) > 0 && voting) {
-      setIsVoteAbleToUse(false);
-    } else {
       setIsVoteAbleToUse(true);
+    } else {
+      setIsVoteAbleToUse(false);
     }
     if (typeof user_voted !== "undefined" && user_voted !== "") {
-      setIsVoteAbleToUse(true);
+      setIsVoteAbleToUse(false);
+    }
+    if (
+      totalArcToken === null ||
+      Number(tokenAmount) > (totalArcToken ? totalArcToken : 0)
+    ) {
+      setIsVoteAbleToUse(false);
     }
   }, [tokenAmount, voting]);
 
@@ -382,7 +395,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({
     const withdrawFromVote = RTMGenerator.withdraw(
       account?.address,
       nft_id,
-      ComponentAddress!
+      component_address!
     ).trim();
     const result = await rdt.walletApi.sendTransaction({
       transactionManifest: withdrawFromVote,
@@ -423,7 +436,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({
       account?.address,
       tokenAmount.trim(),
       nft_id,
-      ComponentAddress!,
+      component_address!,
       voting
     ).trim();
     const result = await rdt.walletApi.sendTransaction({
@@ -498,7 +511,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({
     setLoading(true);
     const manifest = RTMGenerator.changeProposalStatusTo(
       approvalChoice?.toLocaleLowerCase() === "approve" ? true : false,
-      ComponentAddress,
+      component_address,
       address,
       nft_id.slice(1, -1)
     );
@@ -857,7 +870,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({
                       <Fieldset
                         key={index}
                         className={`!mb-3 !last:mb-0 ${
-                          !isClosed ? "pointer-events-none" : ""
+                          isClosed ? "pointer-events-none" : ""
                         }`}
                       >
                         <Radio
@@ -871,7 +884,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({
                         </Radio>
                       </Fieldset>
                     ))}
-                    {isClosed && (
+                    {!isClosed && (
                       <>
                         <Input
                           type={"number"}
@@ -890,7 +903,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({
                           type="button"
                           variant="primary"
                           loading="none"
-                          disabled={isVoteAbleToUse}
+                          disabled={!isVoteAbleToUse}
                           onClick={handleOpenPopupVote}
                         >
                           Vote
@@ -1003,7 +1016,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({
                   type="button"
                   variant="primary"
                   loading={loading}
-                  disabled={isWithdrawAbleToUse}
+                  disabled={!isWithdrawAbleToUse}
                   className="shadow-main"
                   onClick={handleWithdraw}
                 >
@@ -1011,7 +1024,7 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({
                 </Button>
                 <Tooltip
                   content={
-                    isClosed
+                    !isClosed
                       ? typeof user_voted !== "undefined" && user_voted !== ""
                         ? `You can withdraw your token after proposal closed`
                         : `You have to vote first to be able to make a withdrawal`

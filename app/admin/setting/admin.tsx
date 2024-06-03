@@ -68,7 +68,7 @@ export default function SettingAdmin({ rdt }: any) {
 
   const getAdminList = async () => {
     return await fetch(
-      `${config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER}/address/get-admins`,
+      `${config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER}/address/get-admin-list`,
       {
         method: "GET",
         headers: {
@@ -103,7 +103,7 @@ export default function SettingAdmin({ rdt }: any) {
 
   const getAddressData = async (address: string) => {
     return await fetch(
-      `${config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER}/address/get/${address}`,
+      `${config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER}/address/get-info/${address}`,
       {
         method: "GET",
         headers: {

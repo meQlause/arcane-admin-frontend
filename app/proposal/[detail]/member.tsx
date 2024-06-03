@@ -27,7 +27,7 @@ export default function ProposalDetailMember({ rdt, id }: any) {
     status: "",
     vote: [],
     voter: [],
-    ComponentAddress: "",
+    component_address: "",
   });
   const { access_token } = useWallet();
   // let dataProposals: ProposalDetailProps = {
@@ -137,7 +137,7 @@ export default function ProposalDetailMember({ rdt, id }: any) {
   const [dataVoteDetail, setDataVoteDetail] = useState<boolean>(true);
   const getVoteDetail = async () => {
     return await fetch(
-      `${config.apis.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/vote/${id}`,
+      `${config.apis.NEXT_PUBLIC_BACKEND_API_SERVER}/proposal/detail/${id}`,
       {
         method: "GET",
         headers: {
@@ -176,11 +176,9 @@ export default function ProposalDetailMember({ rdt, id }: any) {
     // }
   };
 
-  const getVoterDetail = async (id: any, nft_id: string) => {
+  const getVoterDetail = async (proposalId: any, nftId: string) => {
     return await fetch(
-      `${
-        config.apis.NEXT_PUBLIC_BACKEND_API_SERVER
-      }/votes/voter/${id}/${nft_id.slice(1, -1)}`,
+      `${config.apis.NEXT_PUBLIC_BACKEND_API_SERVER}/proposal/voter/?proposalId=${proposalId}&nftId=${nftId}`,
       {
         method: "GET",
         headers: {
@@ -227,14 +225,15 @@ export default function ProposalDetailMember({ rdt, id }: any) {
   useEffect(() => {
     const fetchData = async () => {
       const data = await getVoteDetail();
+      console.log(data?.component_address);
 
       if (data) {
         const vote_list: ProposalVoteProps[] = Object.entries(
-          data?.voteTokenAmount
+          data?.vote_token_amount
         ).map(([label, token]) => ({
           label,
           token: typeof token === "number" ? token : undefined,
-          amount: data?.voteAddressCount[label],
+          amount: data?.vote_address_count[label],
         }));
 
         const voter = data?.voters.map(({ amount, voter, selected }: any) => ({
@@ -252,7 +251,7 @@ export default function ProposalDetailMember({ rdt, id }: any) {
           proposalData = {
             ...proposalData,
             user_voted: dataVoter?.selected,
-            user_withdraw: dataVoter?.isWithdrawed,
+            user_withdraw: dataVoter?.is_withdrawed,
           };
         }
 
@@ -265,12 +264,12 @@ export default function ProposalDetailMember({ rdt, id }: any) {
           title: data?.title,
           photos: [data?.picture],
           description: data?.description,
-          end: data?.endEpoch,
-          start: data?.startEpoch,
+          end: data?.end_epoch,
+          start: data?.start_epoch,
           status: data?.status,
           vote: vote_list,
           voter: voter,
-          ComponentAddress: data?.componentAddress,
+          component_address: data?.component_address,
         };
 
         setDataProposal(proposalData);

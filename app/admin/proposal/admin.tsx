@@ -14,6 +14,7 @@ import { Alert } from "@/app/components/alert";
 import { formatDate } from "@/app/functions/datetime";
 import { useRouter } from "next/navigation";
 import { Pagination } from "@/app/components/pagination";
+import config from "@/app/config";
 
 export default function ProposalAdmin({ rdt }: any) {
   const { account, access_token } = useAccount({ rdt });
@@ -128,12 +129,14 @@ export default function ProposalAdmin({ rdt }: any) {
           avatar: "/user/user-1.png",
           title: item.title,
           description: item.description,
-          end: item.endEpoch,
+          end: item.end_epoch,
           status: item.status,
-          vote: Object.entries(item.voteTokenAmount).map(([label, amount]) => ({
-            label,
-            amount,
-          })),
+          vote: Object.entries(item.vote_token_amount).map(
+            ([label, amount]) => ({
+              label,
+              amount,
+            })
+          ),
         };
       });
       setActiveProposals(dataProposal);
@@ -153,12 +156,14 @@ export default function ProposalAdmin({ rdt }: any) {
           avatar: "/user/user-1.png",
           title: item.title,
           description: item.description,
-          end: item.endEpoch,
+          end: item.end_epoch,
           status: item.status,
-          vote: Object.entries(item.voteTokenAmount).map(([label, amount]) => ({
-            label,
-            amount,
-          })),
+          vote: Object.entries(item.vote_token_amount).map(
+            ([label, amount]) => ({
+              label,
+              amount,
+            })
+          ),
         };
       });
       setHistoryProposals(dataProposal);
@@ -169,7 +174,7 @@ export default function ProposalAdmin({ rdt }: any) {
   };
   const getTotalVotesActive = async (): Promise<Response> => {
     return await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter?count=${
+      `${config.apis.NEXT_PUBLIC_BACKEND_API_SERVER}/proposal/counter?count=${
         currentOptionsActive === "All"
           ? ["pending", "active"]
           : [currentOptionsActive.toLocaleLowerCase()]
@@ -186,7 +191,7 @@ export default function ProposalAdmin({ rdt }: any) {
 
   const getTotalVotesHistory = async (): Promise<Response> => {
     return await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter?count=${
+      `${config.apis.NEXT_PUBLIC_BACKEND_API_SERVER}/proposal/counter?count=${
         currentOptionsHistory === "All"
           ? ["rejected", "closed"]
           : [currentOptionsHistory.toLocaleLowerCase()]
@@ -221,8 +226,8 @@ export default function ProposalAdmin({ rdt }: any) {
     return {
       data: await fetch(
         `${
-          process.env.NEXT_PUBLIC_BACKEND_API_SERVER
-        }/votes/get-votes?page=${page}&status=${
+          config.apis.NEXT_PUBLIC_BACKEND_API_SERVER
+        }/proposal/get-proposal-list?page=${page}&status=${
           currentOptionsActive === "All"
             ? ["pending", "active"]
             : [currentOptionsActive.toLocaleLowerCase()]
@@ -259,8 +264,8 @@ export default function ProposalAdmin({ rdt }: any) {
     return {
       data: await fetch(
         `${
-          process.env.NEXT_PUBLIC_BACKEND_API_SERVER
-        }/votes/get-votes?page=${page}&status=${
+          config.apis.NEXT_PUBLIC_BACKEND_API_SERVER
+        }/proposal/get-proposal-list?page=${page}&status=${
           currentOptionsHistory === "All"
             ? ["rejected", "closed"]
             : [currentOptionsHistory.toLocaleLowerCase()]
@@ -294,9 +299,9 @@ export default function ProposalAdmin({ rdt }: any) {
             avatar: "/user/user-1.png",
             title: item.title,
             description: item.description,
-            end: item.endEpoch,
+            end: item.end_epoch,
             status: item.status,
-            vote: Object.entries(item.voteTokenAmount).map(
+            vote: Object.entries(item.vote_token_amount).map(
               ([label, amount]) => ({ label, amount })
             ),
           };
@@ -326,9 +331,9 @@ export default function ProposalAdmin({ rdt }: any) {
             avatar: "/user/user-1.png",
             title: item.title,
             description: item.description,
-            end: item.endEpoch,
+            end: item.end_poch,
             status: item.status,
-            vote: Object.entries(item.voteTokenAmount).map(
+            vote: Object.entries(item.vote_token_amount).map(
               ([label, amount]) => ({ label, amount })
             ),
           };

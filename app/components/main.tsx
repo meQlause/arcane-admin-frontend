@@ -31,7 +31,6 @@ export const Main: FC<MainProps> = ({ children, className }) => {
   const handleMintToken = async () => {
     setLoading(true);
     const mintArcToken = RTMGenerator.mint_arc(address);
-    // console.log(addVoting)
     const result = await rdt.walletApi.sendTransaction({
       transactionManifest: mintArcToken,
       message: "mint arc token",

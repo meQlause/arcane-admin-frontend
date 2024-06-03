@@ -25,7 +25,7 @@ export default function ProposalDetailAdmin({ rdt, id }: any) {
     status: "",
     vote: [],
     voter: [],
-    ComponentAddress: "",
+    component_address: "",
   });
   const { access_token } = useWallet();
   // const dataProposal: ProposalDetailProps = {
@@ -135,7 +135,7 @@ export default function ProposalDetailAdmin({ rdt, id }: any) {
   const [dataVoteDetail, setDataVoteDetail] = useState<boolean>(true);
   const getVoteDetail = async () => {
     return await fetch(
-      `${config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/vote/${id}`,
+      `${config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER}/proposal/detail/${id}`,
       {
         method: "GET",
         headers: {
@@ -150,7 +150,7 @@ export default function ProposalDetailAdmin({ rdt, id }: any) {
     return await fetch(
       `${
         config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER
-      }/votes/voter/${id}/${nft_id.slice(1, -1)}`,
+      }/proposal/voter?proposalId=${id}?nftId=${nft_id.slice(1, -1)}`,
       {
         method: "GET",
         headers: {
@@ -169,11 +169,11 @@ export default function ProposalDetailAdmin({ rdt, id }: any) {
 
       if (data) {
         const vote_list: ProposalVoteProps[] = Object.entries(
-          data?.voteTokenAmount
+          data?.vote_token_amount
         ).map(([label, token]) => ({
           label,
           token: typeof token === "number" ? token : undefined,
-          amount: data?.voteAddressCount[label],
+          amount: data?.vote_address_count[label],
         }));
 
         const voter = data?.voters.map(({ amount, voter, selected }: any) => ({
@@ -191,7 +191,7 @@ export default function ProposalDetailAdmin({ rdt, id }: any) {
           proposalData = {
             ...proposalData,
             user_voted: dataVoter?.selected,
-            user_withdraw: dataVoter?.isWithdrawed,
+            user_withdraw: dataVoter?.is_withdrawed,
           };
         }
 
@@ -204,12 +204,12 @@ export default function ProposalDetailAdmin({ rdt, id }: any) {
           title: data?.title,
           photos: [data?.picture],
           description: data?.description,
-          end: data?.endEpoch,
-          start: data?.startEpoch,
+          end: data?.end_epoch,
+          start: data?.start_epoch,
           status: data?.status,
           vote: vote_list,
           voter: voter,
-          ComponentAddress: data?.componentAddress,
+          ComponentAddress: data?.component_address,
         };
 
         setDataProposal(proposalData);

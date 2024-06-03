@@ -196,7 +196,7 @@ export default function ProposalCreateMember({ rdt }: any) {
       pict.append("photo", data, "0image" + "." + data.type.split("/")[1]);
     }
     return fetch(
-      `${config.apis.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/upload-pict`,
+      `${config.apis.NEXT_PUBLIC_BACKEND_API_SERVER}/proposal/upload-pict`,
       {
         method: "POST",
         body: pict,
@@ -682,7 +682,7 @@ export default function ProposalCreateMember({ rdt }: any) {
                   avatar={account.avatar}
                   title={title ? title : ""}
                   description={description ? description : ""}
-                  ComponentAddress=""
+                  component_address=""
                   photos={blobImage}
                   start={0}
                   end={0}

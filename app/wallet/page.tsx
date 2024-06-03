@@ -33,7 +33,6 @@ export default function Wallet({ rdt, path, variant }: any) {
 
   useEffect(() => {
     const verifyAddress = async () => {
-      // console.log(walletConnect);
       if (walletConnect) {
         const data = localStorage.getItem("arcane")!;
         if (!data) {
@@ -53,9 +52,6 @@ export default function Wallet({ rdt, path, variant }: any) {
   }, [walletConnect, rdt.walletApi]);
 
   useEffect(() => {
-    // console.log("aasdasdasdadsasdadasss");
-    // console.log("isRegistered" + isRegistered);
-    // console.log("isWalletConnect" + walletConnect);
     const registered = async () => {
       if (isRegistered === false && walletConnect === true) {
         const rtm_signup = RTMGenerator.signUp(

@@ -1,7 +1,7 @@
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      'radix-connect-button': any;
+      "radix-connect-button": any;
     }
   }
 }
@@ -9,17 +9,17 @@ declare global {
 import { useWalletContext } from "@/app/contexts/wallet-context";
 
 export default function WalletRadix({ onUpdate }: any) {
-  const rdt = useWalletContext()
+  const rdt = useWalletContext();
 
   rdt?.walletApi.provideConnectResponseCallback(async (result) => {
     if (!result.isErr()) {
-      onUpdate(true)
+      onUpdate(true);
     }
-  })
+  });
 
   return (
     <>
       <radix-connect-button />
     </>
-  )
+  );
 }

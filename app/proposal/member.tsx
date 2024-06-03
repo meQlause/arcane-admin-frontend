@@ -37,6 +37,10 @@ export default function ProposalMember({ rdt }: any) {
       value: "Active",
       label: "Active",
     },
+    {
+      value: "Closed",
+      label: "Closed",
+    },
   ];
   const handleSelectActive = (value: string) => {
     setCurrentOptionsActive(value);
@@ -56,9 +60,9 @@ export default function ProposalMember({ rdt }: any) {
 
   const getTotalVotes = async (): Promise<Response> => {
     return await fetch(
-      `${config.apis.NEXT_PUBLIC_BACKEND_API_SERVER}/votes/counter?count=${
+      `${config.apis.NEXT_PUBLIC_BACKEND_API_SERVER}/proposal/counter?count=${
         currentOptionsActive === "All"
-          ? ["pending", "active"]
+          ? ["pending", "active", "closed"]
           : [currentOptionsActive.toLocaleLowerCase()]
       }`,
       {
@@ -92,9 +96,9 @@ export default function ProposalMember({ rdt }: any) {
       data: await fetch(
         `${
           config.apis.NEXT_PUBLIC_BACKEND_API_SERVER
-        }/votes/get-votes?page=${page}&status=${
+        }/proposal/get-proposal-list?page=${page}&status=${
           currentOptionsActive === "All"
-            ? ["pending", "active"]
+            ? ["pending", "active", "closed"]
             : [currentOptionsActive.toLocaleLowerCase()]
         }`,
         {
@@ -155,9 +159,9 @@ export default function ProposalMember({ rdt }: any) {
             avatar: "/user/user-1.png",
             title: item.title,
             description: item.description,
-            end: item.endEpoch,
+            end: item.end_epoch,
             status: item.status,
-            vote: Object.entries(item.voteTokenAmount).map(
+            vote: Object.entries(item.vote_token_amount).map(
               ([label, amount]) => ({ label, amount })
             ),
           };
@@ -182,12 +186,14 @@ export default function ProposalMember({ rdt }: any) {
           avatar: "/user/user-1.png",
           title: item.title,
           description: item.description,
-          end: item.endEpoch,
+          end: item.end_epoch,
           status: item.status,
-          vote: Object.entries(item.voteTokenAmount).map(([label, amount]) => ({
-            label,
-            amount,
-          })),
+          vote: Object.entries(item.vote_token_amount).map(
+            ([label, amount]) => ({
+              label,
+              amount,
+            })
+          ),
         };
       });
       setVotesList(dataProposal);

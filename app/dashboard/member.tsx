@@ -17,44 +17,7 @@ import { formatNumber } from "@/app/functions/notation";
 import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
 import config from "../config";
-
-type VaultResponse = {
-  address: string;
-  ancestor_identities: undefined;
-  details: any;
-  metadata: any;
-  fungible_resources: {
-    total_count: number;
-    items: {
-      aggregation_level: any;
-      resource_address: string;
-      vaults: {
-        total_count: number;
-        items: {
-          vault_address: string;
-          amount: number;
-          last_updated_at_state_version: number;
-        }[];
-      };
-    }[];
-  };
-  non_fungible_resources: {
-    total_count: number;
-    items: {
-      aggregation_level: string;
-      resource_address: string;
-      vaults: {
-        total_count: number;
-        items: {
-          total_count: number;
-          items: string[];
-          vault_address: string;
-          last_updated_at_state_version: number;
-        }[];
-      };
-    }[];
-  };
-};
+import { VaultResponse } from "@/app/types";
 
 export default function DashboardMember({ rdt }: any) {
   const { account } = useAccount({ rdt });
@@ -268,7 +231,7 @@ export default function DashboardMember({ rdt }: any) {
         const responseVote = await fetch(
           `${
             config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER
-          }/votes/get-votes-by/${nft_id.slice(1, -1)}`,
+          }/proposal/get-proposal-list-by/${nft_id.slice(1, -1)}`,
           {
             method: "GET",
             headers: {
@@ -314,7 +277,7 @@ export default function DashboardMember({ rdt }: any) {
         const responseHistory = await fetch(
           `${
             config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER
-          }/votes/get-voter-data/${nft_id.slice(1, -1)}`,
+          }/votes/get-voted-proposal-list/${nft_id.slice(1, -1)}`,
           {
             method: "GET",
             headers: {
@@ -355,6 +318,7 @@ export default function DashboardMember({ rdt }: any) {
 
         setTotalNFT(metadata.non_fungible_resources.total_count);
         for (let x = 0; x < ft_data.length; x++) {
+          if (ft_data[x].vaults.items[0].amount === 0) continue;
           let ft_metadata = await rdt.gatewayApi.state.getEntityMetadata(
             ft_data[x].resource_address
           );
@@ -377,8 +341,7 @@ export default function DashboardMember({ rdt }: any) {
         }
 
         for (let x = 0; x < nft_data.length; x++) {
-          if (nft_data[x].vaults.total_count === 0) continue;
-
+          if (nft_data[x].vaults.items[0].total_count === 0) continue;
           let nft_metadata = await rdt.gatewayApi.state.getEntityMetadata(
             nft_data[x].resource_address
           );
@@ -769,7 +732,7 @@ export default function DashboardMember({ rdt }: any) {
                 <Card>
                   <div className="flex items-center justify-between">
                     <h2 className="font-maven-pro font-semibold text-lg">
-                      My NFT
+                      My NFT Collection
                     </h2>
                     {sliderLoaded && instanceRef.current && (
                       <div className="flex gap-2">

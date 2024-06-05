@@ -277,7 +277,7 @@ export default function DashboardMember({ rdt }: any) {
         const responseHistory = await fetch(
           `${
             config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER
-          }/votes/get-voted-proposal-list/${nft_id.slice(1, -1)}`,
+          }/proposal/get-voted-proposal-list/${nft_id.slice(1, -1)}`,
           {
             method: "GET",
             headers: {

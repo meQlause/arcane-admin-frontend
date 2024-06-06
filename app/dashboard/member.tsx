@@ -265,9 +265,9 @@ export default function DashboardMember({ rdt }: any) {
             avatar: "/user/user-1.png",
             title: resV[x].title,
             description: resV[x].description,
-            end: resV[x].endEpoch,
+            end: resV[x].end_epoch,
             status: resV[x].status,
-            vote: Object.entries(resV[x].voteTokenAmount).map(
+            vote: Object.entries(resV[x].vote_token_amount).map(
               ([label, amount]) => ({ label, amount })
             ),
           });
@@ -302,7 +302,7 @@ export default function DashboardMember({ rdt }: any) {
             title: resH[x].title,
             amount: resH[x].amount,
             label: "ARC",
-            vote: resH[x].vote.id,
+            vote: resH[x].proposal.id,
           });
         }
         setDataHistoryVote(dataH);

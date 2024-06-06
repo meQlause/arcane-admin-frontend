@@ -6,16 +6,16 @@ export class RTMGenerator {
   static signUp(address: string): string {
     return `
     CALL_METHOD
+      Address("${config.addresses.arcaneMain}")
+      "sign_up"
       Address("${address}")
-      "withdraw"
-      Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
-      Decimal("0") 
     ;
-    
+
     CALL_METHOD
-        Address("${config.addresses.arcaneMain}")
-        "sign_up"
-        Address("${address}")
+      Address("${address}")
+      "try_deposit_batch_or_abort"
+      Expression("ENTIRE_WORKTOP")
+      Enum<0u8>()
     ;
     `;
   }
@@ -58,7 +58,7 @@ export class RTMGenerator {
       
     CALL_METHOD
         Address("${accountAddress}")
-        "try_deposit_batch_or_refund"
+        "try_deposit_batch_or_abort"
         Expression("ENTIRE_WORKTOP")
         Enum<0u8>()
     ;
@@ -196,7 +196,7 @@ export class RTMGenerator {
     ;
     CALL_METHOD
         Address("${address}")
-        "try_deposit_batch_or_refund"
+        "try_deposit_batch_or_abort"
         Expression("ENTIRE_WORKTOP")
         Enum<0u8>()
     ;
@@ -210,7 +210,7 @@ export class RTMGenerator {
     ;
     CALL_METHOD
         Address("${address}")
-        "try_deposit_batch_or_refund"
+        "try_deposit_batch_or_abort"
         Expression("ENTIRE_WORKTOP")
         Enum<0u8>()
     ;`;

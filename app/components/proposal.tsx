@@ -368,9 +368,9 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({
     getArcTokenData();
     setIsClosed(status === "closed" ? true : false);
     setIsWithdrawAbleToUse(
-      status === "closed" ? (user_withdraw ? true : false) : false
+      status === "closed" ? (user_withdraw ? false : true) : false
     );
-  }, []);
+  }, [user_withdraw]);
 
   useEffect(() => {
     if (Number(tokenAmount) > 0 && voting) {

@@ -225,7 +225,6 @@ export default function ProposalDetailMember({ rdt, id }: any) {
   useEffect(() => {
     const fetchData = async () => {
       const data = await getVoteDetail();
-      console.log(data?.component_address);
 
       if (data) {
         const vote_list: ProposalVoteProps[] = Object.entries(

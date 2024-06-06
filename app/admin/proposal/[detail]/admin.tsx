@@ -150,7 +150,7 @@ export default function ProposalDetailAdmin({ rdt, id }: any) {
     return await fetch(
       `${
         config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER
-      }/proposal/voter?proposalId=${id}?nftId=${nft_id.slice(1, -1)}`,
+      }/proposal/voter?proposalId=${id}&nftId=${nft_id.slice(1, -1)}`,
       {
         method: "GET",
         headers: {

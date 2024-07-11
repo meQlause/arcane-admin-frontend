@@ -323,7 +323,7 @@ export default function DashboardMember({ rdt }: any) {
         setTotalNFT(metadata.non_fungible_resources.total_count!);
         for (let x = 0; x < ft_data.length; x++) {
           if (Number(ft_data[x].vaults.items[0].amount) === 0) continue;
-          let ft_metadata = await rdt.gatewayApi.state.getEntityMetadata(
+          let ft_metadata = await rdt.gatewayApi.state.getAllEntityMetadata(
             ft_data[x].resource_address
           );
           let label = "none";

@@ -27,6 +27,7 @@ import { formatDate } from "@/app/functions/datetime";
 import https from "https";
 import axios from "axios";
 import config from "@/app/config";
+import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 
 export type ProposalProps = {
   id: string;
@@ -349,13 +350,13 @@ export const ProposalDetail: FC<ProposalDetailProps> = ({
   const [isClosed, setIsClosed] = useState(false);
   const [isVoteAbleToUse, setIsVoteAbleToUse] = useState(true);
   const [isWithdrawAbleToUse, setIsWithdrawAbleToUse] = useState(true);
+  const gatewayApi = GatewayApiClient.initialize(rdt.gatewayApi.clientConfig);
 
   useEffect(() => {
     const getArcTokenData = async () => {
-      const metadata =
-        await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(
-          account?.address
-        );
+      const metadata = await gatewayApi.state.getEntityDetailsVaultAggregated(
+        account?.address
+      );
       let ft_data = metadata.fungible_resources.items;
       const filteredObject = ft_data.find(
         (item) => item.resource_address === config.addresses.ARC

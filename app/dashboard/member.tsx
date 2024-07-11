@@ -336,12 +336,14 @@ export default function DashboardMember({ rdt }: any) {
                 ft_metadata.items[i].value
                   .programmatic_json as ProgrammaticScryptoSborValueEnum
               ).field_name;
+              console.log(label);
             }
             if (ft_metadata.items[i].key === "icon_url") {
               url = (
                 ft_metadata.items[i].value
                   .programmatic_json as ProgrammaticScryptoSborValueEnum
               ).field_name;
+              console.log(url);
             }
           }
           dataT.push({
@@ -365,12 +367,14 @@ export default function DashboardMember({ rdt }: any) {
                 nft_metadata.items[i].value
                   .programmatic_json as ProgrammaticScryptoSborValueEnum
               ).field_name;
+              console.log(title);
             }
             if (nft_metadata.items[i].key === "icon_url") {
               src = (
                 nft_metadata.items[i].value
                   .programmatic_json as ProgrammaticScryptoSborValueEnum
               ).field_name;
+              console.log(src);
             }
           }
           dataN.push({

@@ -18,6 +18,10 @@ import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
 import config from "../config";
 import { VaultResponse } from "@/app/types";
+import {
+  GatewayApiClient,
+  StateEntityDetailsVaultResponseItem,
+} from "@radixdlt/babylon-gateway-api-sdk";
 
 export default function DashboardMember({ rdt }: any) {
   const { account } = useAccount({ rdt });
@@ -30,6 +34,7 @@ export default function DashboardMember({ rdt }: any) {
   const [dataHistoryVote, setDataHistoryVote] = useState<any>([]);
   const [dataProposal, setDataProposal] = useState<ProposalProps[]>([]);
   const router = useRouter();
+  const gatewayApi = GatewayApiClient.initialize(rdt.gatewayApi.clientConfig);
 
   const optionsProposal: any = [
     {
@@ -307,18 +312,17 @@ export default function DashboardMember({ rdt }: any) {
         }
         setDataHistoryVote(dataH);
 
-        const metadata: VaultResponse =
-          await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(
+        const metadata: StateEntityDetailsVaultResponseItem =
+          await gatewayApi.state.getEntityDetailsVaultAggregated(
             account?.address
           );
         let ft_data = metadata.fungible_resources.items;
         let nft_data = metadata.non_fungible_resources.items;
         let dataT: any = [];
         let dataN: any = [];
-
-        setTotalNFT(metadata.non_fungible_resources.total_count);
+        setTotalNFT(metadata.non_fungible_resources.total_count!);
         for (let x = 0; x < ft_data.length; x++) {
-          if (ft_data[x].vaults.items[0].amount === 0) continue;
+          if (Number(ft_data[x].vaults.items[0].amount) === 0) continue;
           let ft_metadata = await rdt.gatewayApi.state.getEntityMetadata(
             ft_data[x].resource_address
           );

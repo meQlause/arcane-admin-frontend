@@ -32,7 +32,7 @@ export const useWallet = () => {
   // ))
 
   useEffect(() => {
-    if (rdt?.walletApi.getWalletData().accounts[0] && address && role) {
+    if (rdt?.walletApi.getWalletData()?.accounts[0] && address && role) {
       if (role !== RoleType.Admin && role === RoleType.Member) {
         router.push(pathname.replace("/admin", ""));
       }

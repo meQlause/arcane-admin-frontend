@@ -11,9 +11,10 @@ import {
   RadixDappToolkit,
   RadixNetwork,
   DataRequestBuilder,
-  createLogger,
+  Logger,
   RdtState,
 } from "@radixdlt/radix-dapp-toolkit";
+import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 import CryptoJS from "crypto-js";
 import Loading from "@/app/loading";
 import config from "../config";
@@ -35,8 +36,11 @@ export function WalletContextProvider({
       rdt = RadixDappToolkit({
         dAppDefinitionAddress: config.addresses?.dappsDefinition!,
         networkId: RadixNetwork.Stokenet,
-        logger: createLogger(1),
+        // logger: Logger(1),
       });
+      // const gatewayApi = GatewayApiClient.initialize(
+      //   rdt.gatewayApi.clientConfig
+      // );
 
       rdt.walletApi.setRequestData(
         DataRequestBuilder.persona(),

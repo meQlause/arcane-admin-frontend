@@ -20,6 +20,8 @@ import config from "../config";
 import { VaultResponse } from "@/app/types";
 import {
   GatewayApiClient,
+  ProgrammaticScryptoSborValueEnum,
+  ProgrammaticScryptoSborValueEnumAllOf,
   StateEntityDetailsVaultResponseItem,
 } from "@radixdlt/babylon-gateway-api-sdk";
 
@@ -323,17 +325,23 @@ export default function DashboardMember({ rdt }: any) {
         setTotalNFT(metadata.non_fungible_resources.total_count!);
         for (let x = 0; x < ft_data.length; x++) {
           if (Number(ft_data[x].vaults.items[0].amount) === 0) continue;
-          let ft_metadata = await rdt.gatewayApi.state.getAllEntityMetadata(
+          let ft_metadata = await gatewayApi.state.getEntityMetadata(
             ft_data[x].resource_address
           );
-          let label = "none";
-          let url = "none";
+          let label: any;
+          let url: any;
           for (let i = 0; i < ft_metadata.items.length; i++) {
             if (ft_metadata.items[i].key === "symbol") {
-              label = ft_metadata.items[i].value.typed.value;
+              label = (
+                ft_metadata.items[i].value
+                  .programmatic_json as ProgrammaticScryptoSborValueEnum
+              ).field_name;
             }
             if (ft_metadata.items[i].key === "icon_url") {
-              url = ft_metadata.items[i].value.typed.value;
+              url = (
+                ft_metadata.items[i].value
+                  .programmatic_json as ProgrammaticScryptoSborValueEnum
+              ).field_name;
             }
           }
           dataT.push({
@@ -346,17 +354,23 @@ export default function DashboardMember({ rdt }: any) {
 
         for (let x = 0; x < nft_data.length; x++) {
           if (nft_data[x].vaults.items[0].total_count === 0) continue;
-          let nft_metadata = await rdt.gatewayApi.state.getEntityMetadata(
+          let nft_metadata = await gatewayApi.state.getEntityMetadata(
             nft_data[x].resource_address
           );
-          let title = "none";
-          let src = "none";
+          let title: any;
+          let src: any;
           for (let i = 0; i < nft_metadata.items.length; i++) {
             if (nft_metadata.items[i].key === "name") {
-              title = nft_metadata.items[i].value.typed.value;
+              title = (
+                nft_metadata.items[i].value
+                  .programmatic_json as ProgrammaticScryptoSborValueEnum
+              ).field_name;
             }
             if (nft_metadata.items[i].key === "icon_url") {
-              src = nft_metadata.items[i].value.typed.value;
+              src = (
+                nft_metadata.items[i].value
+                  .programmatic_json as ProgrammaticScryptoSborValueEnum
+              ).field_name;
             }
           }
           dataN.push({

@@ -329,6 +329,7 @@ export default function DashboardMember({ rdt }: any) {
           let ft_metadata = await gatewayApi.state.getEntityMetadata(
             ft_data[x].resource_address
           );
+          console.log(ft_metadata);
           let label: any;
           let url: any;
           for (let i = 0; i < ft_metadata.items.length; i++) {

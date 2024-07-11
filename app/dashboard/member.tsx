@@ -22,6 +22,7 @@ import {
   GatewayApiClient,
   ProgrammaticScryptoSborValueEnum,
   ProgrammaticScryptoSborValueEnumAllOf,
+  ProgrammaticScryptoSborValueString,
   StateEntityDetailsVaultResponseItem,
 } from "@radixdlt/babylon-gateway-api-sdk";
 
@@ -334,15 +335,15 @@ export default function DashboardMember({ rdt }: any) {
             if (ft_metadata.items[i].key === "symbol") {
               label = (
                 ft_metadata.items[i].value
-                  .programmatic_json as ProgrammaticScryptoSborValueEnum
-              ).field_name;
+                  .programmatic_json as ProgrammaticScryptoSborValueString
+              ).value;
               console.log(label);
             }
             if (ft_metadata.items[i].key === "icon_url") {
               url = (
                 ft_metadata.items[i].value
-                  .programmatic_json as ProgrammaticScryptoSborValueEnum
-              ).field_name;
+                  .programmatic_json as ProgrammaticScryptoSborValueString
+              ).value;
               console.log(url);
             }
           }
@@ -365,15 +366,15 @@ export default function DashboardMember({ rdt }: any) {
             if (nft_metadata.items[i].key === "name") {
               title = (
                 nft_metadata.items[i].value
-                  .programmatic_json as ProgrammaticScryptoSborValueEnum
-              ).field_name;
+                  .programmatic_json as ProgrammaticScryptoSborValueString
+              ).value;
               console.log(title);
             }
             if (nft_metadata.items[i].key === "icon_url") {
               src = (
                 nft_metadata.items[i].value
-                  .programmatic_json as ProgrammaticScryptoSborValueEnum
-              ).field_name;
+                  .programmatic_json as ProgrammaticScryptoSborValueString
+              ).value;
               console.log(src);
             }
           }

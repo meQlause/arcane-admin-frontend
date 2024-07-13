@@ -33,21 +33,21 @@ const arcaneConfig = {
   public_stokenet: {
     addresses: {
       dappsDefinition:
-        "account_tdx_2_129wsptp9d7fdrj7pqgpnwv59k2q9ywc2cy38047peha5axkgugrvkc",
+        "account_tdx_2_129wsptp9d7fdrj7pqgpnwv59k2q9ywc2cy38047peha5axkgugrvkc", //
       arcaneMain:
-        "component_tdx_2_1crf6yehtpum5w4yn96vr4f37dwcqs9w26fwtse5yw5736mvucpqkc0",
+        "component_tdx_2_1crnqyuw4cp923cmz7lafkzuq5zzy2e8wkpf9c90dym9343hv87ttuz", //
       arcaneMainPackage:
-        "package_tdx_2_1pkwzvj9glkd5ngk5jsvmslm5f0y0lj6zldyp4mjnczlzgkm4yczczn",
+        "package_tdx_2_1p5d32ee2lzcqzfz6chee7xc9sp6wlv745dey55qt7jwpj9u53ltktt", //
       arcaneReward:
-        "component_tdx_2_1cqujewcsuecd57qg2crncvu9m5tnvpmup2z4mjwlc5kwet79zezsl5",
+        "component_tdx_2_1cq5g5pl40zrh057rtte6t9ta0cprcn06z592fmedpwnuv2vtud8yhk", //
       arcaneRewardStylePackage:
-        "package_tdx_2_1p5cmh4f8t678trky3ajdfqtreqnfqaag3av88kq5ftkqn3h3zhqvut",
+        "package_tdx_2_1p58ua43h36suwelpv7rgf5va644vrcsq6tttnh08qpvtae8ywnu4yt", //
       arcaneVoteStylePackage:
-        "package_tdx_2_1p49s7rpqhxqreaa0fdh5tjm48lqzqmgj22p2g7huq5fnt7gxzn67w3",
+        "package_tdx_2_1p4dn6lfthzegj95n5ku2mgd4vtvxlxe0hx4cvuvxjqd9jw9dptwje5", //
       arcaneBadge:
-        "resource_tdx_2_1nfpez2d0ph7apyzj082egn7hf4dgnr8cujaffl0fnvecwd0wy4wxgd",
+        "resource_tdx_2_1nfyuwrfm07kr78fhxhdut2vhhfrz64cgfhkn2j6p2yyg6vaklk35ga", //
       arcaneCoreBadge:
-        "resource_tdx_2_1n2448skp80k5ahl9s9q4yp3t50vkmxajjc0ml492nvqq6fel3lv8zp",
+        "resource_tdx_2_1ngck4w3206djlz9vxma8vx82upsfqzrn29v7myfu67fvhlklq8973r", //
       ARC: "resource_tdx_2_1tk08g7ulr5lp0lmm66me4gvzqp5dpq0dg84t8k78wlmacz7agwl8rs",
     } satisfies addresses,
     apis: {
@@ -69,7 +69,7 @@ const arcaneConfig = {
       arcaneRewardStylePackage:
         "package_tdx_2_1phqmyswq5u3r3sffcmxccknkwmxaear55gqclanrcz7j8plpfd4e9p",
       arcaneVoteStylePackage:
-        "package_tdx_2_1pktzs0v7cfq82rct4s3uhy9l9kvrruhxf5f8jsqpjr7ss6kymz5lp0",
+        "package_tdx_2_1pke2ehp9jrc8lym9vyk27trxvylqqx29kycrxjugcrfgn6cf59gn9u",
       arcaneBadge:
         "resource_tdx_2_1n2f8uyhay45rdnfmjxc8x60jcpzp6rzzul9xd0se7gmdupjz8ctgug",
       arcaneCoreBadge:

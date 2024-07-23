@@ -161,7 +161,7 @@ export default function DashboardAdmin({ rdt }: any) {
     setTotalVotes(totalVotes_);
     return {
       data: await fetch(
-        `${config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER}/proposal/get-proposal-list?page=${page}&status==pending`,
+        `${config.apis?.NEXT_PUBLIC_BACKEND_API_SERVER}/proposal/get-proposal-list?page=${page}&status=pending`,
         {
           method: "GET",
           headers: {

@@ -178,7 +178,7 @@ export default function ProposalDetailMember({ rdt, id }: any) {
 
   const getVoterDetail = async (proposalId: any, nftId: string) => {
     return await fetch(
-      `${config.apis.NEXT_PUBLIC_BACKEND_API_SERVER}/proposal/voter/?proposalId=${proposalId}&nftId=${nftId}`,
+      `${config.apis.NEXT_PUBLIC_BACKEND_API_SERVER}/proposal/voter?proposalId=${proposalId}&nftId=${nftId}`,
       {
         method: "GET",
         headers: {
@@ -246,7 +246,7 @@ export default function ProposalDetailMember({ rdt, id }: any) {
         let proposalData: any = {};
 
         if (nft_id) {
-          const dataVoter = await getVoterDetail(data?.id, nft_id);
+          const dataVoter = await getVoterDetail(data?.id, nft_id.slice(1, -1);
           proposalData = {
             ...proposalData,
             user_voted: dataVoter?.selected,
@@ -280,7 +280,7 @@ export default function ProposalDetailMember({ rdt, id }: any) {
     fetchData();
 
     setIsLoading(false);
-  }, []);
+  }, [nft_id]);
 
   const router = useRouter();
 
